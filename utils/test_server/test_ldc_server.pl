@@ -66,6 +66,29 @@ test_result 'update_operation', $json_rcv;
 $json_rcv = send_json 'del_operation.php', $json_id;
 test_result 'del_operation', $json_rcv;
 
+
+
+###############################################################################
+# CATEGORIES
+###############################################################################
+# add
+$json = read_json('add_categorie.json');
+$json_rcv = send_json 'add_categorie.php', $json;
+test_result 'add_categorie', $json_rcv;
+$tmp = from_json $json_rcv;
+$json_id =  $json_rcv;
+my $cat_id = $tmp->{'id'};
+
+# update
+$json = read_json('update_categorie.json');
+$json =~ s/ID/$cat_id/;
+$json_rcv = send_json 'update_categorie.php', $json;
+test_result 'update_categorie', $json_rcv;
+
+# del
+$json_rcv = send_json 'del_categorie.php', $json_id;
+test_result 'del_categorie', $json_rcv;
+
 exit 0;
 
 
