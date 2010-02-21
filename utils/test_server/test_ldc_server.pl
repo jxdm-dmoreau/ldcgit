@@ -15,7 +15,7 @@ sub send_json
     my $ua = LWP::UserAgent->new;
     $ret = $ua->request(POST "$HTTP_SERVER"."$RPC_PATH"."$filename", [json   => $json ]);
     if ($ret->is_success) {
-        #print "<== ".$ret->content."\n";
+        print "<== ".$ret->content."\n";
 	return $ret->content;
     }
     print STDERR $ret->status_line, "\n";
@@ -61,6 +61,11 @@ $json = read_json('update_operation.json');
 $json =~ s/ID/$op_id/;
 $json_rcv = send_json 'update_operation.php', $json;
 test_result 'update_operation', $json_rcv;
+
+# get
+$json = read_json('get_operation.json');
+$json_rcv = send_json 'get_operation.php', $json;
+test_result 'get_operation', $json_rcv;
 
 # del
 $json_rcv = send_json 'del_operation.php', $json_id;
