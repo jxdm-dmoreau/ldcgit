@@ -90,6 +90,10 @@ $json =~ s/ID/$cat_id/;
 $json_rcv = send_json 'update_categorie.php', $json;
 test_result 'update_categorie', $json_rcv;
 
+# get
+$json_rcv = send_json 'get_categories.php', '{}';
+test_result 'get_categories', $json_rcv;
+
 # del
 $json_rcv = send_json 'del_categorie.php', $json_id;
 test_result 'del_categorie', $json_rcv;
