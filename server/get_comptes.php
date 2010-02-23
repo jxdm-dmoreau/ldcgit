@@ -3,15 +3,24 @@
    request
 
 response
- {
-    "id": 12, 
-    "from": 1,
-    "to": 2,
-    "date":"2009-03-03",
-    "description":"coucou c'est une description",
-    "confirm":1,
-    "cats": [{"id":1, "value":12}, {"id":2, "value": 3}]
-}
+[
+    {
+    "id":"4",
+    "bank":"La Banque Postale",
+    "name":"Courses",
+    "solde_init":"0",
+    "date":"2010-02-23",
+    "solde_date":"0"
+    },
+    {
+    "id":"6",
+    "bank":"Boursorama",
+    "name":"Compte courant",
+    "solde_init":"0",
+    "date":"0000-00-00",
+    "solde_date":"0"
+    }
+]
 *******************************************************************************/
 
 require_once 'logger.php';
@@ -49,6 +58,9 @@ while ($row = mysql_fetch_array($result)) {
     $return[$i]->id = $id;
     $return[$i]->bank = $bank;
     $return[$i]->name = $name;
+    $return[$i]->solde_init = $solde_init;
+    $return[$i]->date = $date;
+    $return[$i]->solde_date = $solde_date;
     $i++;
 }
 

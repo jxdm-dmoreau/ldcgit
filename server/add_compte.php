@@ -47,8 +47,19 @@ mysql_select_db($LDC_MYSQL_DB, $link);
 
 
 /* update de la table operation*/
-$query = 'INSERT INTO `comptes` (`id`, `name`, `bank`) VALUES ';
-$query .= "('NULL', '".mysql_real_escape_string($json->name)."', '".mysql_real_escape_string($json->bank)."')";
+$query = 'INSERT INTO `comptes` (`id`, `name`, `bank`, `solde_init`, `date`, `solde_date`) VALUES ';
+$query .= "('NULL', '";
+$query .= mysql_real_escape_string($json->name);
+$query .= "', '";
+$query .= mysql_real_escape_string($json->bank);
+$query .= "', '";
+$query .= mysql_real_escape_string($json->solde_init);
+$query .= "', '";
+$query .= 'NOW()';
+$query .= "', '";
+$query .= mysql_real_escape_string($json->solde_init);
+$query .= "')";
+
 DEBUG($query);
 test_mysql_result(mysql_query($query));
 

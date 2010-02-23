@@ -54,6 +54,15 @@ if (isset($json->name)) {
 if (isset($json->bank)) {
     $query .= "`bank` = '".mysql_real_escape_string($json->bank)."',";
 }
+if (isset($json->solde_init)) {
+    $query .= "`solde_init` = '".mysql_real_escape_string($json->solde_init)."',";
+}
+if (isset($json->date)) {
+    $query .= "`date` = '".mysql_real_escape_string($json->date)."',";
+}
+if (isset($json->solde_date)) {
+    $query .= "`solde_date` = '".mysql_real_escape_string($json->solde_date)."',";
+}
 $query = substr($query,0,strlen($query)-1);
 $query .= " WHERE `id` = '$json->id'";
 DEBUG($query);
