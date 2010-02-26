@@ -63,8 +63,26 @@ function ldc_cat_get_children(id) {
     return children;
 }
 
+function ldc_cat_get_name(id)
+{
+    for (i in LDC_CATEGORIES) {
+        if (LDC_CATEGORIES[i].id == id) {
+            return LDC_CATEGORIES[i].name;
+        }
+
+    }
+    return "unknow";
+}
 
 
 /******************************************************************************
 *  Opearations functions
 ******************************************************************************/
+function ldc_somme(op)
+{
+    var total = 0;
+    for(i in op.cats) {
+        total += parseFloat(op.cats[i].val);
+    }
+    return total;
+}

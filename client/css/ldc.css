@@ -1,5 +1,9 @@
 /* progress bar */
 #pb {
-    width: 100px;
     height: 20px;
+}
+
+
+table, tr, td {
+    border: 1px solid black;
 }
