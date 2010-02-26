@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+        <meta http-equiv="Content-Language" content="french" />
+        <title>Mon Logiciel de Compte</title>
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script>
+          google.load("jquery", "1.4.2");
+          google.load("jqueryui", "1.7.2");
+          google.load("swfobject", "2.2");
+        </script>
+        <script type="text/javascript" src="js/ldc.js"></script>
+        <script type="text/javascript" src="js/ldc-view.js"></script>
+        <script type="text/javascript">
+            $(document).ready(ldc_register);
+        </script>
+        <link rel="StyleSheet" href="css/ui-lightness/jquery-ui-1.7.2.custom.css" type="text/css" />
+        <link rel="StyleSheet" href="css/ldc.css" type="text/css" />
+    </head>
+
+    <body>
+        <div id="log"></div>
+        <div id="main" style="display:none;">
+            <nav>
+                <ul>
+                    <li>Categories</li>
+                </ul>
+            </nav>
+            <button id="test" >TEST</button>
+        </div>
+    </body>
+</html>
+

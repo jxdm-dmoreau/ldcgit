@@ -33,7 +33,7 @@ function test_mysql_result($result)
         ERROR(mysql_error());
     }
 }
-
+DEBUG($_POST);
 if (!isset($_POST['json']) ) {
     ERROR('Invalid POST parameters');
 }
@@ -66,7 +66,9 @@ $query = 'SELECT operations.id,
 $query .= " `date` >= '".mysql_real_escape_string($json->date_begin)."'";
 $query .= " AND `date` <= '".mysql_real_escape_string($json->date_end)."'";
 $query .= ' AND `operations`.`id` = `valeurs`.`op_id`';
-$query .= ' AND (`from` = '.mysql_real_escape_string($json->account_id).' OR `to` = '.mysql_real_escape_string($json->account_id).')';
+if (isset($json->account_id)) {
+    $query .= ' AND (`from` = '.mysql_real_escape_string($json->account_id).' OR `to` = '.mysql_real_escape_string($json->account_id).')';
+}
 DEBUG($query);
 $result = mysql_query($query);
 test_mysql_result($result);
