@@ -7,3 +7,9 @@
 table, tr, td {
     border: 1px solid black;
 }
+
+div#log {
+border: 1px solid black;
+height: 50px;
+width: 200px;
+}

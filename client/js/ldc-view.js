@@ -20,6 +20,16 @@ function ldc_load(percent) {
     $("#pb").progressbar('option', 'value', length);
 }
 
+/******************************************************************************
+  * LOG
+******************************************************************************/
+function ldc_view_log_error(text) {
+    $("#log").empty().addClass('error').append(text);
+}
+
+function ldc_view_log_success(text) {
+    $("#log").empty().addClass('success').append(text);
+}
 
 /******************************************************************************
   * Display operations
@@ -101,18 +111,21 @@ function ldc_view_load_categories() {
     }
 
     var father_id_created = 0;
-    function oncreate_categories(node, ref_node) {
-        father_id_created = $(ref_node).attr("cat_id");
-    }
-
     function onrename_categories(node) {
         var name = $(node).text().substr(1);
         id = ldc_cat_add(name, father_id_created);
+        console.debug("id created: "+id);
         $(node).attr("cat_id",id);
     }
     function ondelete_categories(node) {
         var id =  $(node).attr("cat_id");
         ldc_cat_del(id);
+    }
+    function onselect_categories(node) {
+        if ($(node).attr("cat_id") != undefined) {
+            father_id_created = $(node).attr("cat_id");
+            console.debug("father_id="+father_id_created);
+        }
     }
 
 
@@ -136,9 +149,9 @@ function ldc_view_load_categories() {
                 $.tree.focused().remove();
         }
     );
-    $.tree.defaults.callback.oncreate = oncreate_categories;
     $.tree.defaults.callback.onrename = onrename_categories;
-    $.tree.defaults. callback.ondelete   = ondelete_categories;
+    $.tree.defaults. callback.onselect  = onselect_categories;
+    $.tree.defaults. callback.ondelete  = ondelete_categories;
     $("#cats").tree();
 
 

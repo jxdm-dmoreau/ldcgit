@@ -9,7 +9,13 @@ var LDC_TOTAL_LOAD = 3;
 /* FUNCTIONS */
 function ldc_post_ajax(url, data, f_success, async)
 {
-    var param = { type: "POST", url: url, success: f_success, async: async, data: data};
+    function f_error(XMLHttpRequest, textStatus, errorThrown) {
+        ldc_view_log_error(textStatus+' '+errorThrown);
+    }
+    if (async == undefined) {
+        async = true;
+    }
+    var param = { type: "POST", url: url, success: f_success, async: async, data: data, error: f_error};
     $.ajax(param);
 }
 
@@ -77,9 +83,14 @@ function ldc_cat_get_name(id)
 function ldc_cat_add(name, father_id) {
     console.debug("ldc_cat_add("+name+", "+father_id+")");
     var id;
-    function on_success(r) {
-        $("#log").append("Catégorie "+name+"ajouté correctement");
-        id = r.id;
+    function on_success(data, textStatus) {
+        if (data == 1) {
+            ldc_view_log_error("L'ajout de la catégorie à échoué...");
+        } else {
+            ldc_view_log_success("Catégorie ajoutée.");
+        }
+        data = JSON.parse(data);
+        id = data.id;
     }
     var data = { name: name, father_id: father_id };
     ldc_post_ajax(LDC_SERVER + "add_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
@@ -88,8 +99,12 @@ function ldc_cat_add(name, father_id) {
 
 function ldc_cat_del(id) {
     console.debug("ldc_remove_add("+id+")");
-    function on_success(r) {
-        $("#log").fadeOut("Catégorie "+name+" enlevé correctement.");
+    function on_success(data, textStatus) {
+        if (data == 1) {
+            ldc_view_log_error("La suppresion de la catégorie à échoué...");
+        } else {
+            ldc_view_log_success("Catégorie supprimée.");
+        }
     }
     var data = { id: id };
     ldc_post_ajax(LDC_SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);

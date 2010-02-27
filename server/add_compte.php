@@ -39,6 +39,8 @@ if (!isset($_POST['json']) ) {
 $json = str_replace('\\', '', $_POST['json']);
 DEBUG($json);
 $json = json_decode($json);
+$json->bank = utf8_decode($json->bank);
+$json->name = utf8_decode($json->name);
 
 
 $link = mysql_connect($LDC_MYSQL_HOST, $LDC_MYSQL_USER, $LDC_MYSQL_PASSWD);

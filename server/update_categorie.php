@@ -56,6 +56,7 @@ if (isset($json->father_id)) {
     $query .= "`father_id` = '".mysql_real_escape_string($json->father_id)."',";
 }
 if (isset($json->name)) {
+    $json->name = utf8_decode($json->name);
     $query .= "`name` = '".mysql_real_escape_string($json->name)."',";
 }
 $query = substr($query,0,strlen($query)-1);
