@@ -48,7 +48,7 @@ while($row = mysql_fetch_array($result)) {
     extract($row);
     $return[$i]->id = $id;
     $return[$i]->father_id = $father_id;
-    $return[$i]->name = $name;
+    $return[$i]->name = utf8_encode($name);
     $i++;
 }
 

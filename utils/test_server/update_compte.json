@@ -1,7 +1,7 @@
  {
     "id": ID,
     "bank": "Boursorama",
-    "name": "Compte courant",
+    "name": "Compte courant (é)",
     "solde_init": 1,
     "date": "2010-01-21",
     "solde_date": 2

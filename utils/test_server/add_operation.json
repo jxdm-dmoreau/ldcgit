@@ -2,7 +2,7 @@
     "from": 1,
     "to": 2,
     "date":"2009-03-03",
-    "description":"coucou c'est une description",
+    "description":"coucou c'est une description (é)",
     "confirm":1,
     "cats": [{"id":1, "value":12}, {"id":2, "value": 3}]
 }

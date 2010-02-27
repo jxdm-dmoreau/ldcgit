@@ -87,7 +87,7 @@ while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
         $return[$i]->from = $from;
         $return[$i]->to = $to;
         $return[$i]->date = $date;
-        $return[$i]->description = $description;
+        $return[$i]->description = utf8_encode($description);
         $return[$i]->confirm = $confirm;
     }
     $return[$i]->cats[] = (object) array('cat_id' => $cat_id, 'val' => $val);

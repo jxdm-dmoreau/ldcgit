@@ -10,6 +10,7 @@ function ldc_view_init () {
 
 function ldc_load_completed() {
     ldc_view_load_operations();
+    ldc_view_load_categories();
     $("#log").empty();
     $("#main").show();
 }
@@ -66,15 +67,79 @@ function ldc_view_load_operations() {
             var from = LDC_OPERATIONS[j].from;
             var to =  LDC_OPERATIONS[j].to;
             if (from == id | to == id) {
-                console.debug("compte_id="+id+" op="+ LDC_OPERATIONS[j].id);
                 jTable.append(operation2html(LDC_OPERATIONS[j], i));
             }
         }
         jDiv.append(jTable);
-        $("#main").append(jDiv);
+        $("#operations").append(jDiv);
     }
 }
 
 /******************************************************************************
   * Display categories
 ******************************************************************************/
+var DTC;
+function ldc_view_load_categories() {
+
+    function categorie2html(cat) {
+        var html = '<li><a href="#">'+cat.name+'<a></li>';
+        return html;
+    }
+
+    function display_cat_r(cat, html) {
+        html += '<li cat_id="'+cat.id+'"><a href="#"><ins>&nbsp;</ins>'+cat.name+'</a>';
+        var children = ldc_cat_get_children(cat.id);
+        if (children.length > 0) {
+            html += '<ul>';
+            for(var i in children) {
+                html = display_cat_r(children[i], html);
+            }
+            html += '</ul>';
+        }
+        html += '</li>';
+        return html;
+    }
+
+    var father_id_created = 0;
+    function oncreate_categories(node, ref_node) {
+        father_id_created = $(ref_node).attr("cat_id");
+    }
+
+    function onrename_categories(node) {
+        var name = $(node).text().substr(1);
+        id = ldc_cat_add(name, father_id_created);
+        $(node).attr("cat_id",id);
+    }
+    function ondelete_categories(node) {
+        var id =  $(node).attr("cat_id");
+        ldc_cat_del(id);
+    }
+
+
+    html = '<ul>';
+    var children = ldc_cat_get_children(0);
+    for(var i in children) {
+        html = display_cat_r(children[i], html);
+    }
+    html += '</ul>';
+    $("#cats").append(html);
+    $("div#cats_menu button.add").click(function() {
+            var t = $.tree.focused();
+            if(t.selected) {
+                t.create();
+            } else {
+                alert("Select a node first");
+            }
+        }
+    );
+    $("div#cats_menu button.del").click(function() {
+                $.tree.focused().remove();
+        }
+    );
+    $.tree.defaults.callback.oncreate = oncreate_categories;
+    $.tree.defaults.callback.onrename = onrename_categories;
+    $.tree.defaults. callback.ondelete   = ondelete_categories;
+    $("#cats").tree();
+
+
+}

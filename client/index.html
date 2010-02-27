@@ -13,6 +13,7 @@
         </script>
         <script type="text/javascript" src="js/ldc.js"></script>
         <script type="text/javascript" src="js/ldc-view.js"></script>
+        <script type="text/javascript" src="js/./jquery.tree.js"></script>
         <script type="text/javascript">
             $(document).ready(ldc_register);
         </script>
@@ -23,12 +24,12 @@
     <body>
         <div id="log"></div>
         <div id="main" style="display:none;">
-            <nav>
-                <ul>
-                    <li>Categories</li>
-                </ul>
-            </nav>
-            <button id="test" >TEST</button>
+            <div id="cats_menu">
+                <button class="add">Ajouter</button>
+                <button class="del">Enlever</button>
+            </div>
+            <div id="cats"></div>
+            <div id="operations"></div>
         </div>
     </body>
 </html>

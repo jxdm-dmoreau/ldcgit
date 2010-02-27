@@ -56,8 +56,8 @@ $i = 0;
 while ($row = mysql_fetch_array($result)) {
     extract($row);
     $return[$i]->id = $id;
-    $return[$i]->bank = $bank;
-    $return[$i]->name = $name;
+    $return[$i]->bank = utf8_encode($bank);
+    $return[$i]->name = utf8_encode($name);
     $return[$i]->solde_init = $solde_init;
     $return[$i]->date = $date;
     $return[$i]->solde_date = $solde_date;

@@ -7,9 +7,9 @@ var LDC_NB_LOAD = 0;
 var LDC_TOTAL_LOAD = 3;
 
 /* FUNCTIONS */
-function ldc_get_ajax_post(url, f_success)
+function ldc_post_ajax(url, data, f_success, async)
 {
-    var param = { type: "POST", url: url, success: f_success, async: true};
+    var param = { type: "POST", url: url, success: f_success, async: async, data: data};
     $.ajax(param);
 }
 
@@ -74,6 +74,26 @@ function ldc_cat_get_name(id)
     return "unknow";
 }
 
+function ldc_cat_add(name, father_id) {
+    console.debug("ldc_cat_add("+name+", "+father_id+")");
+    var id;
+    function on_success(r) {
+        $("#log").append("Catégorie "+name+"ajouté correctement");
+        id = r.id;
+    }
+    var data = { name: name, father_id: father_id };
+    ldc_post_ajax(LDC_SERVER + "add_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
+    return id;
+}
+
+function ldc_cat_del(id) {
+    console.debug("ldc_remove_add("+id+")");
+    function on_success(r) {
+        $("#log").fadeOut("Catégorie "+name+" enlevé correctement.");
+    }
+    var data = { id: id };
+    ldc_post_ajax(LDC_SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);
+}
 
 /******************************************************************************
 *  Opearations functions
