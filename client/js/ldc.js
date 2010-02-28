@@ -147,4 +147,50 @@ function ldc_somme(op)
 }
 
 function ldc_op_add(op) {
+    function on_success(data, textStatus) {
+        if (data == 1) {
+            ldc_view_log_error("L'ajout de l'opération a échoué...");
+        } else {
+            ldc_view_log_success("Opération ajoutée.");
+        }
+        data = JSON.parse(data);
+        op.id = data.id;
+    }
+    ldc_post_ajax(LDC_SERVER + "add_operation.php",  "json="+JSON.stringify(op) , on_success, false);
+    LDC_OPERATIONS.push(op);
+}
+
+function ldc_op_del(id) {
+    function on_success(data, textStatus) {
+        if (data == 1) {
+            ldc_view_log_error("La suppression de l'opération a échoué...");
+        } else {
+            ldc_view_log_success("Opération supprimée.");
+        }
+    }
+    var data = { id: id};
+    ldc_post_ajax(LDC_SERVER + "del_operation.php",  "json="+JSON.stringify(data) , on_success, true);
+    for(var i in LDC_OPERATIONS) {
+        if (LDC_OPERATIONS[i].id == id) {
+            delete(LDC_OPERATIONS[i]);
+            break;
+        }
+    }
+}
+
+function ldc_op_update(op) {
+    function on_success(data, textStatus) {
+        if (data == 1) {
+            ldc_view_log_error("La modification de l'opération a échoué...");
+        } else {
+            ldc_view_log_success("Opération Modifiée.");
+        }
+    }
+    ldc_post_ajax(LDC_SERVER + "update_operation.php",  "json="+JSON.stringify(op) , on_success, true);
+    for(var i in LDC_OPERATIONS) {
+        if (LDC_OPERATIONS[i].id == op.id) {
+            LDC_OPERATIONS[i] = op;
+            break;
+        }
+    }
 }

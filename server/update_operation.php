@@ -81,12 +81,19 @@ if (isset($json->cats)) {
 
     /* insert new values */
     $query = 'INSERT INTO valeurs VALUES ';
-    foreach($json->cats as $cat) {
-        $query .= '(';
-        $query .= "NULL, ".mysql_real_escape_string($json->id).", ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->value);
-        $query .= '),';
+    if (is_array($json->cats)) {
+        foreach($json->cats as $cat) {
+            $query .= '(';
+            $query .= "NULL, ".mysql_real_escape_string($json->id).", ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->value);
+            $query .= '),';
+        }
+        $query = substr($query,0,strlen($query)-1);
+    } else {
+            $query .= '(';
+            $query .= "NULL, ".mysql_real_escape_string($json->id).", ".mysql_real_escape_string($json->cats->id).", ".mysql_real_escape_string($json->cats->value);
+            $query .= ')';
     }
-    $query = substr($query,0,strlen($query)-1);
+
     DEBUG($query);
     test_mysql_result(mysql_query($query));
 }

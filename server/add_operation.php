@@ -62,12 +62,18 @@ $mysql_id = mysql_insert_id($link);
 
 /* insert values */
 $query = 'INSERT INTO valeurs VALUES ';
-foreach($json->cats as $cat) {
+if (is_array($json->cats)) {
+    foreach($json->cats as $cat) {
+        $query .= '(';
+        $query .= "NULL, $mysql_id, ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->value);
+        $query .= '),';
+    }
+    $query = substr($query, 0, strlen($query)-1);
+} else {
     $query .= '(';
     $query .= "NULL, $mysql_id, ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->value);
-    $query .= '),';
+    $query .= ')';
 }
-$query = substr($query, 0, strlen($query)-1);
 DEBUG($query);
 $result = mysql_query($query);
 
