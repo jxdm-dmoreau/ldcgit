@@ -110,24 +110,35 @@ function ldc_view_load_categories() {
         return html;
     }
 
-    var father_id_created = 0;
+    var is_creation = false;
+    var is_update = false;
     function onrename_categories(node) {
-        var name = $(node).text().substr(1);
-        id = ldc_cat_add(name, father_id_created);
-        console.debug("id created: "+id);
-        $(node).attr("cat_id",id);
+        var name = $(node).children("a").text().substr(1);
+        var father_id = $(node).parent("ul").parent("li").attr("cat_id");
+        if (is_creation) {
+            var id = ldc_cat_add(name, father_id);
+            $(node).attr("cat_id",id);
+            is_creation = false;
+            // if the user want to create a new wild without re-select this node
+            //father_id_created = id; 
+
+        } else if (is_update) {
+            var id =  $(node).attr("cat_id");
+            console.debug("ldc_cat_update("+id+","+name+","+father_id+")");
+            ldc_cat_update(id, name, father_id);
+            id_update = false;
+        }
     }
     function ondelete_categories(node) {
         var id =  $(node).attr("cat_id");
         ldc_cat_del(id);
     }
-    function onselect_categories(node) {
-        if ($(node).attr("cat_id") != undefined) {
-            father_id_created = $(node).attr("cat_id");
-            console.debug("father_id="+father_id_created);
-        }
+    function onmove_categories(NODE,REF_NODE,TYPE,TREE_OBJ,RB) {
+        var name = $(NODE).children("a").text().substr(1);
+        var father_id = $(NODE).parent("ul").parent("li").attr("cat_id");
+        var id =  $(NODE).attr("cat_id");
+        ldc_cat_update(id, name, father_id);
     }
-
 
     html = '<ul>';
     var children = ldc_cat_get_children(0);
@@ -136,7 +147,10 @@ function ldc_view_load_categories() {
     }
     html += '</ul>';
     $("#cats").append(html);
+
+    /* buttons */
     $("div#cats_menu button.add").click(function() {
+            is_creation = true;
             var t = $.tree.focused();
             if(t.selected) {
                 t.create();
@@ -146,13 +160,23 @@ function ldc_view_load_categories() {
         }
     );
     $("div#cats_menu button.del").click(function() {
+        if(confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
                 $.tree.focused().remove();
+                }
+        })
+    ;
+    $("div#cats_menu button.rename").click(function() {
+                is_update = true;
+                $.tree.focused().rename();
+        })
+    ;
+    $("#cats").tree( {
+        callback: {
+            onrename : onrename_categories,
+            ondelete : ondelete_categories,
+            onmove   : onmove_categories
         }
-    );
-    $.tree.defaults.callback.onrename = onrename_categories;
-    $.tree.defaults. callback.onselect  = onselect_categories;
-    $.tree.defaults. callback.ondelete  = ondelete_categories;
-    $("#cats").tree();
+    });
 
 
 }

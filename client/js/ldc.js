@@ -85,7 +85,7 @@ function ldc_cat_add(name, father_id) {
     var id;
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc_view_log_error("L'ajout de la catégorie à échoué...");
+            ldc_view_log_error("L'ajout de la catégorie a échoué...");
         } else {
             ldc_view_log_success("Catégorie ajoutée.");
         }
@@ -101,13 +101,25 @@ function ldc_cat_del(id) {
     console.debug("ldc_remove_add("+id+")");
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc_view_log_error("La suppresion de la catégorie à échoué...");
+            ldc_view_log_error("La suppresion de la catégorie a échoué...");
         } else {
             ldc_view_log_success("Catégorie supprimée.");
         }
     }
     var data = { id: id };
     ldc_post_ajax(LDC_SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);
+}
+
+function ldc_cat_update(id, name, father_id) {
+    function on_success(data, textStatus) {
+        if (data == 1) {
+            ldc_view_log_error("La Modification de la catégorie a échoué...");
+        } else {
+            ldc_view_log_success("Catégorie modifiée.");
+        }
+    }
+    var data = { id: id, name: name, father_id: father_id };
+    ldc_post_ajax(LDC_SERVER + "update_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
 }
 
 /******************************************************************************
