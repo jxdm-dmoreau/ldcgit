@@ -9,7 +9,11 @@ table, tr, td {
 }
 
 div#log {
-border: 1px solid black;
-height: 50px;
-width: 200px;
+    border: 1px solid black;
+    height: 50px;
+    width: 200px;
+}
+
+div#cats {
+    /*border: 1px dashed black;*/
 }

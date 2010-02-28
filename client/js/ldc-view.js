@@ -88,13 +88,7 @@ function ldc_view_load_operations() {
 /******************************************************************************
   * Display categories
 ******************************************************************************/
-var DTC;
 function ldc_view_load_categories() {
-
-    function categorie2html(cat) {
-        var html = '<li><a href="#">'+cat.name+'<a></li>';
-        return html;
-    }
 
     function display_cat_r(cat, html) {
         html += '<li cat_id="'+cat.id+'"><a href="#"><ins>&nbsp;</ins>'+cat.name+'</a>';
@@ -119,8 +113,6 @@ function ldc_view_load_categories() {
             var id = ldc_cat_add(name, father_id);
             $(node).attr("cat_id",id);
             is_creation = false;
-            // if the user want to create a new wild without re-select this node
-            //father_id_created = id; 
 
         } else if (is_update) {
             var id =  $(node).attr("cat_id");
@@ -141,11 +133,12 @@ function ldc_view_load_categories() {
     }
 
     html = '<ul>';
+    html += '<li rel="root" cat_id="0"><a href="#"><ins>&nbsp;</ins>Catégories</a><ul>';
     var children = ldc_cat_get_children(0);
     for(var i in children) {
         html = display_cat_r(children[i], html);
     }
-    html += '</ul>';
+    html += '</ul></li></ul>';
     $("#cats").append(html);
 
     /* buttons */
@@ -175,7 +168,15 @@ function ldc_view_load_categories() {
             onrename : onrename_categories,
             ondelete : ondelete_categories,
             onmove   : onmove_categories
+        },
+        types: {
+            "root" : {
+                clickable   : true,
+                deletable   : false,
+                draggable   : false,
+            }
         }
+
     });
 
 

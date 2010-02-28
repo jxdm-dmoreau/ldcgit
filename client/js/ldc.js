@@ -81,7 +81,6 @@ function ldc_cat_get_name(id)
 }
 
 function ldc_cat_add(name, father_id) {
-    console.debug("ldc_cat_add("+name+", "+father_id+")");
     var id;
     function on_success(data, textStatus) {
         if (data == 1) {
@@ -94,11 +93,12 @@ function ldc_cat_add(name, father_id) {
     }
     var data = { name: name, father_id: father_id };
     ldc_post_ajax(LDC_SERVER + "add_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
+    data.id = ''+id;
+    LDC_CATEGORIES.push(data);
     return id;
 }
 
 function ldc_cat_del(id) {
-    console.debug("ldc_remove_add("+id+")");
     function on_success(data, textStatus) {
         if (data == 1) {
             ldc_view_log_error("La suppresion de la catégorie a échoué...");
@@ -108,6 +108,12 @@ function ldc_cat_del(id) {
     }
     var data = { id: id };
     ldc_post_ajax(LDC_SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);
+    for(var i in LDC_CATEGORIES) {
+        if (LDC_CATEGORIES[i].id == id) {
+            delete(LDC_CATEGORIES[i]);
+            return;
+        }
+    }
 }
 
 function ldc_cat_update(id, name, father_id) {
@@ -120,6 +126,12 @@ function ldc_cat_update(id, name, father_id) {
     }
     var data = { id: id, name: name, father_id: father_id };
     ldc_post_ajax(LDC_SERVER + "update_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
+    for(var i in LDC_CATEGORIES) {
+        if (LDC_CATEGORIES[i].id == data.id) {
+            LDC_CATEGORIES[i] = data;
+            return;
+        }
+    }
 }
 
 /******************************************************************************
@@ -132,4 +144,7 @@ function ldc_somme(op)
         total += parseFloat(op.cats[i].val);
     }
     return total;
+}
+
+function ldc_op_add(op) {
 }
