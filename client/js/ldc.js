@@ -33,7 +33,7 @@ ldc.load = function () {
 };
 
 ldc.register = function () {
-    ldc.view();
+    ldc.view.preload();
     $.getJSON(ldc.SERVER + "get_categories.php", ldc.categories.store);
     $.getJSON(ldc.SERVER + "get_comptes.php",   ldc.comptes.store);
     var data = { date_begin:'2000-01-01', date_end:'2020-12-12'};
@@ -287,7 +287,7 @@ function ldc_cat_update(id, name, father_id) {
 }
 
 /******************************************************************************
-*  Opearations functions
+*  Operations functions
 ******************************************************************************/
 function ldc_somme(op)
 {
@@ -346,3 +346,6 @@ function ldc_op_update(op) {
         }
     }
 }
+/******************************************************************************
+  * STATS
+******************************************************************************/

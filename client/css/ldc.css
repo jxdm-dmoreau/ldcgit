@@ -9,11 +9,19 @@ table, tr, td {
 }
 
 div#log {
-    border: 1px solid black;
     height: 50px;
     width: 200px;
 }
 
 div#cats {
-    /*border: 1px dashed black;*/
+    display: none;
+}
+div#operations {
+    display: none;
+}
+div#chart_div {
+    display: none;
+}
+div#form {
+    display: none;
 }

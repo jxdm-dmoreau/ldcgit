@@ -10,12 +10,15 @@
           google.load("jquery", "1.4.2");
           google.load("jqueryui", "1.7.2");
           google.load("swfobject", "2.2");
+
         </script>
         <script type="text/javascript" src="js/ldc.js"></script>
         <script type="text/javascript" src="js/ldc-view.js"></script>
         <script type="text/javascript" src="js/./jquery.tree.js"></script>
         <script type="text/javascript">
             $(document).ready(ldc.register);
+          google.load("visualization", "1", {packages:["linechart"]});
+          google.setOnLoadCallback(ldc.drawChart);
         </script>
         <link rel="StyleSheet" href="css/ui-lightness/jquery-ui-1.7.2.custom.css" type="text/css" />
         <link rel="StyleSheet" href="css/ldc.css" type="text/css" />
@@ -23,18 +26,74 @@
 
     <body>
         <div id="log"></div>
+        <div id="menu">
+            <ul>
+                <li><a class="comptes" href="#">Comptes</a></li>
+                <li><a class="operations" href="#">Opérations</a></li>
+                <li><a class="stats" href="#">Statistiques</a></li>
+                <li><a class="add-op" href="#">Ajouter une opération</a></li>
+                <li><a class="cats" href="#">Catégories</a></li>
+            </ul>
+        </div>
         <div id="main" style="display:none;">
-            <div id="cats_menu">
+            <div id="cats">
                 <button class="add">Ajouter</button>
                 <button class="rename">Renommer</button>
                 <button class="del">Enlever</button>
+                <div class="tree"></div>
             </div>
-            <div id="cats"></div>
             <div id="operations">
                 <button class="add">Ajouter</button>
                 <button class="update">Modifier</button>
                 <button class="del">Enlever</button>
             </div>
+            <div id="chart_div"></div>
+        </div>
+        <div id="form">
+            <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
+                    <ol>
+                        <li class="date">
+                            <label for="op-calendar">Date :</label>
+                            <input autocomplete="off" type="text" size="10" value="" id="op-calendar" name="op-calendar" disabled/>
+                        </li>
+                        <li class="type">
+                            <label for="op-type">Type :</label>
+                            <ul>
+                                <li><input type="radio" id="op-type" name="op-type" value="debit" checked />Débit<br /></li>
+                                <li><input type="radio" id="op-type" name="op-type" value="credit" />Crédit</li>
+                            </ul>
+                        </li>
+                        <li class="from">
+                            <label for="">De :</label>
+                            <select name="menu" size="1" >
+                            </select>
+                        </li>
+                        <li class="to">
+                            <label for="">Pour :</label>
+                            <select name="menu" size="1" >
+                            </select>
+                        </li>
+                        <li class="cats">
+                            <ul>
+                                <li>
+                                    <label>Catégories :</label>
+                                    <input type="text" />
+                                    <input type="text" />
+                                </li>
+                                <li>
+                                    <label>Valeurs :</label>
+                                    <input type="text" />
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="description">
+                            <label for="">Description :</label>
+                            <textarea rows="2" cols="30">
+                            </textarea>
+                        </li>
+                    </ol>
+                    <div id="tree"></div>
+            </form>
         </div>
     </body>
 </html>
