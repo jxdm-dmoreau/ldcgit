@@ -26,7 +26,6 @@ ldc.post_ajax = function (url, data, f_success, async) {
 
 ldc.load = function () {
     ldc.nb_load++;
-    ldc.view.load(ldc.nb_load/ldc.TOTAL_LOAD);
     if (ldc.nb_load == ldc.TOTAL_LOAD) {
         ldc.view.load.completed();
     }

@@ -3,17 +3,25 @@
 ******************************************************************************/
 
 ldc.view = function () {
-    $("#log").empty();
     ldc.view.all.hide();
     ldc.view.menu();
+    ldc.view.load(2/ldc.view.NB_LOAD_MAX);
     ldc.view.form("div#form");
+    ldc.view.load(3/ldc.view.NB_LOAD_MAX);
     ldc.view.categories("div#cats");
+    ldc.view.load(4/ldc.view.NB_LOAD_MAX);
     ldc.view.stats("div#stats");
+    ldc.view.load(5/ldc.view.NB_LOAD_MAX);
     ldc.view.categories("div#cats");
+    ldc.view.load(6/ldc.view.NB_LOAD_MAX);
     ldc.view.comptes("div#comptes");
+    ldc.view.load(7/ldc.view.NB_LOAD_MAX);
     ldc.view.operations("div#operations");
+    ldc.view.load(8/ldc.view.NB_LOAD_MAX);
+    $("#log").empty();
     $("#main").show();
 };
+
 
 /******************************************************************************
   * all
@@ -21,7 +29,6 @@ ldc.view = function () {
 ldc.view.all = {};
 
 ldc.view.all.hide = function () {
-    ldc.log("ldc.view.all.hide()");
     ldc.view.form.hide();
     ldc.view.categories.hide();
     ldc.view.comptes.hide();
@@ -43,10 +50,12 @@ ldc.view.preload = function () {
 
 ldc.view.load = function (percent) {
     var length = percent * $("#pb").width();
+    console.debug("pb "+length);
     $("#pb").progressbar('option', 'value', length);
 };
 
 ldc.view.load.completed = function () {
+    ldc.view.load(1/8);
     ldc.view();
 };
 
@@ -318,7 +327,6 @@ ldc.view.categories.hide = function () {
 ******************************************************************************/
 
 ldc.view.stats = function (css_id) {
-    console.debug("ldc.view.stats()");;
     ldc.view.stats.id = css_id;
 }
 
@@ -339,10 +347,9 @@ ldc.drawChart = function () {
     data.addColumn('number', 'Débit');
     var d= [ ["2009-01-01", 1], ['2009-01-02',2]];
     data.addRows(d);
-
-    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+    var chart = new google.visualization.LineChart(document.getElementById("stats"));
     chart.draw(data, {width: 600, height: 340, legend: 'bottom', title: 'Company Performance'});
-    $("#chart_div").resizable();
+    ldc.view.stats.hide();
 
 }
 

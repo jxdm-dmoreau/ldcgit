@@ -26,16 +26,16 @@
 
     <body>
         <div id="log"></div>
-        <div id="menu">
-            <ul>
-                <li><a class="comptes" href="#">Comptes</a></li>
-                <li><a class="operations" href="#">Opérations</a></li>
-                <li><a class="stats" href="#">Statistiques</a></li>
-                <li><a class="add-op" href="#">Ajouter une opération</a></li>
-                <li><a class="cats" href="#">Catégories</a></li>
-            </ul>
-        </div>
         <div id="main" style="display:none;">
+            <div id="menu">
+                <ul>
+                    <li><a class="comptes" href="#">Comptes</a></li>
+                    <li><a class="operations" href="#">Opérations</a></li>
+                    <li><a class="stats" href="#">Statistiques</a></li>
+                    <li><a class="add-op" href="#">Ajouter une opération</a></li>
+                    <li><a class="cats" href="#">Catégories</a></li>
+                </ul>
+            </div>
             <div id="cats">
                 <button class="add">Ajouter</button>
                 <button class="rename">Renommer</button>
@@ -47,7 +47,7 @@
                 <button class="update">Modifier</button>
                 <button class="del">Enlever</button>
             </div>
-            <div id="chart_div"></div>
+            <div id="stats"></div>
         </div>
         <div id="form">
             <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
