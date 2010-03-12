@@ -25,3 +25,8 @@ div#chart_div {
 div#form {
     display: none;
 }
+
+#comptes tr:hover {
+    background-color: #FFCC33;
+    cursor: pointer;
+}

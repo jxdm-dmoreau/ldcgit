@@ -4,24 +4,22 @@
 
 ldc.view = function () {
     ldc.view.all.hide();
-    ldc.view.menu();
+    ldc.view.menu("div#menu");
     ldc.view.load(2/ldc.view.NB_LOAD_MAX);
     ldc.view.form("div#form");
     ldc.view.load(3/ldc.view.NB_LOAD_MAX);
     ldc.view.categories("div#cats");
     ldc.view.load(4/ldc.view.NB_LOAD_MAX);
-    ldc.view.stats("div#stats");
     ldc.view.load(5/ldc.view.NB_LOAD_MAX);
     ldc.view.categories("div#cats");
     ldc.view.load(6/ldc.view.NB_LOAD_MAX);
-    ldc.view.comptes("div#comptes");
     ldc.view.load(7/ldc.view.NB_LOAD_MAX);
-    ldc.view.operations("div#operations");
     ldc.view.load(8/ldc.view.NB_LOAD_MAX);
     $("#log").empty();
     $("#main").show();
 };
 
+ldc.view.NB_LOAD_MAX = 8;
 
 /******************************************************************************
   * all
@@ -31,10 +29,10 @@ ldc.view.all = {};
 ldc.view.all.hide = function () {
     ldc.view.form.hide();
     ldc.view.categories.hide();
-    ldc.view.comptes.hide();
-    ldc.view.operations.hide();
     ldc.view.categories.hide();
-    ldc.view.stats.hide();
+    $("#stats").hide();
+    $("#comptes").hide();
+    $("#operations").hide();
 }
 
 
@@ -80,32 +78,22 @@ ldc.view.log.error = function (msg) {
 ******************************************************************************/
 
 
-ldc.view.operations = function(css_id) {
-
-    if (ldc.view.operations.is_init) {
-        console.error("operations allready init");
-        return false;
-    }
-    ldc.view.operations.id = css_id;
-    ldc.view.operations.is_init = true;
-
+ldc.view.operations = function(css_id, compte_id) {
     /* VIEW */
-    for(var i in ldc.COMPTES) {
-        var jDiv = $('<div>').append('<h1>'+ldc.COMPTES[i].bank+' - '+ldc.COMPTES[i].name+'</h1>');
-        var jTable = $('<table compte_id="'+ldc.COMPTES[i].id+'">');
-        var table_head = '<thead><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></thead>';
-        jTable.append(table_head);
-        var id = ldc.COMPTES[i].id;
-        for (var j in ldc.OPERATIONS) {
-            var from = ldc.OPERATIONS[j].from;
-            var to =  ldc.OPERATIONS[j].to;
-            if (from == id | to == id) {
-                jTable.append(ldc.view.operations.html(ldc.OPERATIONS[j], i));
-            }
+    $(css_id).hide();
+    $(css_id).empty();
+    var compte = ldc.comptes.get(compte_id);
+    var html = '<div>'+'<h1>'+compte.bank+' - '+compte.name+'</h1>';
+    html += '<table compte_id="'+compte.id+'">';
+    html += '<thead><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></thead>';
+    for (var j in ldc.OPERATIONS) {
+        var from = ldc.OPERATIONS[j].from;
+        var to =  ldc.OPERATIONS[j].to;
+        if (from == compte_id | to == compte_id) {
+            html += ldc.view.operations.html(ldc.OPERATIONS[j], compte_id);
         }
-        jDiv.append(jTable);
-        $(css_id).append(jDiv);
     }
+    $(css_id).append(html);
 
     /* ACTIONS */
     /* function to add operation in the HTML table */
@@ -125,18 +113,12 @@ ldc.view.operations = function(css_id) {
     $(css_id+" button.del").click(function() {
             ldc.operations.del(45);
     });
+    $(css_id).show();
 
-};
-
-ldc.view.operations.is_init = false;
-
-ldc.view.operations.show = function () {
-    $(ldc.view.operations.id).show();
 }
 
-ldc.view.operations.hide = function () {
-    $(ldc.view.operations.id).hide();
-}
+
+
 
 
 ldc.view.operations.html = function (op, compte_id) {
@@ -176,27 +158,30 @@ ldc.view.operations.html = function (op, compte_id) {
 /******************************************************************************
   * Menu
 ******************************************************************************/
-ldc.view.menu = function () {
-    $("div#menu a.add-op").click(function () {
+ldc.view.menu = function (css_id) {
+
+    ldc.view.menu.id = css_id;
+
+    $(css_id+" a.add-op").click(function () {
             ldc.view.all.hide();
             ldc.view.form.show();
             return false;
     });
-    $("div#menu a.comptes").click(function () {
+    $(css_id+" a.comptes").click(function () {
             ldc.view.all.hide();
-            ldc.view.comptes.show();
+            ldc.view.comptes("div#comptes");
             return false;
     });
-    $("div#menu a.operations").click(function () {
+    $(css_id+" a.operations").click(function () {
             ldc.view.all.hide();
-            ldc.view.operations.show();
+            ldc.view.operations("div#operations", 2);
             return false;
     });
-    $("div#menu a.stats").click(function () {
+    $(css_id+" a.stats").click(function () {
             ldc.view.all.hide();
-            ldc.view.stats.show()
+            ldc.view.stats("#stats")
     });
-    $("div#menu a.cats").click(function () {
+    $(css_id+" a.cats").click(function () {
             ldc.view.all.hide();
             ldc.view.categories.show();
             return false;
@@ -328,28 +313,49 @@ ldc.view.categories.hide = function () {
 
 ldc.view.stats = function (css_id) {
     ldc.view.stats.id = css_id;
+
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date');
+    data.addRows(4);
+    data.setValue(0, 0, ldc.MONTHS[0]);
+    data.setValue(1, 0, ldc.MONTHS[1]);
+    data.setValue(2, 0, ldc.MONTHS[2]);
+    data.setValue(3, 0, ldc.MONTHS[3]);
+    var children = ldc.categories.get_children(0);
+    for (var i in children) {
+        data.addColumn('number', children[i].name);
+    }
+    for (var i in children) {
+        var j = parseFloat(i) + 1
+        var v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '01');
+        data.setValue(0, j, v);
+        v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '02');
+        data.setValue(1, j, v);
+        v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '03');
+        data.setValue(2, j, v);
+        v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '04');
+        data.setValue(3, j, v);
+    }
+    var chart = new google.visualization.LineChart(document.getElementById("stats"));
+    chart.draw(data, {width: 600, height: 340, legend: 'bottom', title: 'Company Performance'});
+    $(css_id).show();
 }
 
-ldc.view.stats.show = function () {
-    $(ldc.view.stats.id).show();
-}
-
-ldc.view.stats.hide = function () {
-    $(ldc.view.stats.id).hide();
-}
 
 
 
 
 ldc.drawChart = function () {
+    /*
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Date');
     data.addColumn('number', 'Débit');
     var d= [ ["2009-01-01", 1], ['2009-01-02',2]];
     data.addRows(d);
-    var chart = new google.visualization.LineChart(document.getElementById("stats"));
-    chart.draw(data, {width: 600, height: 340, legend: 'bottom', title: 'Company Performance'});
-    ldc.view.stats.hide();
+    ldc.chart = new google.visualization.LineChart(document.getElementById("stats"));
+    ldc.chart.draw(data, {width: 600, height: 340, legend: 'bottom', title: 'Company Performance'});
+    */
 
 }
 
@@ -406,14 +412,29 @@ ldc.view.params.hide = function () {
 ******************************************************************************/
 
 ldc.view.comptes = function(css_id) {
-    ldc.view.comptes.id = css_id;
+    $(css_id).hide();
+    $(css_id).empty();
+    var table = '<table><thead><th>id</th><th>Banque</th><th>Nom</th><th>Solde initial</th><th>Solde Courant</th></thead>';
+    for(var i in ldc.COMPTES) {
+        var id = ldc.COMPTES[i].id;
+        var banque = ldc.COMPTES[i].bank;
+        var name = ldc.COMPTES[i].name;
+        var solde_init = ldc.COMPTES[i].solde_init;
+        var solde = ldc.comptes.get_solde(ldc.COMPTES[i].id);
+        table += '<tr><td>'+id+'</td><td>'+banque+'</td><td>'+name+'</td><td>'+solde_init+'</td><td>'+solde+'</td></tr>';
+    }
+    table += '</table>';
+    $(css_id).append(table);
+    $(css_id).show();
+
+    $(css_id).delegate("tr", "click", open_operations );
+
+    function open_operations() {
+       jThis = $(this);
+       var compte_id = jThis.children().first().text();
+       ldc.view.all.hide();
+       ldc.view.operations("div#operations", compte_id);
+
+    }
 }
 
-
-ldc.view.comptes.show = function () {
-    $(ldc.view.comptes.id).show();
-}
-
-ldc.view.comptes.hide = function () {
-    $(ldc.view.comptes.id).hide();
-}
