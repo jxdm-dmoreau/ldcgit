@@ -40,4 +40,7 @@ div#form {
 table, tr, td {
     border-collapse: collapse;
 }
+tr.selected {
+    background-color: orange;
+}
 

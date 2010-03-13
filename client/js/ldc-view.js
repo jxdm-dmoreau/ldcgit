@@ -112,11 +112,29 @@ ldc.view.operations = function(css_id, compte_id) {
             ldc.operations.update(op);
     });
     $(css_id+" button.del").click(function() {
-            ldc.operations.del(45);
+            var id = $(css_id+" .ui-state-highlight").children().first().text();
+            if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
+                //ldc.operations.del(id)i;
+                var jTr = $(css_id+" .ui-state-highlight");
+                ldc.view.operations.del(dataTable, jTr[0]);
+            }
+
+    });
+    $(css_id).delegate("tr", "click", function() {
+        $(css_id+" .ui-state-highlight").removeClass("ui-state-highlight");
+        $(this).addClass("ui-state-highlight");
+        var id = $(this).children().first().text();
+
     });
     $(css_id).show();
 
+
 }
+
+ldc.view.operations.del = function (dataTable, tr) {
+    dataTable.fnDeleteRow(tr);
+}
+
 
 ldc.view.operations.add = function (dataTable, op, compte_id) {
         for (var i in op.cats) {
@@ -136,22 +154,24 @@ ldc.view.operations.add = function (dataTable, op, compte_id) {
 
 
 ldc.view.operations.html = function (op, compte_id) {
-   var html = '';
-    for(i in op.cats) {
-        html += '<tr>';
-        html += '<td>'+op.id+'</td>';
-        html += '<td>'+op.date+'</td>';
-        if (compte_id == op.from) {
-            html += '<td>'+op.cats[i].val+'</td>';
-            html += '<td>0</td>';
-        } else {
-            html += '<td>0</td>';
-            html += '<td>'+op.cats[i].val+'</td>';
-        }
-        html += '<td>'+ldc_cat_get_name(op.cats[i].cat_id)+'</td>';
-        html += '<td>'+op.description+'</td>'
-        html += '</tr>';
+    var html = '<tr>';
+    html += '<td>'+op.id+'</td>';
+    html += '<td>'+op.date+'</td>';
+    var total = 0;
+    var cat_names = '';
+    for(var i in op.cats) {
+        total += parseFloat(op.cats[i].val);
+        cat_names += ldc_cat_get_name(op.cats[i].id)+ " & ";
     }
+    cat_names = cat_names.substr(0, cat_names.length-2);
+    if (compte_id == op.from) {
+        html += '<td>'+total+'€</td><td>0€</td>';
+    } else {
+        html += '<td>0€</td><td>'+total+'€</td>';
+    }
+    html += '<td>'+cat_names+'</td>';
+    html += '<td>'+op.description+'</td>'
+    html += '</tr>';
     return html;
 };
 
