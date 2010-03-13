@@ -82,18 +82,45 @@ ldc.view.operations = function(css_id, compte_id) {
     /* VIEW */
     $(css_id).hide();
     $(css_id).empty();
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'id');
+    data.addColumn('string', 'Date');
+    data.addColumn('string', 'Débit');
+    data.addColumn('string', 'Crédit');
+    data.addColumn('string', 'Catégories');
+    data.addColumn('string', 'Description');
+    data.addRows(6);
+
+
     var compte = ldc.comptes.get(compte_id);
-    var html = '<div>'+'<h1>'+compte.bank+' - '+compte.name+'</h1>';
-    html += '<table compte_id="'+compte.id+'">';
-    html += '<thead><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></thead>';
+    var line = 0;
     for (var j in ldc.OPERATIONS) {
+        var op = ldc.OPERATIONS[j];
         var from = ldc.OPERATIONS[j].from;
         var to =  ldc.OPERATIONS[j].to;
-        if (from == compte_id | to == compte_id) {
-            html += ldc.view.operations.html(ldc.OPERATIONS[j], compte_id);
+        if (from != compte_id & to != compte_id) {
+            continue;
+        }
+        for(var k in op.cats) {
+            data.setCell(line, 0, op.id);
+            data.setCell(line, 1, op.date);
+            if (from == compte_id) {
+                data.setCell(line, 2, op.cats[k].val);
+                data.setCell(line, 3, '0');
+            } else {
+                data.setCell(line, 2, '0');
+                data.setCell(line, 3, op.cats[k].val);
+            }
+            data.setCell(line, 4, ldc_cat_get_name(op.cats[k].cat_id));
+            data.setCell(line, 5, op.description);
+            line++;
         }
     }
-    $(css_id).append(html);
+    data.setTableProperty('page', 'enable');
+    data.setTableProperty('pageSize', 2);
+    var table = new google.visualization.Table(document.getElementById('operations_g'));
+    table.draw(data, {showRowNumber: true});
+
 
     /* ACTIONS */
     /* function to add operation in the HTML table */
@@ -116,43 +143,6 @@ ldc.view.operations = function(css_id, compte_id) {
     $(css_id).show();
 
 }
-
-
-
-
-
-ldc.view.operations.html = function (op, compte_id) {
-    var html = '<tr>';
-    html += '<td>'+op.id+'</td>';
-    html += '<td>'+op.date+'</td>';
-    if (compte_id == op.from) {
-        html += '<td>';
-        html += '<ul>';
-        for(i in op.cats) {
-            html += '<li>'+op.cats[i].val+'</li>';
-        }
-        html += '</ul>';
-        html += '</td>'
-        html += '<td>0</td>';
-    } else {
-        html += '<td>0</td>';
-        html += '<td><ul>';
-        for(i in op.cats) {
-            html += '<li>'+op.cats[i].val+'</li>';
-        }
-        html += '</ul></td>';
-    }
-    html += '<td><ul>';
-    for(i in op.cats) {
-        html += '<li>'+ldc_cat_get_name(op.cats[i].cat_id)+'</li>';
-    }
-    html += '</ul></td>';
-    html += '<td>'+op.description+'</td>'
-    html += '</tr>';
-    return html;
-};
-
-
 
 
 /******************************************************************************

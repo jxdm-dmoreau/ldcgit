@@ -17,7 +17,7 @@
         <script type="text/javascript" src="js/./jquery.tree.js"></script>
         <script type="text/javascript">
             $(document).ready(ldc.register);
-          google.load("visualization", "1", {packages:["linechart", "columnchart"]});
+          google.load("visualization", "1", {packages:["linechart", "columnchart", "table"] });
           google.setOnLoadCallback(ldc.drawChart);
         </script>
         <link rel="StyleSheet" href="css/ui-lightness/jquery-ui-1.7.2.custom.css" type="text/css" />
@@ -48,6 +48,7 @@
                 <button class="update">Modifier</button>
                 <button class="del">Enlever</button>
             </div>
+            <div id="operations_g"></div>
             <div id="stats"></div>
         </div>
         <div id="form">
