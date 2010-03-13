@@ -7,7 +7,7 @@
     "date":"2009-03-03",
     "description":"coucou c'est une description",
     "confirm":1,
-    "cats": [{"id":1, "value":12}, {"id":2, "value": 3}]
+    "cats": [{"id":1, "val":12}, {"id":2, "val": 3}]
 }
 
 response
@@ -65,13 +65,13 @@ $query = 'INSERT INTO valeurs VALUES ';
 if (is_array($json->cats)) {
     foreach($json->cats as $cat) {
         $query .= '(';
-        $query .= "NULL, $mysql_id, ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->value);
+        $query .= "NULL, $mysql_id, ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->val);
         $query .= '),';
     }
     $query = substr($query, 0, strlen($query)-1);
 } else {
     $query .= '(';
-    $query .= "NULL, $mysql_id, ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->value);
+    $query .= "NULL, $mysql_id, ".mysql_real_escape_string($cat->id).", ".mysql_real_escape_string($cat->val);
     $query .= ')';
 }
 DEBUG($query);

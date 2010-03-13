@@ -81,11 +81,10 @@ ldc.view.log.error = function (msg) {
 ldc.view.operations = function(css_id, compte_id) {
     /* VIEW */
     $(css_id).hide();
-    $(css_id).empty();
     var compte = ldc.comptes.get(compte_id);
     var html = '<div>'+'<h1>'+compte.bank+' - '+compte.name+'</h1>';
-    html += '<table compte_id="'+compte.id+'">';
-    html += '<thead><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></thead>';
+    html += '<table compte_id="'+compte.id+'" class="operations-table">';
+    html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
     for (var j in ldc.OPERATIONS) {
         var from = ldc.OPERATIONS[j].from;
         var to =  ldc.OPERATIONS[j].to;
@@ -93,21 +92,23 @@ ldc.view.operations = function(css_id, compte_id) {
             html += ldc.view.operations.html(ldc.OPERATIONS[j], compte_id);
         }
     }
+    html += '</tbody>';
     $(css_id).append(html);
+    var dataTable = $(".operations-table").dataTable({
+            "bJQueryUI": true,
+            "sPaginationType": "full_numbers"
+    });
 
     /* ACTIONS */
     /* function to add operation in the HTML table */
-    function view_add_operation(op) {
-        $("table[compte_id="+op.from+"]").css('color', 'red');
-    }
 
     $(css_id+" button.add").click(function() {
-            var op = { from:3, to:1, date:'2010-01-01', confirm:1, cats: { id:1, value:12}};
-            //view_add_operation(op);
-            ldc.operations.add(op);
+            var op = { from:3, to:1, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
+            op.id = ldc.operations.add(op);
+            ldc.view.operations.add(dataTable, op, compte_id);
     });
     $(css_id+" button.update").click(function() {
-            var op = { id:46, from:2, to:3, date:'2010-01-01', confirm:1, cats: { id:1, value:12}};
+            var op = { id:46, from:2, to:3, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
             ldc.operations.update(op);
     });
     $(css_id+" button.del").click(function() {
@@ -117,38 +118,40 @@ ldc.view.operations = function(css_id, compte_id) {
 
 }
 
+ldc.view.operations.add = function (dataTable, op, compte_id) {
+        for (var i in op.cats) {
+            var debit = 0;
+            var credit = 0;
+            if (op.from == compte_id) {
+                debit = op.cats[i].val;
+            } else {
+                credit = op.cats[i].val;
+            }
+            var cat_name = ldc_cat_get_name(op.cats[i].id);
+            dataTable.fnAddData( [op.id, op.date, debit, credit, cat_name, op.description]);
+        }
+}
 
 
 
 
 ldc.view.operations.html = function (op, compte_id) {
-    var html = '<tr>';
-    html += '<td>'+op.id+'</td>';
-    html += '<td>'+op.date+'</td>';
-    if (compte_id == op.from) {
-        html += '<td>';
-        html += '<ul>';
-        for(i in op.cats) {
-            html += '<li>'+op.cats[i].val+'</li>';
-        }
-        html += '</ul>';
-        html += '</td>'
-        html += '<td>0</td>';
-    } else {
-        html += '<td>0</td>';
-        html += '<td><ul>';
-        for(i in op.cats) {
-            html += '<li>'+op.cats[i].val+'</li>';
-        }
-        html += '</ul></td>';
-    }
-    html += '<td><ul>';
+   var html = '';
     for(i in op.cats) {
-        html += '<li>'+ldc_cat_get_name(op.cats[i].cat_id)+'</li>';
+        html += '<tr>';
+        html += '<td>'+op.id+'</td>';
+        html += '<td>'+op.date+'</td>';
+        if (compte_id == op.from) {
+            html += '<td>'+op.cats[i].val+'</td>';
+            html += '<td>0</td>';
+        } else {
+            html += '<td>0</td>';
+            html += '<td>'+op.cats[i].val+'</td>';
+        }
+        html += '<td>'+ldc_cat_get_name(op.cats[i].cat_id)+'</td>';
+        html += '<td>'+op.description+'</td>'
+        html += '</tr>';
     }
-    html += '</ul></td>';
-    html += '<td>'+op.description+'</td>'
-    html += '</tr>';
     return html;
 };
 

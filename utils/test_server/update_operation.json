@@ -4,5 +4,5 @@
     "to": 3,
     "date":"2009-03-03",
     "confirm":0,
-    "cats": {"id":1, "value":12}
+    "cats": [{"id":1, "val":12}]
 }

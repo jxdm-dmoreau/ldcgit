@@ -200,6 +200,7 @@ ldc.operations.add= function (op) {
     }
     ldc.post_ajax(ldc.SERVER + "add_operation.php",  "json="+JSON.stringify(op) , on_success, false);
     ldc.OPERATIONS.push(op);
+    return op.id;
 };
 
 ldc.operations.del = function(id) {

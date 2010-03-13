@@ -16,7 +16,7 @@ response
     "date":"2009-03-03",
     "description":"coucou c'est une description",
     "confirm":1,
-    "cats": [{"id":1, "value":12}, {"id":2, "value": 3}]
+    "cats": [{"id":1, "val":12}, {"id":2, "val": 3}]
     ]
 }
 *******************************************************************************/
@@ -90,7 +90,7 @@ while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
         $return[$i]->description = utf8_encode($description);
         $return[$i]->confirm = $confirm;
     }
-    $return[$i]->cats[] = (object) array('cat_id' => $cat_id, 'val' => $val);
+    $return[$i]->cats[] = (object) array('id' => $cat_id, 'val' => $val);
 }
 
 

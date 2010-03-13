@@ -4,9 +4,6 @@
 }
 
 
-table, tr, td {
-    border: 1px solid black;
-}
 
 div#log {
     height: 50px;
@@ -30,3 +27,17 @@ div#form {
     background-color: #FFCC33;
     cursor: pointer;
 }
+
+.operations-table {
+    font-size: 10pt;
+    margin: auto;
+    width: 600px;
+}
+#operations {
+    width: 600px;
+}
+
+table, tr, td {
+    border-collapse: collapse;
+}
+
