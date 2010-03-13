@@ -8,11 +8,21 @@ ldc.OPERATIONS = [];
 ldc.nb_load = 0;
 ldc.TOTAL_LOAD = 3;
 
-ldc.MONTHS = [];
-ldc.MONTHS[0] ='Janvier';
-ldc.MONTHS[1] ='Février';
-ldc.MONTHS[2] ='Mars';
-ldc.MONTHS[3] ='Avril';
+ldc.MONTHS = [
+    {name:'Janvier',   num:'01'},
+    {name:'Février',   num:'02'},
+    {name:'Mars',      num:'03'},
+    {name:'Avril',     num:'04'},
+    {name:'Mai',       num:'05'},
+    {name:'Juin',      num:'06'},
+    {name:'Juillet',   nmu:'07'},
+    {name:'Août',      num:'08'},
+    {name:'Septembre', num:'09'},
+    {name:'Octobre',   num:'10'},
+    {name:'Novembre',  num:'11'},
+    {name:'Décembre',  num:'12'},
+];
+
 
 /******************************************************************************
 *  various functions

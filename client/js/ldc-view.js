@@ -317,27 +317,22 @@ ldc.view.stats = function (css_id) {
 
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Date');
-    data.addRows(4);
-    data.setValue(0, 0, ldc.MONTHS[0]);
-    data.setValue(1, 0, ldc.MONTHS[1]);
-    data.setValue(2, 0, ldc.MONTHS[2]);
-    data.setValue(3, 0, ldc.MONTHS[3]);
+    data.addRows(12);
+    for (var i in ldc.MONTHS) {
+        i = parseInt(i);
+        data.setValue(i, 0, ldc.MONTHS[i].name);
+    }
     var children = ldc.categories.get_children(0);
     for (var i in children) {
         data.addColumn('number', children[i].name);
     }
     for (var i in children) {
-        var j = parseFloat(i) + 1
-        var v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '01');
-        data.setValue(0, j, v);
-        v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '02');
-        data.setValue(1, j, v);
-        v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '03');
-        data.setValue(2, j, v);
-        v = ldc.stats.get_all_cats(children[i].id, 2, '2010', '04');
-        data.setValue(3, j, v);
+        for(var j in ldc.MONTHS) {
+            var v = ldc.stats.get_all_cats(children[i].id, 2, '2010', ldc.MONTHS[j].num);
+            data.setValue(parseInt(j), parseInt(i)+1, v);
+        }
     }
-    var chart = new google.visualization.LineChart(document.getElementById("stats"));
+    var chart = new google.visualization.ColumnChart(document.getElementById("stats"));
     chart.draw(data, {width: 600, height: 340, legend: 'bottom', title: 'Company Performance'});
     $(css_id).show();
 }
