@@ -29,12 +29,12 @@ div#form {
 }
 
 .operations-table {
-    font-size: 10pt;
     margin: auto;
-    width: 600px;
+    width: 800px;
 }
 #operations {
-    width: 600px;
+    width: 800px;
+    font-size: 10pt;
 }
 
 table, tr, td {

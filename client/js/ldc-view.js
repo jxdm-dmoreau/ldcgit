@@ -102,10 +102,12 @@ ldc.view.operations = function(css_id, compte_id) {
     /* ACTIONS */
     /* function to add operation in the HTML table */
 
+    $(css_id+" button.add").button();
     $(css_id+" button.add").click(function() {
-            var op = { from:3, to:1, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
-            op.id = ldc.operations.add(op);
-            ldc.view.operations.add(dataTable, op, compte_id);
+            $("#form").dialog();
+            //var op = { from:3, to:1, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
+            //op.id = ldc.operations.add(op);
+            //ldc.view.operations.add(dataTable, op, compte_id);
     });
     $(css_id+" button.update").click(function() {
             var op = { id:46, from:2, to:3, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
@@ -158,18 +160,21 @@ ldc.view.operations.html = function (op, compte_id) {
     html += '<td>'+op.id+'</td>';
     html += '<td>'+op.date+'</td>';
     var total = 0;
-    var cat_names = '';
     for(var i in op.cats) {
         total += parseFloat(op.cats[i].val);
-        cat_names += ldc_cat_get_name(op.cats[i].id)+ " & ";
     }
-    cat_names = cat_names.substr(0, cat_names.length-2);
     if (compte_id == op.from) {
         html += '<td>'+total+'€</td><td>0€</td>';
     } else {
         html += '<td>0€</td><td>'+total+'€</td>';
     }
-    html += '<td>'+cat_names+'</td>';
+    // cats
+    html += '<td><ul>';
+    for(var i in op.cats) {
+        var cat_name = ldc_cat_get_name(op.cats[i].id);
+        html += '<li>'+cat_name+' ('+op.cats[i].val+'€)</li>';
+    }
+    html += '</ul></td>';
     html += '<td>'+op.description+'</td>'
     html += '</tr>';
     return html;
