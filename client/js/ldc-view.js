@@ -99,20 +99,21 @@ ldc.view.operations = function(css_id, compte_id) {
             "sPaginationType": "full_numbers"
     });
 
+    ldc.view.operations.table = [];
+    ldc.view.operations.table[compte_id] = dataTable;
     /* ACTIONS */
     /* function to add operation in the HTML table */
 
     $(css_id+" button.add").button();
     $(css_id+" button.add").click(function() {
-            $("#form").dialog();
-            //var op = { from:3, to:1, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
-            //op.id = ldc.operations.add(op);
-            //ldc.view.operations.add(dataTable, op, compte_id);
+            ldc.view.form.show(compte_id);
     });
+    $(css_id+" button.update").button();
     $(css_id+" button.update").click(function() {
             var op = { id:46, from:2, to:3, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
             ldc.operations.update(op);
     });
+    $(css_id+" button.del").button();
     $(css_id+" button.del").click(function() {
             var id = $(css_id+" .ui-state-highlight").children().first().text();
             if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
@@ -138,18 +139,64 @@ ldc.view.operations.del = function (dataTable, tr) {
 }
 
 
-ldc.view.operations.add = function (dataTable, op, compte_id) {
-        for (var i in op.cats) {
-            var debit = 0;
-            var credit = 0;
-            if (op.from == compte_id) {
-                debit = op.cats[i].val;
-            } else {
-                credit = op.cats[i].val;
+ldc.view.operations.add = function () {
+
+    /* construct op from form */
+    var op = {};
+    // date
+    $(ldc.view.form.id+' .ui-state-error').removeClass('ui-state-error');
+    var date = $('#datepicker').attr("value");
+    if (date == "") {
+        $('#datepicker').addClass("ui-state-error");
+        return false;
+    }
+    op.date = date;
+    console.debug("date:"+date);
+    // from
+    var from = $(ldc.view.form.id+' li.from select').val();
+    op.from = from;
+    console.debug("from:"+from);
+    // to
+    var to = $(ldc.view.form.id+' li.to select').val();
+    op.to = to;
+    console.debug("to:"+to);
+    // cats
+    op.cats = [];
+    $(ldc.view.form.id+' li.cats .cats_elt').each( function() {
+            var jThis = $(this);
+            var cat_name = jThis.children(".name").val();
+            var cat = ldc.categories.get_from_name(cat_name);
+            if (cat == false) {
+                jThis.children(".name").addClass('ui-state-error');
+                return false;
             }
-            var cat_name = ldc_cat_get_name(op.cats[i].id);
-            dataTable.fnAddData( [op.id, op.date, debit, credit, cat_name, op.description]);
-        }
+            var cat_value = jThis.children(".val").val();
+            if (cat_value == "") {
+                jThis.children(".val").addClass('ui-state-error');
+                return false;
+            }
+            op.cats.push({id: cat.id, val:cat_value});
+            console.debug(cat_name+'('+cat.id+'):'+cat_value);
+    });
+    //description
+    op.description = $(ldc.view.form.id+' li.description textarea').val();
+
+    /* Add operation server side */
+    op.id = ldc.operations.add(op);
+    $("#form").dialog('close');
+
+    /* add operation client side */
+    var total = 0;
+    var html = '<ul>';
+    for(var i in op.cats) {
+        total += parseFloat(op.cats[i].val);
+        html += '<li>'+ldc_cat_get_name(op.cats[i].id)+' ('+op.cats[i].val+'€)</li>';
+    }
+    html += '</ul>';
+    ldc.view.operations.table[op.from].fnAddData( [op.id, op.date, total, 0, html, op.description]);
+    ldc.view.operations.table[op.to].fnAddData( [op.id, op.date, 0, total, html, op.description]);
+
+    return false;
 }
 
 
@@ -387,23 +434,100 @@ ldc.drawChart = function () {
 ******************************************************************************/
 
 ldc.view.form = function(css_id) {
-    if (ldc.view.form.is_init) {
-        console.error("ldc.view.form allready init");
-        return false;
-    }
 
     ldc.view.form.id = css_id;
-    ldc.view.form.is_init = true;
 
+
+
+    // complete HTML
     for(var i in ldc.COMPTES) {
-        $("div#form li.from select").append("<option>test<option>");
+        var name = ldc.COMPTES[i].bank + ' - ' + ldc.COMPTES[i].name;
+        var id = ldc.COMPTES[i].id;
+        $("div#form li.from select").append('<option value="'+id+'">'+name+'</option>');
+        $("div#form li.to select").append('<option value="'+id+'">'+name+'</option>');
     }
+    $("div#form li.to select").append('<option value="0">Extérieur</option>');
+    $("div#form li.from select").append('<option value="0">Extérieur</option>');
+
+
+    // datepicker
+    $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+    // radios
+    $("#type").buttonset();
+    // dialog
+    $(ldc.view.form.id).dialog({ 
+            modal: true,
+            buttons: { "Ok": ldc.view.operations.add},
+            autoOpen: false
+    });
 }
 
-ldc.view.form.is_init = false;
 
-ldc.view.form.show = function () {
-    $(ldc.view.form.id).show();
+ldc.view.form.show = function (compte_id) {
+
+
+    // init compte_id
+    $(ldc.view.form.id+' input.compte_id').attr("value", compte_id);
+
+    // init combo box from & to
+    $(ldc.view.form.id+' li.from select option:selected').removeAttr('selected');
+    $(ldc.view.form.id+' li.to select option:selected').removeAttr('selected');
+    $(ldc.view.form.id+' li.from select option[value="'+compte_id+'"]').attr("selected", "selected");
+    $(ldc.view.form.id+' li.to select option[value="0"]').attr("selected", "selected");
+    $(ldc.view.form.id+' li.from select').attr("disabled", "true");
+    $(ldc.view.form.id+' li.to select').removeAttr("disabled");
+
+    // actions on debit credit
+    $("#op-type1").unbind('click');
+    $("#op-type1").click(function() {
+        $(ldc.view.form.id+' li.from select option:selected').removeAttr('selected');
+        $(ldc.view.form.id+' li.to select option:selected').removeAttr('selected');
+        $(ldc.view.form.id+' li.from select option[value="'+compte_id+'"]').attr("selected", "selected");
+        $(ldc.view.form.id+' li.to select option[value="0"]').attr("selected", "selected");
+        $(ldc.view.form.id+' li.from select').attr("disabled", "true");
+        $(ldc.view.form.id+' li.to select').removeAttr("disabled");
+    });
+    $("#op-type2").unbind('click');
+    $("#op-type2").click(function() {
+        $(ldc.view.form.id+' li.to select option:selected').removeAttr('selected');
+        $(ldc.view.form.id+' li.from select option:selected').removeAttr('selected');
+        $(ldc.view.form.id+' li.to select option[value="'+compte_id+'"]').attr("selected", "selected");
+        $(ldc.view.form.id+' li.from select option[value="0"]').attr("selected", "selected");
+        $(ldc.view.form.id+' li.to select').attr("disabled", "true");
+        $(ldc.view.form.id+' li.from select').removeAttr("disabled");
+    });
+
+    // autocomplete categories
+    var source = [];
+    for (var i in ldc.CATEGORIES) {
+        source.push(ldc.CATEGORIES[i].name);
+    }
+    $("li.cats input.name").autocomplete( {source: source});
+
+    // add cat
+    function del_cats() {
+        $(this).parent().remove();
+        return false;
+    }
+    function add_cats() {
+        var html = '<div class="cats_elt">';
+        html += '<input type="text" class="name"/>';
+        html += '<input type="text" class="val"/>';
+        html += '<button class="del">-</button>';
+        html += '</div>';
+        $(ldc.view.form.id+' li.cats .cats_list').append(html);
+        $("li.cats input.name").autocomplete( {source: source});
+        $(ldc.view.form.id+' li.cats button').button();
+        $(ldc.view.form.id+' li.cats button.del').unbind('click');
+        $(ldc.view.form.id+' li.cats button.del').click(del_cats);
+        return false;
+    }
+    $(ldc.view.form.id+' li.cats button').button();
+    $(ldc.view.form.id+' li.cats button.add').click(add_cats);
+    $(ldc.view.form.id+' li.cats button.del').click(del_cats);
+    
+
+    $(ldc.view.form.id).dialog('open');
 }
 
 ldc.view.form.hide = function () {

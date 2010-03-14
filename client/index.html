@@ -51,16 +51,19 @@
         <div id="form">
             <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
                     <ol>
+                        <input type="hidden" class="compte_id" />
                         <li class="date">
-                            <label for="op-calendar">Date :</label>
-                            <input autocomplete="off" type="text" size="10" value="" id="op-calendar" name="op-calendar" disabled/>
+                            <label for="datepicker">Date :</label>
+                            <input autocomplete="off" type="text" size="10" value="" id="datepicker" name="op-calendar" />
                         </li>
                         <li class="type">
-                            <label for="op-type">Type :</label>
-                            <ul>
-                                <li><input type="radio" id="op-type" name="op-type" value="debit" checked />Débit<br /></li>
-                                <li><input type="radio" id="op-type" name="op-type" value="credit" />Crédit</li>
-                            </ul>
+                            
+                            <div id="type">
+                            <input type="radio" id="op-type1" name="op-type" value="debit" checked />
+                                <label for="op-type1">Débit</label>
+                            <input type="radio" id="op-type2" name="op-type" value="credit" />
+                                <label for="op-type2">Crédit</label>
+                            </div>
                         </li>
                         <li class="from">
                             <label for="">De :</label>
@@ -73,22 +76,20 @@
                             </select>
                         </li>
                         <li class="cats">
-                            <ul>
-                                <li>
-                                    <label>Catégories :</label>
-                                    <input type="text" />
-                                    <input type="text" />
-                                </li>
-                                <li>
-                                    <label>Valeurs :</label>
-                                    <input type="text" />
-                                </li>
-                            </ul>
+                            <div class="cats_list">
+                                <div class="cats_elt">
+                                    <!--<label>Catégories :</label>-->
+                                    <input class="name" type="text" />
+                                    <!--<label>Valeurs :</label>-->
+                                    <input class="val" type="text" />
+                                    <button class="del">-</button>
+                                </div>
+                            </div>
+                            <button class="add">+</button>
                         </li>
                         <li class="description">
                             <label for="">Description :</label>
-                            <textarea rows="2" cols="30">
-                            </textarea>
+                            <textarea rows="2" cols="30"></textarea>
                         </li>
                     </ol>
                     <div id="tree"></div>

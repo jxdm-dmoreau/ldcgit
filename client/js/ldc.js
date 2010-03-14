@@ -81,8 +81,18 @@ ldc.categories.get_name= function (id) {
             return ldc.CATEGORIES[i].name;
         }
     }
-    return "unknown";
+    return false;
 };
+
+ldc.categories.get_from_name = function (name) {
+    for (i in ldc.CATEGORIES) {
+        if (ldc.CATEGORIES[i].name == name) {
+            return ldc.CATEGORIES[i];
+        }
+    }
+    return false;
+}
+
 
 ldc.categories.add = function (name, father_id) {
     var id;
