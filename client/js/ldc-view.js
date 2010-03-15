@@ -190,7 +190,12 @@ ldc.view.operations.add = function () {
     var html = '<ul>';
     for(var i in op.cats) {
         total += parseFloat(op.cats[i].val);
-        html += '<li>'+ldc_cat_get_name(op.cats[i].id)+' ('+op.cats[i].val+'€)</li>';
+        var name = ldc.categories.get_name(op.cats[i].id);
+        if (!name) {
+            alert("Categorie "+op.cats[i].id+" not found!");
+            return false;
+        }
+        html += '<li>'+name+' ('+op.cats[i].val+'€)</li>';
     }
     html += '</ul>';
     ldc.view.operations.table[op.from].fnAddData( [op.id, op.date, total, 0, html, op.description]);
@@ -218,7 +223,11 @@ ldc.view.operations.html = function (op, compte_id) {
     // cats
     html += '<td><ul>';
     for(var i in op.cats) {
-        var cat_name = ldc_cat_get_name(op.cats[i].id);
+        var cat_name = ldc.categories.get_name(op.cats[i].id);
+        if (!cat_name) {
+            alert("Categorie "+op.cats[i].id+" not found!");
+            return false;
+        }
         html += '<li>'+cat_name+' ('+op.cats[i].val+'€)</li>';
     }
     html += '</ul></td>';
@@ -329,7 +338,6 @@ ldc.view.categories = function (css_id) {
 
         } else if (is_update) {
             var id =  $(node).attr("cat_id");
-            console.debug("ldc_cat_update("+id+","+name+","+father_id+")");
             ldc.categories.update(id, name, father_id);
             id_update = false;
         }

@@ -148,6 +148,8 @@ ldc.categories.update = function(id, name, father_id) {
     }
 };
 
+
+
 /******************************************************************************
 *  Compte functions
 ******************************************************************************/
@@ -274,131 +276,8 @@ function ldc_cat_get_children(id) {
     return children;
 }
 
-function ldc_cat_get_name(id)
-{
-    for (i in ldc.CATEGORIES) {
-        if (ldc.CATEGORIES[i].id == id) {
-            return ldc.CATEGORIES[i].name;
-        }
 
-    }
-    return "unknow";
-}
 
-function ldc_cat_add(name, father_id) {
-    var id;
-    function on_success(data, textStatus) {
-        if (data == 1) {
-            ldc.view.log.error("L'ajout de la catégorie a échoué...");
-        } else {
-            ldc.view.log.success("Catégorie ajoutée.");
-        }
-        data = JSON.parse(data);
-        id = data.id;
-    }
-    var data = { name: name, father_id: father_id };
-    ldc.post_ajax(LDC_SERVER + "add_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
-    data.id = ''+id;
-    ldc.CATEGORIES.push(data);
-    return id;
-}
-
-function ldc_cat_del(id) {
-    function on_success(data, textStatus) {
-        if (data == 1) {
-            ldc.view.log.error("La suppresion de la catégorie a échoué...");
-        } else {
-            ldc.view.log.success("Catégorie supprimée.");
-        }
-    }
-    var data = { id: id };
-    ldc.post_ajax(LDC_SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);
-    for(var i in ldc.CATEGORIES) {
-        if (ldc.CATEGORIES[i].id == id) {
-            delete(ldc.CATEGORIES[i]);
-            return;
-        }
-    }
-}
-
-function ldc_cat_update(id, name, father_id) {
-    function on_success(data, textStatus) {
-        if (data == 1) {
-            ldc.view.log.error("La Modification de la catégorie a échoué...");
-        } else {
-            ldc.view.log.success("Catégorie modifiée.");
-        }
-    }
-    var data = { id: id, name: name, father_id: father_id };
-    ldc.post_ajax(LDC_SERVER + "update_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
-    for(var i in ldc.CATEGORIES) {
-        if (ldc.CATEGORIES[i].id == data.id) {
-            ldc.CATEGORIES[i] = data;
-            return;
-        }
-    }
-}
-
-/******************************************************************************
-*  Operations functions
-******************************************************************************/
-function ldc_somme(op)
-{
-    var total = 0;
-    for(i in op.cats) {
-        total += parseFloat(op.cats[i].val);
-    }
-    return total;
-}
-
-function ldc_op_add(op) {
-    function on_success(data, textStatus) {
-        if (data == 1) {
-            ldc.view.log.error("L'ajout de l'opération a échoué...");
-        } else {
-            ldc.view.log.success("Opération ajoutée.");
-        }
-        data = JSON.parse(data);
-        op.id = data.id;
-    }
-    ldc.post_ajax(LDC_SERVER + "add_operation.php",  "json="+JSON.stringify(op) , on_success, false);
-    ldc.OPERATIONS.push(op);
-}
-
-function ldc_op_del(id) {
-    function on_success(data, textStatus) {
-        if (data == 1) {
-            ldc.view.log.error("La suppression de l'opération a échoué...");
-        } else {
-            ldc.view.log.success("Opération supprimée.");
-        }
-    }
-    var data = { id: id};
-    ldc.post_ajax(LDC_SERVER + "del_operation.php",  "json="+JSON.stringify(data) , on_success, true);
-    for(var i in ldc.OPERATIONS) {
-        if (ldc.OPERATIONS[i].id == id) {
-            delete(ldc.OPERATIONS[i]);
-            break;
-        }
-    }
-}
-
-function ldc_op_update(op) {
-    function on_success(data, textStatus) {
-        if (data == 1) {
-            ldc.view.log.error("La modification de l'opération a échoué...");
-        } else {
-            ldc.view.log.success("Opération Modifiée.");
-        }
-    }
-    ldc.post_ajax(LDC_SERVER + "update_operation.php",  "json="+JSON.stringify(op) , on_success, true);
-    for(var i in ldc.OPERATIONS) {
-        if (ldc.OPERATIONS[i].id == op.id) {
-            ldc.OPERATIONS[i] = op;
-            break;
-        }
-    }
-}
 /******************************************************************************
   * STATS
 ******************************************************************************/
