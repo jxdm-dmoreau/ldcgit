@@ -8,12 +8,13 @@
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="js/jquery-ui-1.8rc3.custom.min.js"></script>
-        <script type="text/javascript" src="js/ldc.js"></script>
-        <script type="text/javascript" src="js/ldc-view.js"></script>
+        <script type="text/javascript" src="js/m.ldc.js"></script>
+        <script type="text/javascript" src="js/v.ldc.js"></script>
+        <script type="text/javascript" src="js/c.ldc.js"></script>
         <script type="text/javascript" src="js/jquery.tree.js"></script>
         <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(ldc.register);
+            $(document).ready(ldc.c.init);
           google.load("visualization", "1", {packages:["linechart", "columnchart"]});
           google.setOnLoadCallback(ldc.drawChart);
         </script>
@@ -24,16 +25,8 @@
 
     <body>
         <div id="log"></div>
+        <button id="button_test">TEST</button>
         <div id="main" style="display:none;">
-            <div id="menu">
-                <ul>
-                    <li><a class="comptes" href="#">Comptes</a></li>
-                    <li><a class="operations" href="#">Opérations</a></li>
-                    <li><a class="stats" href="#">Statistiques</a></li>
-                    <li><a class="add-op" href="#">Ajouter une opération</a></li>
-                    <li><a class="cats" href="#">Catégories</a></li>
-                </ul>
-            </div>
             <div id="cats">
                 <button class="add">Ajouter</button>
                 <button class="rename">Renommer</button>
@@ -46,7 +39,6 @@
                 <button class="update">Modifier</button>
                 <button class="del">Enlever</button>
             </div>
-            <div id="stats"></div>
         </div>
         <div id="form">
             <form id="form" name="form" action="api_xml/add_operation.php" method="post" >

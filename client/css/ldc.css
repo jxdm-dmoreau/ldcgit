@@ -32,11 +32,11 @@ div#form {
     cursor: pointer;
 }
 
-.operations-table {
-    margin: auto;
+div.operations {
     width: 800px;
+    border: 1px solid black;
 }
-#operations {
+div.operations .operations-table  {
     width: 800px;
 }
 

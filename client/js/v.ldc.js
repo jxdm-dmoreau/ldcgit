@@ -1,109 +1,148 @@
 /******************************************************************************
   * VIEW
 ******************************************************************************/
+ldc.v = {};
+
+
+ldc.v.init = function ()
+{
+    $("#main").show();
+    for(var i in ldc.m.comptes.data) {
+        var c = ldc.m.comptes.data[i];
+        var id = "compte_"+c.id;
+        ldc.v.operations.init($("#main"), id, c);
+        $("#"+id).show();
+    }
+    return false;
+}
+
 
 ldc.view = function () {
-    ldc.view.all.hide();
-    ldc.view.menu("div#menu");
-    ldc.view.load(2/ldc.view.NB_LOAD_MAX);
-    ldc.view.form("div#form");
-    ldc.view.load(3/ldc.view.NB_LOAD_MAX);
-    ldc.view.categories("div#cats");
-    ldc.view.load(4/ldc.view.NB_LOAD_MAX);
-    ldc.view.load(5/ldc.view.NB_LOAD_MAX);
-    ldc.view.categories("div#cats");
-    ldc.view.load(6/ldc.view.NB_LOAD_MAX);
-    ldc.view.load(7/ldc.view.NB_LOAD_MAX);
-    ldc.view.load(8/ldc.view.NB_LOAD_MAX);
-    $("#log").empty();
     $("#main").show();
+    /* on initialise tous (tableaux etc) */
+    // operations by compte
+    for (var i in ldc.m.COMPTES) {
+        console.debug("compte="+ldc.m.COMPTES[i].id);
+        ldc.v.modules.operations.init($("#main"), ldc.m.COMPTES[i]);
+    }
+
+    $("#button_test").click(function() {
+            ldc.v.modules.operations.del(ldc.m.operations.get(1),ldc.m.COMPTES.get(3)); 
+            return false;
+    });
+    var i = 0;
+    for ( i in ldc.m.COMPTES) {
+        ldc.v.modules.operations.show(ldc.m.COMPTES[i]);
+    }
 };
 
-ldc.view.NB_LOAD_MAX = 8;
 
 /******************************************************************************
-  * all
-******************************************************************************/
-ldc.view.all = {};
-
-ldc.view.all.hide = function () {
-    ldc.view.form.hide();
-    ldc.view.categories.hide();
-    ldc.view.categories.hide();
-    $("#stats").hide();
-    $("#comptes").hide();
-    $("#operations").hide();
-}
-
-
-/******************************************************************************
-  * LOAD
-******************************************************************************/
-ldc.view.preload = function () {
-    $("#main").hide();
-    $("#log").empty().append('<div id="pb"></div>');
-    $("#pb").css('width', '300px');
-    $("#pb").progressbar({ value: 1 });
-}
-
-ldc.view.load = function (percent) {
-    var length = percent * $("#pb").width();
-    console.debug("pb "+length);
-    $("#pb").progressbar('option', 'value', length);
-};
-
-ldc.view.load.completed = function () {
-    ldc.view.load(1/8);
-    ldc.view();
-};
-
-/******************************************************************************
-  * LOG
-******************************************************************************/
-ldc.view.log = function(msg) {
-    console.debug(msg);
-};
-ldc.log = ldc.view.log;
-
-ldc.view.log.success = function (msg) {
-    $("#log").empty().addClass('success').append(msg);
-}
-
-ldc.view.log.error = function (msg) {
-    $("#log").empty().addClass('error').append(msg);
-}
-
-/******************************************************************************
-  * view operations
+  * MODULES
 ******************************************************************************/
 
+/* 
+   Liste des modules :
+   - operations
+   - categories
+   - menu
+*/
 
-ldc.view.operations = function(css_id, compte_id) {
-    /* VIEW */
-    $(css_id).hide();
-    var compte = ldc.comptes.get(compte_id);
-    var html = '<div>'+'<h1>'+compte.bank+' - '+compte.name+'</h1>';
+ldc.v.modules = {};
+
+/******************* operations MODULE ***************************************/
+ldc.v.operations = {};
+
+
+/*
+ * Convert a operation in html
+ */
+ldc.v.operations.html = function (op, compte)
+{
+    var html = '<tr operations_id="'+op.id+'">';
+    html += '<td>'+op.id+'</td>';
+    html += '<td>'+op.date+'</td>';
+    var total = 0;
+    for(var i in op.cats) {
+        total += parseFloat(op.cats[i].val);
+    }
+    if (compte.id == op.from) {
+        html += '<td>'+total+'€</td><td>0€</td>';
+    } else {
+        html += '<td>0€</td><td>'+total+'€</td>';
+    }
+    // cats
+    html += '<td><ul>';
+    for(var i in op.cats) {
+        var cat = ldc.m.categories.get(op.cats[i].id);
+        if (!cat.name) {
+            alert("Categorie "+op.cats[i].id+" not found!");
+            return false;
+        }
+        html += '<li>'+cat.name+' ('+op.cats[i].val+'€)</li>';
+    }
+    html += '</ul></td>';
+    html += '<td>'+op.description+'</td>'
+    html += '</tr>';
+    return html;
+}
+
+/*
+ * Init Operation module
+ */
+ldc.v.operations.init = function (jContainer, id, compte) {
+    /* add a div and hide it */
+    var div = '<div class="operations" id="'+id+'"></div>';
+    jContainer.append(div);
+    jDiv = $("#"+id);
+    jDiv.hide();
+    /* generate html */
+    var html = '<h1>'+compte.bank+' - '+compte.name+'</h1>';
     html += '<table compte_id="'+compte.id+'" class="operations-table">';
     html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
-    for (var j in ldc.OPERATIONS) {
-        var from = ldc.OPERATIONS[j].from;
-        var to =  ldc.OPERATIONS[j].to;
-        if (from == compte_id | to == compte_id) {
-            html += ldc.view.operations.html(ldc.OPERATIONS[j], compte_id);
+    for (var j in ldc.m.operations.data) {
+        var from = ldc.m.operations.data[j].from;
+        var to =  ldc.m.operations.data[j].to;
+        if (from == compte.id | to == compte.id) {
+            html += ldc.v.operations.html(ldc.m.operations.data[j], compte);
         }
     }
     html += '</tbody>';
-    $(css_id).append(html);
-    var dataTable = $(".operations-table").dataTable({
+    /* add to the the div */
+    jDiv.append(html);
+    /* generate the dataTable */
+    var dataTable = $("#"+id+" table").dataTable({
             "bJQueryUI": true,
             "sPaginationType": "full_numbers"
     });
+    /* store the dataTable object (needed to add new values ...) */
+    ldc.v.operations.table = [];
+    ldc.v.operations.table[compte.id] = dataTable;
+}
 
-    ldc.view.operations.table = [];
-    ldc.view.operations.table[compte_id] = dataTable;
+
+ldc.v.operations.add = function (compte, op)
+{
+    return false;
+}
+
+ldc.v.operations.update = function (compte, op)
+{
+    return false;
+}
+
+ldc.v.operations.del = function (compte, op)
+{
+    var jTr = $("div[compte_id="+compte.id+"] tr[operations_id="+op.id+"]");
+    ldc.v.modules.operations.table[compte.id].fnDeleteRow(jTr[0]);
+    return false;
+}
+
+
+
     /* ACTIONS */
     /* function to add operation in the HTML table */
-
+/*
     $(css_id+" button.add").button();
     $(css_id+" button.add").click(function() {
             ldc.view.form.show(compte_id);
@@ -111,13 +150,13 @@ ldc.view.operations = function(css_id, compte_id) {
     $(css_id+" button.update").button();
     $(css_id+" button.update").click(function() {
             var op = { id:46, from:2, to:3, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
-            ldc.operations.update(op);
+            ldc.m.operations.update(op);
     });
     $(css_id+" button.del").button();
     $(css_id+" button.del").click(function() {
             var id = $(css_id+" .ui-state-highlight").children().first().text();
             if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
-                //ldc.operations.del(id)i;
+                //ldc.m.operations.del(id)i;
                 var jTr = $(css_id+" .ui-state-highlight");
                 ldc.view.operations.del(dataTable, jTr[0]);
             }
@@ -129,112 +168,11 @@ ldc.view.operations = function(css_id, compte_id) {
         var id = $(this).children().first().text();
 
     });
-    $(css_id).show();
-
-
-}
-
-ldc.view.operations.del = function (dataTable, tr) {
-    dataTable.fnDeleteRow(tr);
-}
-
-
-ldc.view.operations.add = function () {
-
-    /* construct op from form */
-    var op = {};
-    // date
-    $(ldc.view.form.id+' .ui-state-error').removeClass('ui-state-error');
-    var date = $('#datepicker').attr("value");
-    if (date == "") {
-        $('#datepicker').addClass("ui-state-error");
-        return false;
-    }
-    op.date = date;
-    console.debug("date:"+date);
-    // from
-    var from = $(ldc.view.form.id+' li.from select').val();
-    op.from = from;
-    console.debug("from:"+from);
-    // to
-    var to = $(ldc.view.form.id+' li.to select').val();
-    op.to = to;
-    console.debug("to:"+to);
-    // cats
-    op.cats = [];
-    $(ldc.view.form.id+' li.cats .cats_elt').each( function() {
-            var jThis = $(this);
-            var cat_name = jThis.children(".name").val();
-            var cat = ldc.categories.get_from_name(cat_name);
-            if (cat == false) {
-                jThis.children(".name").addClass('ui-state-error');
-                return false;
-            }
-            var cat_value = jThis.children(".val").val();
-            if (cat_value == "") {
-                jThis.children(".val").addClass('ui-state-error');
-                return false;
-            }
-            op.cats.push({id: cat.id, val:cat_value});
-            console.debug(cat_name+'('+cat.id+'):'+cat_value);
-    });
-    //description
-    op.description = $(ldc.view.form.id+' li.description textarea').val();
-
-    /* Add operation server side */
-    op.id = ldc.operations.add(op);
-    $("#form").dialog('close');
-
-    /* add operation client side */
-    var total = 0;
-    var html = '<ul>';
-    for(var i in op.cats) {
-        total += parseFloat(op.cats[i].val);
-        var name = ldc.categories.get_name(op.cats[i].id);
-        if (!name) {
-            alert("Categorie "+op.cats[i].id+" not found!");
-            return false;
-        }
-        html += '<li>'+name+' ('+op.cats[i].val+'€)</li>';
-    }
-    html += '</ul>';
-    ldc.view.operations.table[op.from].fnAddData( [op.id, op.date, total, 0, html, op.description]);
-    ldc.view.operations.table[op.to].fnAddData( [op.id, op.date, 0, total, html, op.description]);
-
-    return false;
-}
+    */
 
 
 
 
-ldc.view.operations.html = function (op, compte_id) {
-    var html = '<tr>';
-    html += '<td>'+op.id+'</td>';
-    html += '<td>'+op.date+'</td>';
-    var total = 0;
-    for(var i in op.cats) {
-        total += parseFloat(op.cats[i].val);
-    }
-    if (compte_id == op.from) {
-        html += '<td>'+total+'€</td><td>0€</td>';
-    } else {
-        html += '<td>0€</td><td>'+total+'€</td>';
-    }
-    // cats
-    html += '<td><ul>';
-    for(var i in op.cats) {
-        var cat_name = ldc.categories.get_name(op.cats[i].id);
-        if (!cat_name) {
-            alert("Categorie "+op.cats[i].id+" not found!");
-            return false;
-        }
-        html += '<li>'+cat_name+' ('+op.cats[i].val+'€)</li>';
-    }
-    html += '</ul></td>';
-    html += '<td>'+op.description+'</td>'
-    html += '</tr>';
-    return html;
-};
 
 
 
@@ -242,34 +180,22 @@ ldc.view.operations.html = function (op, compte_id) {
 /******************************************************************************
   * Menu
 ******************************************************************************/
-ldc.view.menu = function (css_id) {
+/* constructeur du menu */
+ldc.v.menu = function (jContainer) {
+    var html = '<div id="menu">';
+    html += '<ul>';
+    html += '<li>Comptes';
+    html += '<ul>';
+    for (var i in ldc.m.COMPTES) {
+        var c = ldc.m.COMPTES[i];
+        html += '<li><a href="#" compte_id="'+c.id+'">'+c.bank+' - '+c.name+'</a></li>';
+    }
+    html += '</ul></li>';
+    html += '<li>Paramètres</li>';
+    html += '</ul>';
+    html += '</div>';
+    jContainer.append(html);
 
-    ldc.view.menu.id = css_id;
-
-    $(css_id+" a.add-op").click(function () {
-            ldc.view.all.hide();
-            ldc.view.form.show();
-            return false;
-    });
-    $(css_id+" a.comptes").click(function () {
-            ldc.view.all.hide();
-            ldc.view.comptes("div#comptes");
-            return false;
-    });
-    $(css_id+" a.operations").click(function () {
-            ldc.view.all.hide();
-            ldc.view.operations("div#operations", 2);
-            return false;
-    });
-    $(css_id+" a.stats").click(function () {
-            ldc.view.all.hide();
-            ldc.view.stats("#stats")
-    });
-    $(css_id+" a.cats").click(function () {
-            ldc.view.all.hide();
-            ldc.view.categories.show();
-            return false;
-    });
 
 }
 
@@ -302,7 +228,7 @@ ldc.view.categories = function (css_id) {
 
     html = '<ul>';
     html += '<li rel="root" cat_id="0"><a href="#"><ins>&nbsp;</ins>Catégories</a><ul>';
-    var children = ldc.categories.get_children(0);
+    var children = ldc.m.CATEGORIES.get_children(0);
     for(var i in children) {
         html = display_cat_r(children[i], html);
     }
@@ -332,27 +258,27 @@ ldc.view.categories = function (css_id) {
         var name = $(node).children("a").text().substr(1);
         var father_id = $(node).parent("ul").parent("li").attr("cat_id");
         if (is_creation) {
-            var id = ldc.categories.add(name, father_id);
+            var id = ldc.m.CATEGORIES.add(name, father_id);
             $(node).attr("cat_id",id);
             is_creation = false;
 
         } else if (is_update) {
             var id =  $(node).attr("cat_id");
-            ldc.categories.update(id, name, father_id);
+            ldc.m.CATEGORIES.update(id, name, father_id);
             id_update = false;
         }
     }
 
     function ondelete_categories(node) {
         var id =  $(node).attr("cat_id");
-        ldc.categories.del(id);
+        ldc.m.CATEGORIES.del(id);
     }
 
     function onmove_categories(NODE,REF_NODE,TYPE,TREE_OBJ,RB) {
         var name = $(NODE).children("a").text().substr(1);
         var father_id = $(NODE).parent("ul").parent("li").attr("cat_id");
         var id =  $(NODE).attr("cat_id");
-        ldc.categories.update(id, name, father_id);
+        ldc.m.CATEGORIES.update(id, name, father_id);
     }
 
     $(css_id+" button.add").click(function() {
@@ -394,8 +320,7 @@ ldc.view.categories.hide = function () {
   * STATS
 ******************************************************************************/
 
-ldc.view.stats = function (css_id) {
-    ldc.view.stats.id = css_id;
+ldc.view.stats = function (jContainer) {
 
 
     var data = new google.visualization.DataTable();
@@ -405,7 +330,7 @@ ldc.view.stats = function (css_id) {
         i = parseInt(i);
         data.setValue(i, 0, ldc.MONTHS[i].name);
     }
-    var children = ldc.categories.get_children(0);
+    var children = ldc.m.CATEGORIES.get_children(0);
     for (var i in children) {
         data.addColumn('number', children[i].name);
     }
@@ -415,9 +340,10 @@ ldc.view.stats = function (css_id) {
             data.setValue(parseInt(j), parseInt(i)+1, v);
         }
     }
+    var html = '<div id="stats"></div>';
+    jContainer.append(html);
     var chart = new google.visualization.ColumnChart(document.getElementById("stats"));
     chart.draw(data, {width: 600, height: 340, legend: 'bottom', title: 'Company Performance'});
-    $(css_id).show();
 }
 
 
@@ -448,9 +374,9 @@ ldc.view.form = function(css_id) {
 
 
     // complete HTML
-    for(var i in ldc.COMPTES) {
-        var name = ldc.COMPTES[i].bank + ' - ' + ldc.COMPTES[i].name;
-        var id = ldc.COMPTES[i].id;
+    for(var i in ldc.m.COMPTES) {
+        var name = ldc.m.COMPTES[i].bank + ' - ' + ldc.m.COMPTES[i].name;
+        var id = ldc.m.COMPTES[i].id;
         $("div#form li.from select").append('<option value="'+id+'">'+name+'</option>');
         $("div#form li.to select").append('<option value="'+id+'">'+name+'</option>');
     }
@@ -507,8 +433,8 @@ ldc.view.form.show = function (compte_id) {
 
     // autocomplete categories
     var source = [];
-    for (var i in ldc.CATEGORIES) {
-        source.push(ldc.CATEGORIES[i].name);
+    for (var i in ldc.m.CATEGORIES) {
+        source.push(ldc.m.CATEGORIES[i].name);
     }
     $("li.cats input.name").autocomplete( {source: source});
 
@@ -570,12 +496,12 @@ ldc.view.comptes = function(css_id) {
     $(css_id).hide();
     $(css_id).empty();
     var table = '<table><thead><th>id</th><th>Banque</th><th>Nom</th><th>Solde initial</th><th>Solde Courant</th></thead>';
-    for(var i in ldc.COMPTES) {
-        var id = ldc.COMPTES[i].id;
-        var banque = ldc.COMPTES[i].bank;
-        var name = ldc.COMPTES[i].name;
-        var solde_init = ldc.COMPTES[i].solde_init;
-        var solde = ldc.comptes.get_solde(ldc.COMPTES[i].id);
+    for(var i in ldc.m.COMPTES) {
+        var id = ldc.m.COMPTES[i].id;
+        var banque = ldc.m.COMPTES[i].bank;
+        var name = ldc.m.COMPTES[i].name;
+        var solde_init = ldc.m.COMPTES[i].solde_init;
+        var solde = ldc.m.COMPTES.get_solde(ldc.m.COMPTES[i].id);
         table += '<tr><td>'+id+'</td><td>'+banque+'</td><td>'+name+'</td><td>'+solde_init+'</td><td>'+solde+'</td></tr>';
     }
     table += '</table>';
