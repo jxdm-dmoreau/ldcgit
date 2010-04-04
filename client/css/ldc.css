@@ -14,12 +14,6 @@ div#log {
     width: 200px;
 }
 
-div#cats {
-    display: none;
-}
-div#operations {
-    display: none;
-}
 div#chart_div {
     display: none;
 }

@@ -6,13 +6,34 @@ ldc.v = {};
 
 ldc.v.init = function ()
 {
-    $("#main").show();
+    // tabs + liste des opérations
     for(var i in ldc.m.comptes.data) {
         var c = ldc.m.comptes.data[i];
         var id = "compte_"+c.id;
-        ldc.v.operations.init($("#main"), id, c);
-        $("#"+id).show();
+        $("#tabs ul.tabs").append('<li><a href="#compte_'+c.id+'">'+c.name+'</a></li>');
+        ldc.v.operations.init($("#tabs"), id, c);
     }
+    $("#tabs").tabs();
+
+    // init params
+    ldc.v.categories.init($("#params li.cats"), "cats");
+    $("#params").dialog({
+            buttons: { "Fermer": function() { $("#params").dialog('close');}},
+            modal: true,
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            title: 'Paramères',
+            width: 500,
+            hide: 'slide',
+            closeText: 'hide'
+    });
+
+    // init form
+    ldc.v.form.init();
+
+    // end --> init controller
+    ldc.c.init();
     return false;
 }
 
@@ -36,6 +57,16 @@ ldc.view = function () {
     }
 };
 
+
+/******************************************************************************
+  * log
+******************************************************************************/
+ldc.v.log = function (text) {
+    $("#log").empty().append(text);
+}
+
+ldc.v.log.success = ldc.v.log;
+ldc.v.log.error = ldc.v.log;
 
 /******************************************************************************
   * MODULES
@@ -95,9 +126,11 @@ ldc.v.operations.init = function (jContainer, id, compte) {
     var div = '<div class="operations" id="'+id+'"></div>';
     jContainer.append(div);
     jDiv = $("#"+id);
-    jDiv.hide();
+    //jDiv.hide();
     /* generate html */
-    var html = '<h1>'+compte.bank+' - '+compte.name+'</h1>';
+    var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
+    html += '<button class="update">Modifier</button>';
+    html += '<button class="del">Supprimer</button>';
     html += '<table compte_id="'+compte.id+'" class="operations-table">';
     html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
     for (var j in ldc.m.operations.data) {
@@ -201,20 +234,18 @@ ldc.v.menu = function (jContainer) {
 
 
 /******************************************************************************
-  * CATEGORIES
+  * categories
 ******************************************************************************/
-ldc.view.categories = function (css_id) {
-    if (ldc.view.categories.is_init) {
-        return false;
-    }
-    ldc.view.categories.id = css_id;
-    ldc.view.categories.is_init = true;
+ldc.v.categories = {};
+ldc.v.categories.init = function (jContainer, id) {
 
+    var div = '<div class="categories" id="'+id+'"></div>';
+    jContainer.append(div);
+    jDiv = $("#"+id);
 
-    /* VIEW */
     function display_cat_r(cat, html) {
         html += '<li cat_id="'+cat.id+'"><a href="#"><ins>&nbsp;</ins>'+cat.name+'</a>';
-        var children = ldc_cat_get_children(cat.id);
+        var children = ldc.m.categories.get_children(cat.id);
         if (children.length > 0) {
             html += '<ul>';
             for(var i in children) {
@@ -228,18 +259,18 @@ ldc.view.categories = function (css_id) {
 
     html = '<ul>';
     html += '<li rel="root" cat_id="0"><a href="#"><ins>&nbsp;</ins>Catégories</a><ul>';
-    var children = ldc.m.CATEGORIES.get_children(0);
+    var children = ldc.m.categories.get_children(0);
     for(var i in children) {
         html = display_cat_r(children[i], html);
     }
     html += '</ul></li></ul>';
-    $(css_id+ " div.tree").append(html);
+    jDiv.append(html);
 
-    $(css_id+ " div.tree").tree( {
+    $("#"+id).tree( {
         callback: {
-            onrename : onrename_categories,
-            ondelete : ondelete_categories,
-            onmove   : onmove_categories
+            onrename : ldc.c.params.onrename_categories,
+            ondelete : ldc.c.params.ondelete_categories,
+            onmove   : ldc.c.params.onmove_categories
         },
         types: {
             "root" : {
@@ -250,37 +281,8 @@ ldc.view.categories = function (css_id) {
         }
     });
 
-    /* ACTIONS */
-    var is_creation = false;
-    var is_update = false;
 
-    function onrename_categories(node) {
-        var name = $(node).children("a").text().substr(1);
-        var father_id = $(node).parent("ul").parent("li").attr("cat_id");
-        if (is_creation) {
-            var id = ldc.m.CATEGORIES.add(name, father_id);
-            $(node).attr("cat_id",id);
-            is_creation = false;
-
-        } else if (is_update) {
-            var id =  $(node).attr("cat_id");
-            ldc.m.CATEGORIES.update(id, name, father_id);
-            id_update = false;
-        }
-    }
-
-    function ondelete_categories(node) {
-        var id =  $(node).attr("cat_id");
-        ldc.m.CATEGORIES.del(id);
-    }
-
-    function onmove_categories(NODE,REF_NODE,TYPE,TREE_OBJ,RB) {
-        var name = $(NODE).children("a").text().substr(1);
-        var father_id = $(NODE).parent("ul").parent("li").attr("cat_id");
-        var id =  $(NODE).attr("cat_id");
-        ldc.m.CATEGORIES.update(id, name, father_id);
-    }
-
+    /*
     $(css_id+" button.add").click(function() {
         is_creation = true;
         var t = $.tree.focused();
@@ -301,20 +303,12 @@ ldc.view.categories = function (css_id) {
                 is_update = true;
                 $.tree.focused().rename();
     });
-
+*/
 
 };
 
-ldc.view.categories.is_init = false
 
 
-ldc.view.categories.show = function () {
-    $(ldc.view.categories.id).show();
-}
-
-ldc.view.categories.hide = function () {
-    $(ldc.view.categories.id).hide();
-}
 
 /******************************************************************************
   * STATS
@@ -330,7 +324,7 @@ ldc.view.stats = function (jContainer) {
         i = parseInt(i);
         data.setValue(i, 0, ldc.MONTHS[i].name);
     }
-    var children = ldc.m.CATEGORIES.get_children(0);
+    var children = ldc.m.categories.get_children(0);
     for (var i in children) {
         data.addColumn('number', children[i].name);
     }
@@ -366,17 +360,13 @@ ldc.drawChart = function () {
 /******************************************************************************
   * Formulaire
 ******************************************************************************/
+ldc.v.form = {};
 
-ldc.view.form = function(css_id) {
-
-    ldc.view.form.id = css_id;
-
-
-
+ldc.v.form.init = function() {
     // complete HTML
-    for(var i in ldc.m.COMPTES) {
-        var name = ldc.m.COMPTES[i].bank + ' - ' + ldc.m.COMPTES[i].name;
-        var id = ldc.m.COMPTES[i].id;
+    for(var i in ldc.m.comptes.data) {
+        var name = ldc.m.comptes.data[i].bank + ' - ' + ldc.m.comptes.data[i].name;
+        var id = ldc.m.comptes.data[i].id;
         $("div#form li.from select").append('<option value="'+id+'">'+name+'</option>');
         $("div#form li.to select").append('<option value="'+id+'">'+name+'</option>');
     }
@@ -389,84 +379,13 @@ ldc.view.form = function(css_id) {
     // radios
     $("#type").buttonset();
     // dialog
-    $(ldc.view.form.id).dialog({ 
+    $("#form").dialog({ 
             modal: true,
-            buttons: { "Ok": ldc.view.operations.add},
+            buttons: { "Ok": ldc.c.operations.add},
             autoOpen: false
     });
 }
 
-
-ldc.view.form.show = function (compte_id) {
-
-
-    // init compte_id
-    $(ldc.view.form.id+' input.compte_id').attr("value", compte_id);
-
-    // init combo box from & to
-    $(ldc.view.form.id+' li.from select option:selected').removeAttr('selected');
-    $(ldc.view.form.id+' li.to select option:selected').removeAttr('selected');
-    $(ldc.view.form.id+' li.from select option[value="'+compte_id+'"]').attr("selected", "selected");
-    $(ldc.view.form.id+' li.to select option[value="0"]').attr("selected", "selected");
-    $(ldc.view.form.id+' li.from select').attr("disabled", "true");
-    $(ldc.view.form.id+' li.to select').removeAttr("disabled");
-
-    // actions on debit credit
-    $("#op-type1").unbind('click');
-    $("#op-type1").click(function() {
-        $(ldc.view.form.id+' li.from select option:selected').removeAttr('selected');
-        $(ldc.view.form.id+' li.to select option:selected').removeAttr('selected');
-        $(ldc.view.form.id+' li.from select option[value="'+compte_id+'"]').attr("selected", "selected");
-        $(ldc.view.form.id+' li.to select option[value="0"]').attr("selected", "selected");
-        $(ldc.view.form.id+' li.from select').attr("disabled", "true");
-        $(ldc.view.form.id+' li.to select').removeAttr("disabled");
-    });
-    $("#op-type2").unbind('click');
-    $("#op-type2").click(function() {
-        $(ldc.view.form.id+' li.to select option:selected').removeAttr('selected');
-        $(ldc.view.form.id+' li.from select option:selected').removeAttr('selected');
-        $(ldc.view.form.id+' li.to select option[value="'+compte_id+'"]').attr("selected", "selected");
-        $(ldc.view.form.id+' li.from select option[value="0"]').attr("selected", "selected");
-        $(ldc.view.form.id+' li.to select').attr("disabled", "true");
-        $(ldc.view.form.id+' li.from select').removeAttr("disabled");
-    });
-
-    // autocomplete categories
-    var source = [];
-    for (var i in ldc.m.CATEGORIES) {
-        source.push(ldc.m.CATEGORIES[i].name);
-    }
-    $("li.cats input.name").autocomplete( {source: source});
-
-    // add cat
-    function del_cats() {
-        $(this).parent().remove();
-        return false;
-    }
-    function add_cats() {
-        var html = '<div class="cats_elt">';
-        html += '<input type="text" class="name"/>';
-        html += '<input type="text" class="val"/>';
-        html += '<button class="del">-</button>';
-        html += '</div>';
-        $(ldc.view.form.id+' li.cats .cats_list').append(html);
-        $("li.cats input.name").autocomplete( {source: source});
-        $(ldc.view.form.id+' li.cats button').button();
-        $(ldc.view.form.id+' li.cats button.del').unbind('click');
-        $(ldc.view.form.id+' li.cats button.del').click(del_cats);
-        return false;
-    }
-    $(ldc.view.form.id+' li.cats button').button();
-    $(ldc.view.form.id+' li.cats button.add').click(add_cats);
-    $(ldc.view.form.id+' li.cats button.del').click(del_cats);
-    
-
-    $(ldc.view.form.id).dialog('open');
-}
-
-ldc.view.form.hide = function () {
-    $(ldc.view.form.id).hide();
-}
 
 
 /******************************************************************************

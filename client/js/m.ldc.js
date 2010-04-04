@@ -23,9 +23,8 @@ ldc.m.MONTHS = [
   * INIT
   ****************************************************************************/
 
-ldc.m.init = function(function_after_init) 
+ldc.m.init = function() 
 {
-    ldc.m.init.after_init = function_after_init;
     ldc.m.init.nb_ajax_calls++;
     $.getJSON(ldc.m.SERVER + "get_categories.php", ldc.m.categories.store);
     ldc.m.init.nb_ajax_calls++;
@@ -45,7 +44,7 @@ ldc.m.init.is_finished = function()
     ldc.m.init.nb_ajax_calls--;
     console.debug("ldc.m.init.nb_ajax_calls="+ldc.m.init.nb_ajax_calls);
     if (ldc.m.init.nb_ajax_calls == 0) {
-        ldc.m.init.after_init();
+        ldc.v.init();
     }
 }
 
@@ -115,30 +114,30 @@ ldc.m.categories.add = function (name, father_id) {
     var id;
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc.view.log.error("L'ajout de la catégorie a échoué...");
+            ldc.v.log.error("L'ajout de la catégorie a échoué...");
         } else {
-            ldc.view.log.success("Catégorie ajoutée.");
+            ldc.v.log.success("Catégorie ajoutée.");
         }
         data = JSON.parse(data);
         id = data.id;
     }
     var data = { name: name, father_id: father_id };
-    ldc.post_ajax(ldc.m.SERVER + "add_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
+    ldc.m.post_ajax(ldc.m.SERVER + "add_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
     data.id = ''+id;
-    ldc.m.categories.push(data);
+    ldc.m.categories.data.push(data);
     return id;
 };
 
 ldc.m.categories.del = function (id) {
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc.view.log.error("La suppresion de la catégorie a échoué...");
+            alert("La suppresion de la catégorie a échoué...");
         } else {
-            ldc.view.log.success("Catégorie supprimée.");
+            ldc.v.log.success("Catégorie supprimée.");
         }
     }
     var data = { id: id };
-    ldc.post_ajax(ldc.m.SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);
+    ldc.m.post_ajax(ldc.m.SERVER + "del_categorie.php",  "json="+JSON.stringify(data) , on_success, true);
     for(var i in ldc.m.categories) {
         if (ldc.m.categories[i].id == id) {
             delete(ldc.m.categories[i]);
@@ -156,7 +155,7 @@ ldc.m.categories.update = function(id, name, father_id) {
         }
     }
     var data = { id: id, name: name, father_id: father_id };
-    ldc.post_ajax(ldc.m.SERVER + "update_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
+    ldc.m.post_ajax(ldc.m.SERVER + "update_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
     for(var i in ldc.m.categories) {
         if (ldc.m.categories[i].id == data.id) {
             ldc.m.categories[i] = data;

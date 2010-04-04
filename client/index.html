@@ -14,7 +14,7 @@
         <script type="text/javascript" src="js/jquery.tree.js"></script>
         <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(ldc.c.init);
+            $(document).ready(ldc.m.init);
           google.load("visualization", "1", {packages:["linechart", "columnchart"]});
           google.setOnLoadCallback(ldc.drawChart);
         </script>
@@ -25,21 +25,23 @@
 
     <body>
         <div id="log"></div>
-        <button id="button_test">TEST</button>
-        <div id="main" style="display:none;">
-            <div id="cats">
-                <button class="add">Ajouter</button>
-                <button class="rename">Renommer</button>
-                <button class="del">Enlever</button>
-                <div class="tree"></div>
-            </div>
-            <div id="comptes"></div>
-            <div id="operations">
-                <button class="add">Ajouter</button>
-                <button class="update">Modifier</button>
-                <button class="del">Enlever</button>
-            </div>
+        <div id="submenu"><a href="#params">Paramètres</a></div>
+
+        <div id="timeline"> Timeline</div>
+
+        <div id="tabs"><ul class="tabs"></ul></div>
+
+        <div id="params">
+            <ul>
+                <li class="cats">
+                    <h3>Catégories</h3>
+                    <button class="add">Ajouter</button>
+                    <button class="rename">Modifier</button>
+                    <button class="del">Supprimer</button>
+                </li>
+            </ul>
         </div>
+
         <div id="form">
             <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
                     <ol>
