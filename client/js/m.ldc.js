@@ -225,14 +225,14 @@ ldc.m.operations.store = function (data, textStatus) {
 ldc.m.operations.add= function (op) {
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc.view.log.error("L'ajout de l'opération a échoué...");
+            ldc.v.log.error("L'ajout de l'opération a échoué...");
         } else {
-            ldc.view.log.success("Opération ajoutée.");
+            ldc.v.log.success("Opération ajoutée.");
         }
         data = JSON.parse(data);
         op.id = data.id;
     }
-    ldc.post_ajax(ldc.m.SERVER + "add_operation.php",  "json="+JSON.stringify(op) , on_success, false);
+    ldc.m.post_ajax(ldc.m.SERVER + "add_operation.php",  "json="+JSON.stringify(op) , on_success, false);
     ldc.m.operations.data.push(op);
     return op.id;
 };
@@ -240,14 +240,14 @@ ldc.m.operations.add= function (op) {
 ldc.m.operations.del = function(id) {
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc.view.log.error("La suppression de l'opération a échoué...");
+            ldc.v.log.error("La suppression de l'opération a échoué...");
         } else {
-            ldc.view.log.success("Opération supprimée.");
+            ldc.v.log.success("Opération supprimée.");
         }
     }
     var data = { id: id};
-    ldc.post_ajax(ldc.m.SERVER + "del_operation.php",  "json="+JSON.stringify(data) , on_success, true);
-    for(var i in ldc.m.operations) {
+    ldc.m.post_ajax(ldc.m.SERVER + "del_operation.php",  "json="+JSON.stringify(data) , on_success, true);
+    for(var i in ldc.m.operations.data) {
         if (ldc.m.operations.data[i].id == id) {
             delete(ldc.m.operations.data[i]);
             break;
@@ -275,9 +275,9 @@ ldc.m.operations.update = function (op) {
 
 ldc.m.operations.get = function (id)
 {
-    for(var i in ldc.m.operations) {
+    for(var i in ldc.m.operations.data) {
         if (ldc.m.operations.data[i].id == id) {
-            return ldc.m.operations.data[i].id;
+            return ldc.m.operations.data[i];
         }
     }
     return false;

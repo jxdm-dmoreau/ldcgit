@@ -16,46 +16,20 @@ ldc.v.init = function ()
     $("#tabs").tabs();
 
     // init params
-    ldc.v.categories.init($("#params li.cats"), "cats");
-    $("#params").dialog({
-            buttons: { "Fermer": function() { $("#params").dialog('close');}},
-            modal: true,
-            autoOpen: false,
-            draggable: false,
-            resizable: false,
-            title: 'Paramères',
-            width: 500,
-            hide: 'slide',
-            closeText: 'hide'
-    });
+    ldc.v.params();
 
     // init form
     ldc.v.form.init();
+
+    // timeline
+    ldc.v.timeline();
+
 
     // end --> init controller
     ldc.c.init();
     return false;
 }
 
-
-ldc.view = function () {
-    $("#main").show();
-    /* on initialise tous (tableaux etc) */
-    // operations by compte
-    for (var i in ldc.m.COMPTES) {
-        console.debug("compte="+ldc.m.COMPTES[i].id);
-        ldc.v.modules.operations.init($("#main"), ldc.m.COMPTES[i]);
-    }
-
-    $("#button_test").click(function() {
-            ldc.v.modules.operations.del(ldc.m.operations.get(1),ldc.m.COMPTES.get(3)); 
-            return false;
-    });
-    var i = 0;
-    for ( i in ldc.m.COMPTES) {
-        ldc.v.modules.operations.show(ldc.m.COMPTES[i]);
-    }
-};
 
 
 /******************************************************************************
@@ -68,18 +42,6 @@ ldc.v.log = function (text) {
 ldc.v.log.success = ldc.v.log;
 ldc.v.log.error = ldc.v.log;
 
-/******************************************************************************
-  * MODULES
-******************************************************************************/
-
-/* 
-   Liste des modules :
-   - operations
-   - categories
-   - menu
-*/
-
-ldc.v.modules = {};
 
 /******************* operations MODULE ***************************************/
 ldc.v.operations = {};
@@ -90,8 +52,8 @@ ldc.v.operations = {};
  */
 ldc.v.operations.html = function (op, compte)
 {
-    var html = '<tr operations_id="'+op.id+'">';
-    html += '<td>'+op.id+'</td>';
+    var html = '<tr>';
+    html += '<td class="op-id">'+op.id+'</td>';
     html += '<td>'+op.date+'</td>';
     var total = 0;
     for(var i in op.cats) {
@@ -118,6 +80,7 @@ ldc.v.operations.html = function (op, compte)
     return html;
 }
 
+ldc.v.operations.table = [];
 /*
  * Init Operation module
  */
@@ -129,8 +92,8 @@ ldc.v.operations.init = function (jContainer, id, compte) {
     //jDiv.hide();
     /* generate html */
     var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
-    html += '<button class="update">Modifier</button>';
-    html += '<button class="del">Supprimer</button>';
+    html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
+    html += '<button compte_id="'+compte.id+'" class="del" disabled="disabled">Supprimer</button>';
     html += '<table compte_id="'+compte.id+'" class="operations-table">';
     html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
     for (var j in ldc.m.operations.data) {
@@ -149,13 +112,31 @@ ldc.v.operations.init = function (jContainer, id, compte) {
             "sPaginationType": "full_numbers"
     });
     /* store the dataTable object (needed to add new values ...) */
-    ldc.v.operations.table = [];
     ldc.v.operations.table[compte.id] = dataTable;
 }
 
 
-ldc.v.operations.add = function (compte, op)
+ldc.v.operations.add = function (op)
 {
+    var total = 0;
+    var html = '<ul>';
+    for(var i in op.cats) {
+        total += parseFloat(op.cats[i].val);
+        var cat = ldc.m.categories.get(op.cats[i].id);
+        if (!cat) {
+            alert("Categorie "+op.cats[i].id+" not found!");
+            return false;
+        }
+        html += '<li>'+cat.name+' ('+op.cats[i].val+'€)</li>';
+    }
+    html += '</ul>';
+    if (op.from != 0) {
+        ldc.v.operations.table[op.from].fnAddData( [op.id, op.date, total, 0, html, op.description]);
+    }
+    if (op.to != 0) {
+        ldc.v.operations.table[op.to].fnAddData( [op.id, op.date, 0, total, html, op.description]);
+    }
+
     return false;
 }
 
@@ -164,73 +145,24 @@ ldc.v.operations.update = function (compte, op)
     return false;
 }
 
-ldc.v.operations.del = function (compte, op)
+ldc.v.operations.del = function (op)
 {
-    var jTr = $("div[compte_id="+compte.id+"] tr[operations_id="+op.id+"]");
-    ldc.v.modules.operations.table[compte.id].fnDeleteRow(jTr[0]);
+    console.debug("op.from =>"+op.from);
+    if (op.from != 0) {
+        var jTr = $("#compte_"+op.from+" tr td.op-id:contains('"+op.id+"')").parents("tr");
+        console.debug(jTr.html());
+        ldc.v.operations.table[op.from].fnDeleteRow(jTr[0]);
+    }
+    console.debug("op.to =>"+op.to);
+    if (op.to != 0) {
+        var jTr = $("#compte_"+op.to+" tr td.op-id:contains('"+op.id+"')").parents("tr");
+        console.debug(jTr.html());
+        ldc.v.operations.table[op.to].fnDeleteRow(jTr[0]);
+    }
     return false;
 }
 
 
-
-    /* ACTIONS */
-    /* function to add operation in the HTML table */
-/*
-    $(css_id+" button.add").button();
-    $(css_id+" button.add").click(function() {
-            ldc.view.form.show(compte_id);
-    });
-    $(css_id+" button.update").button();
-    $(css_id+" button.update").click(function() {
-            var op = { id:46, from:2, to:3, date:'2010-01-01', confirm:1, cats: [{ id:1, val:12}]};
-            ldc.m.operations.update(op);
-    });
-    $(css_id+" button.del").button();
-    $(css_id+" button.del").click(function() {
-            var id = $(css_id+" .ui-state-highlight").children().first().text();
-            if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
-                //ldc.m.operations.del(id)i;
-                var jTr = $(css_id+" .ui-state-highlight");
-                ldc.view.operations.del(dataTable, jTr[0]);
-            }
-
-    });
-    $(css_id).delegate("tr", "click", function() {
-        $(css_id+" .ui-state-highlight").removeClass("ui-state-highlight");
-        $(this).addClass("ui-state-highlight");
-        var id = $(this).children().first().text();
-
-    });
-    */
-
-
-
-
-
-
-
-
-/******************************************************************************
-  * Menu
-******************************************************************************/
-/* constructeur du menu */
-ldc.v.menu = function (jContainer) {
-    var html = '<div id="menu">';
-    html += '<ul>';
-    html += '<li>Comptes';
-    html += '<ul>';
-    for (var i in ldc.m.COMPTES) {
-        var c = ldc.m.COMPTES[i];
-        html += '<li><a href="#" compte_id="'+c.id+'">'+c.bank+' - '+c.name+'</a></li>';
-    }
-    html += '</ul></li>';
-    html += '<li>Paramètres</li>';
-    html += '</ul>';
-    html += '</div>';
-    jContainer.append(html);
-
-
-}
 
 
 /******************************************************************************
@@ -282,29 +214,6 @@ ldc.v.categories.init = function (jContainer, id) {
     });
 
 
-    /*
-    $(css_id+" button.add").click(function() {
-        is_creation = true;
-        var t = $.tree.focused();
-        if(t.selected) {
-            t.create();
-        } else {
-            alert("Select a node first");
-        }
-    });
-
-    $(css_id+" button.del").click(function() {
-        if(confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
-            $.tree.focused().remove();
-        }
-    });
-
-    $(css_id+" button.rename").click(function() {
-                is_update = true;
-                $.tree.focused().rename();
-    });
-*/
-
 };
 
 
@@ -314,7 +223,7 @@ ldc.v.categories.init = function (jContainer, id) {
   * STATS
 ******************************************************************************/
 
-ldc.view.stats = function (jContainer) {
+ldc.v.stats = function (jContainer) {
 
 
     var data = new google.visualization.DataTable();
@@ -382,7 +291,11 @@ ldc.v.form.init = function() {
     $("#form").dialog({ 
             modal: true,
             buttons: { "Ok": ldc.c.operations.add},
-            autoOpen: false
+            autoOpen: false,
+            draggable: false,
+            title: 'Opérations',
+            width: 500,
+            resizable: false
     });
 }
 
@@ -392,18 +305,21 @@ ldc.v.form.init = function() {
   * Parameters
 ******************************************************************************/
 
-ldc.view.params = function(css_id) {
-    ldc.view.params.id = css_id;
+ldc.v.params = function() {
+    ldc.v.categories.init($("#params li.cats"), "cats");
+    $("#params").dialog({
+            buttons: { "Fermer": function() { $("#params").dialog('close');}},
+            modal: true,
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            title: 'Paramères',
+            width: 500,
+            hide: 'slide',
+            closeText: 'hide'
+    });
 }
 
-
-ldc.view.params.show = function () {
-    $(ldc.view.params.id).show();
-}
-
-ldc.view.params.hide = function () {
-    $(ldc.view.params.id).hide();
-}
 
 
 
@@ -411,7 +327,7 @@ ldc.view.params.hide = function () {
   * Comptes
 ******************************************************************************/
 
-ldc.view.comptes = function(css_id) {
+ldc.v.comptes = function(css_id) {
     $(css_id).hide();
     $(css_id).empty();
     var table = '<table><thead><th>id</th><th>Banque</th><th>Nom</th><th>Solde initial</th><th>Solde Courant</th></thead>';
@@ -438,3 +354,14 @@ ldc.view.comptes = function(css_id) {
     }
 }
 
+
+ldc.v.timeline = function() {
+    $("#timeline").slider({
+            range: true,
+            animate: true,
+    });
+}
+
+ldc.v.alert = function() {
+    alert("alert");
+}
