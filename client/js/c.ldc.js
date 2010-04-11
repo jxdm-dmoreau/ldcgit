@@ -1,11 +1,35 @@
 ldc.c = {};
 
 
-
 ldc.c.init = function () {
+    // init view
+    ldc.v.init();
+    ldc.v.form.init(ldc.c.operations.add,
+        function() {
+            ldc.v.form.cats.setSelected($(this));
+            $(this).addClass("ui-state-highlight");
+            ldc.v.popup.cats.open();
+    });
+    console.debug("here");
     ldc.c.params();
+    console.debug("here");
     ldc.c.tabs();
+    console.debug("here");
     ldc.c.form();
+    console.debug("here");
+
+    ldc.v.popup.cats.init(function(cat_id) {
+            var c = ldc.m.categories.get(cat_id);
+            ldc.v.form.cats.set('id', c.id);
+            ldc.v.form.cats.set('name', c.name);
+            ldc.v.form.cats.removeSelected();
+            ldc.v.form.cats.removeError();
+            ldc.v.popup.cats.close();
+    });
+}
+
+ldc.c.pre_init = function () {
+    ldc.m.init(ldc.c.init);
 
 }
 
@@ -27,31 +51,66 @@ ldc.c.tabs = function() {
 
     // add button
     $("#tabs button.add").click(function() {
-        // add compte_id in form
-        var compte_id = $(this).attr('compte_id');
-        $('#form input.compte_id').attr("value", compte_id);
-        $('#form li.from select option:selected').removeAttr('selected');
-        $('#form li.to select option:selected').removeAttr('selected');
-        $('#form li.from select option[value="'+compte_id+'"]').attr("selected", "selected");
-        $('#form li.to select option[value="0"]').attr("selected", "selected");
-        $('#form li.from select').attr("disabled", "true");
-        $('#form li.to select').removeAttr("disabled");
-        $("#form").dialog('open');
+        // init form
+        ldc.v.form.compte_id.set($(this).attr('compte_id'));
+        ldc.v.form.operation_id.set(-1);
+        ldc.v.form.type.setChecked('debit');
+        ldc.v.form.date.set('+0');
+        ldc.v.form.from.set($(this).attr('compte_id'));
+        ldc.v.form.from.disabled(true);
+        ldc.v.form.to.set(0);
+        ldc.v.form.to.disabled(false);
+        ldc.v.form.cats.empty();
+        ldc.v.form.cats.add();
+        ldc.v.form.description.set('');
+        ldc.v.form.open();
     });
 
 
     // del button
     $("#tabs button.del").click(function() {
         var id = $(this).parents('div.operations').find("tr.ui-state-highlight td:first").text();
-        var compte_id = $(this).attr("compte_id");
         var op = ldc.m.operations.get(id);
         ldc.v.operations.del(op);
         ldc.m.operations.del(id);
+        $(this).parents('div.operations').children("button.del").attr("disabled", "disabled");
+        $(this).parents('div.operations').children("button.update").attr("disabled", "disabled");
         return false;
     });
 
     // update button
-    $("#tabs button.update").click(ldc.v.alert);
+    $("#tabs button.update").click(function() {
+            var compte_id = $(this).attr('compte_id');
+            var id = $(this).parents('div.operations').find("tr.ui-state-highlight td:first").text();
+            var op = ldc.m.operations.get(id);
+            ldc.v.form.compte_id.set(compte_id);
+            ldc.v.form.operation_id.set(op.id);
+            console.debug("from="+op.from);
+            console.debug("to="+op.to);
+            console.debug("compte="+compte_id);
+            if (op.from == compte_id) {
+                console.debug('debit detected')
+                ldc.v.form.type.setChecked('debit');
+                ldc.v.form.from.disabled(true);
+                ldc.v.form.to.disabled(false);
+            } else {
+                console.debug('credit detected')
+                ldc.v.form.type.setChecked('credit');
+                ldc.v.form.from.disabled(false);
+                ldc.v.form.to.disabled(true);
+            }
+            ldc.v.form.date.set(op.date);
+            ldc.v.form.from.set(op.from);
+            ldc.v.form.to.set(op.to);
+            ldc.v.form.cats.empty();
+            for (var i in op.cats) {
+                var c = ldc.m.categories.get(op.cats[i].id);
+                ldc.v.form.cats.add(c.id, c.name, op.cats[i].val);
+            }
+            ldc.v.form.description.set(op.description);
+            ldc.v.form.open();
+            return false;
+    });
 
     return false;
 }
@@ -82,17 +141,15 @@ ldc.c.form = function() {
         $('#form li.from select').removeAttr("disabled");
     });
 
-    // autocomplete categories
-    var source = [];
-    for (var i in ldc.m.categories.data) {
-        source.push(ldc.m.categories.data[i].name);
-    }
-    $("#form li.cats input.name").autocomplete( {source: source});
-    // button
     function del_cats() {
         $(this).parent().remove();
         return false;
     }
+    $('#form li.cats button.add').click(function() {
+            ldc.v.form.cats.add();
+            return false;
+    });
+    /*
     function add_cats() {
         var html = '<div class="cats_elt">';
         html += '<input type="text" class="name"/>';
@@ -109,6 +166,7 @@ ldc.c.form = function() {
     $('#form li.cats button').button();
     $('#form li.cats button.add').click(add_cats);
     $('#form li.cats button.del').click(del_cats);
+    */
     return false;
 }
 
@@ -178,53 +236,78 @@ ldc.c.params.onmove_categories = function(NODE,REF_NODE,TYPE,TREE_OBJ,RB) {
 
 ldc.c.operations = {};
 
-ldc.c.operations.add = function () {
-
+ldc.c.operations.checkForm = function () {
+    var error = false;
     /* construct op from form */
     var op = {};
+    op.id = ldc.v.form.operation_id.get();
     // date
-    $('#form .ui-state-error').removeClass('ui-state-error');
-    var date = $('#datepicker').attr("value");
+    ldc.v.form.date.removeError();
+    var date = ldc.v.form.date.get();
     if (date == "") {
-        $('#datepicker').addClass("ui-state-error");
+        ldc.v.form.date.setError();
         return false;
     }
     op.date = date;
     console.debug("date:"+date);
     // from
-    var from = $('#form li.from select').val();
+    var from = ldc.v.form.from.get();
     op.from = from;
     console.debug("from:"+from);
     // to
-    var to = $('#form li.to select').val();
+    var to = ldc.v.form.to.get();
     op.to = to;
     console.debug("to:"+to);
     // cats
     op.cats = [];
-    $('#form li.cats .cats_elt').each( function() {
+    $('#form li.cats ul li').each( function() {
             var jThis = $(this);
-            var cat_name = jThis.children(".name").val();
-            var cat = ldc.m.categories.get_from_name(cat_name);
-            if (cat == false) {
-                jThis.children(".name").addClass('ui-state-error');
+            var id = ldc.v.form.cats.get('id', jThis);
+            if (id == -1) {
+                ldc.v.form.cats.setError(jThis);
+                error = true;
                 return false;
             }
-            var cat_value = jThis.children(".val").val();
+            var c = ldc.m.categories.get(id);
+            var cat_value = ldc.v.form.cats.get('value', jThis);
             if (cat_value == "") {
-                jThis.children(".val").addClass('ui-state-error');
+                ldc.v.form.cats.setError(jThis);
+                error = true;
                 return false;
             }
-            op.cats.push({id: cat.id, val:cat_value});
-            console.debug(cat_name+'('+cat.id+'):'+cat_value);
+            op.cats.push({id: c.id, val:cat_value});
+            console.debug('('+c.id+'):'+cat_value);
     });
+    if (error) {
+        return false;
+    }
     //description
     op.description = $('#form li.description textarea').val();
+    return op;
+}
 
-    /* Add operation server side */
-    op.id = ldc.m.operations.add(op);
-    $("#form").dialog('close');
+ldc.c.operations.add = function () {
 
-    /* add operation client side */
-    ldc.v.operations.add(op);
+    var op = ldc.c.operations.checkForm();
+    console.debug(op);
+    if (op == false) {
+        return false;
+    }
+    console.debug(JSON.stringify(op));
+
+    if (op.id == -1) {
+        /* Add operation server side */
+        op.id = ldc.m.operations.add(op);
+        $("#form").dialog('close');
+        /* add operation client side */
+        ldc.v.operations.add(op);
+    } else {
+        // update
+        ldc.m.operations.update(op);
+        //ldc.v.operations.update(op);
+        //$("#form").dialog('close');
+        /* add operation client side */
+    }
     return false;
 }
+

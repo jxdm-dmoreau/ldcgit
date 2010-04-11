@@ -1,7 +1,7 @@
 /* progress bar */
 
 body {
-    font-size: 10pt;
+    font-size: 0.75em;
 }
 #pb {
     height: 20px;
@@ -41,9 +41,4 @@ tr.selected {
     background-color: orange;
 }
 
-
-/* FORMULAIRE */
-#form {
-    font-size: 10pt;
-}
 

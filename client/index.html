@@ -5,7 +5,7 @@
         <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
         <meta http-equiv="Content-Language" content="french" />
         <title>Mon Logiciel de Compte</title>
-        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <!--<script type="text/javascript" src="http://www.google.com/jsapi"></script>-->
         <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="js/jquery-ui-1.8rc3.custom.min.js"></script>
         <script type="text/javascript" src="js/m.ldc.js"></script>
@@ -14,12 +14,11 @@
         <script type="text/javascript" src="js/jquery.tree.js"></script>
         <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(ldc.m.init);
-          google.load("visualization", "1", {packages:["linechart", "columnchart"]});
-          google.setOnLoadCallback(ldc.drawChart);
+            $(document).ready(ldc.c.pre_init);
+          //google.load("visualization", "1", {packages:["linechart", "columnchart"]});
+          //google.setOnLoadCallback(ldc.drawChart);
         </script>
         <link rel="StyleSheet" href="css/smoothness/jquery-ui-1.8rc3.custom.css" type="text/css" />
-        <link rel="StyleSheet" href="css/demo_table_jui.css" type="text/css" />
         <link rel="StyleSheet" href="css/ldc.css" type="text/css" />
     </head>
 
@@ -46,6 +45,7 @@
             <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
                     <ol>
                         <input type="hidden" class="compte_id" />
+                        <input type="hidden" class="operation_id" />
                         <li class="date">
                             <label for="datepicker">Date :</label>
                             <input autocomplete="off" type="text" size="10" value="" id="datepicker" name="op-calendar" />
@@ -70,15 +70,19 @@
                             </select>
                         </li>
                         <li class="cats">
-                            <div class="cats_list">
+                        <ul>
+                            <!--<div class="cats_list"> -->
+                            <!--
                                 <div class="cats_elt">
-                                    <!--<label>Catégories :</label>-->
+                                    <label>Catégories :</label>
                                     <input class="name" type="text" />
-                                    <!--<label>Valeurs :</label>-->
+                                    <label>Valeurs :</label>
                                     <input class="val" type="text" />
                                     <button class="del">-</button>
                                 </div>
-                            </div>
+                                -->
+                            <!--</div>-->
+                            </ul>
                             <button class="add">+</button>
                         </li>
                         <li class="description">

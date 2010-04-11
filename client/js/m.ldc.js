@@ -44,7 +44,7 @@ ldc.m.init.is_finished = function()
     ldc.m.init.nb_ajax_calls--;
     console.debug("ldc.m.init.nb_ajax_calls="+ldc.m.init.nb_ajax_calls);
     if (ldc.m.init.nb_ajax_calls == 0) {
-        ldc.v.init();
+        ldc.c.init();
     }
 }
 
@@ -258,12 +258,12 @@ ldc.m.operations.del = function(id) {
 ldc.m.operations.update = function (op) {
     function on_success(data, textStatus) {
         if (data == 1) {
-            ldc.view.log.error("La modification de l'opération a échoué...");
+            ldc.v.log.error("La modification de l'opération a échoué...");
         } else {
-            ldc.view.log.success("Opération Modifiée.");
+            ldc.v.log.success("Opération Modifiée.");
         }
     }
-    ldc.post_ajax(ldc.m.SERVER + "update_operation.php",  "json="+JSON.stringify(op) , on_success, true);
+    ldc.m.post_ajax(ldc.m.SERVER + "update_operation.php",  "json="+JSON.stringify(op) , on_success, true);
     for(var i in ldc.m.operations.data) {
         if (ldc.m.operations.data[i].id == op.id) {
             ldc.m.operations.data[i] = op;

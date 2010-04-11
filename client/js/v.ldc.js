@@ -19,14 +19,12 @@ ldc.v.init = function ()
     ldc.v.params();
 
     // init form
-    ldc.v.form.init();
+    //ldc.v.form.init(ldc.c.operations.add);
 
     // timeline
     ldc.v.timeline();
 
 
-    // end --> init controller
-    ldc.c.init();
     return false;
 }
 
@@ -85,6 +83,7 @@ ldc.v.operations.table = [];
  * Init Operation module
  */
 ldc.v.operations.init = function (jContainer, id, compte) {
+    console.debug("ldc.v.opeations.init("+id+")");
     /* add a div and hide it */
     var div = '<div class="operations" id="'+id+'"></div>';
     jContainer.append(div);
@@ -271,7 +270,8 @@ ldc.drawChart = function () {
 ******************************************************************************/
 ldc.v.form = {};
 
-ldc.v.form.init = function() {
+ldc.v.form.init = function(onValidate, onCatNameClick) {
+
     // complete HTML
     for(var i in ldc.m.comptes.data) {
         var name = ldc.m.comptes.data[i].bank + ' - ' + ldc.m.comptes.data[i].name;
@@ -283,6 +283,9 @@ ldc.v.form.init = function() {
     $("div#form li.from select").append('<option value="0">Extérieur</option>');
 
 
+    $("#form li.cats").delegate('input.name', 'click', onCatNameClick);
+    $("#form li.cats").delegate('button.del', 'click', ldc.v.form.cats.del);
+
     // datepicker
     $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
     // radios
@@ -290,7 +293,7 @@ ldc.v.form.init = function() {
     // dialog
     $("#form").dialog({ 
             modal: true,
-            buttons: { "Ok": ldc.c.operations.add},
+            buttons: { "Ok": onValidate},
             autoOpen: false,
             draggable: false,
             title: 'Opérations',
@@ -300,6 +303,225 @@ ldc.v.form.init = function() {
 }
 
 
+ldc.v.form.type = {};
+ldc.v.form.type.setChecked = function (type) {
+    if (type == 'debit') {
+        $("#form li.type input#op-type1").attr("checked", "checked");
+        $("#form li.type input#op-type2").removeAttr("checked");
+    }
+    if (type == 'credit') {
+        $("#form li.type input#op-type2").attr("checked", "checked");
+        $("#form li.type input#op-type1").removeAttr("checked");
+    }
+    $("#form li.type input#op-type1").button('refresh');
+    $("#form li.type input#op-type2").button('refresh');
+}
+
+
+
+
+ldc.v.form.cats = {};
+ldc.v.form.cats.add = function (id, name, val) {
+    id = (id==undefined)?-1:id;
+    name = (name==undefined)?'':name;
+    val = (val==undefined)?0:val;
+    var html = '<li>';
+    html += '<input type=hidden class="id" value="'+id+'" />';
+    html += '<input type="text" class="name" value="'+name+'"/>';
+    html += '<input type="text" class="val" value="'+val+'"/>';
+    html += '<button class="del">-</button>';
+    html += '</li>';
+    $("#form li.cats ul").append(html);
+}
+ldc.v.form.cats.empty = function () {
+    $("#form li.cats ul").empty();
+}
+ldc.v.form.cats.set = function(name, value) {
+    if (name == 'id') {
+        $("#form li.cats input.ui-state-highlight").parent().children('input.id').val(value);
+    }
+    if (name == 'name') {
+        $("#form li.cats input.ui-state-highlight").parent().children('input.name').val(value);
+    }
+    if (name == 'val') {
+        $("#form li.cats input.ui-state-highlight").parent().children('input.val').val(value);
+    }
+}
+ldc.v.form.cats.setSelected = function (jThis) {
+    jThis.addClass("ui-state-highlight");
+}
+ldc.v.form.cats.removeSelected = function (jThis) {
+    $("#form .ui-state-highlight").removeClass("ui-state-highlight");
+}
+ldc.v.form.cats.get = function (name, jThis) {
+    if (name == 'id') {
+        return jThis.children('.id').val();
+    }
+    if (name == 'name') {
+        return jThis.children('.name').val();
+    }
+    if (name == 'value') {
+        return jThis.children('.val').val();
+    }
+}
+ldc.v.form.cats.setError = function (jThis) {
+    jThis.addClass('ui-state-error');
+}
+ldc.v.form.cats.removeError = function () {
+    $('#form li.cats .ui-state-error').removeClass('ui-state-error');
+}
+ldc.v.form.cats.del = function () {
+    $(this).parent().remove();
+}
+
+
+ldc.v.form.date = {};
+ldc.v.form.date.set = function(date) {
+    $("#form #datepicker").datepicker('setDate', date);
+}
+ldc.v.form.date.get = function(date) {
+    return $("#form #datepicker").val();
+}
+ldc.v.form.date.setError = function() {
+    $('#datepicker').addClass("ui-state-error");
+}
+ldc.v.form.date.removeError = function() {
+    $('#datepicker').removeClass("ui-state-error");
+}
+
+ldc.v.form.to = {};
+ldc.v.form.to.set = function(to) {
+    $('#form li.to select option:selected').removeAttr('selected');
+    $('#form li.to select option[value="'+to+'"]').attr("selected", "selected");
+}
+ldc.v.form.to.get = function() {
+    return $('#form li.to select').val();
+}
+ldc.v.form.to.disabled = function(bool) {
+    if (bool == true) {
+        $('#form li.to select').attr('disabled', 'disabled');
+    } else {
+        $('#form li.to select').removeAttr('disabled');
+    }
+}
+
+
+
+ldc.v.form.from = {};
+ldc.v.form.from.set = function(from) {
+    $('#form li.from select option:selected').removeAttr('selected');
+    $('#form li.from select option[value="'+from+'"]').attr("selected", "selected");
+}
+ldc.v.form.from.get = function() {
+    return $('#form li.from select').val();
+}
+ldc.v.form.from.disabled = function(bool) {
+    if (bool == true) {
+        $('#form li.from select').attr('disabled', 'disabled');
+    } else {
+        $('#form li.from select').removeAttr('disabled');
+    }
+}
+
+ldc.v.form.compte_id = {};
+ldc.v.form.compte_id.set = function(id) {
+    $('#form input.compte_id').val(id);
+}
+ldc.v.form.compte_id.get = function() {
+    return $('#form input.compte_id').val();
+}
+
+ldc.v.form.operation_id = {};
+ldc.v.form.operation_id.set = function(id) {
+    $('#form input.operation_id').val(id);
+}
+ldc.v.form.operation_id.get = function() {
+    return $('#form input.operation_id').val();
+}
+
+ldc.v.form.description = {};
+ldc.v.form.description.set = function (text) {
+    $("#form li.description textarea").val(text);
+}
+ldc.v.form.description.get = function () {
+    return $("#form li.description textarea").val();
+}
+
+ldc.v.form.open = function() {
+    $("#form").dialog('open');
+}
+
+
+/* POPUP cats */
+
+ldc.v.popup = {};
+ldc.v.popup.cats = {};
+ldc.v.popup.cats.id = 'popup_cats';
+
+ldc.v.popup.cats.init = function (onSelect) {
+
+    function select(NODE, TREE_OBJ) {
+        var cat_id = $(NODE).attr('cat_id');
+        onSelect(cat_id);
+        return false;
+    }
+
+    function display_cat_r(cat, html) {
+        html += '<li cat_id="'+cat.id+'"><a href="#"><ins>&nbsp;</ins>'+cat.name+'</a>';
+        var children = ldc.m.categories.get_children(cat.id);
+        if (children.length > 0) {
+            html += '<ul>';
+            for(var i in children) {
+                html = display_cat_r(children[i], html);
+            }
+            html += '</ul>';
+        }
+        html += '</li>';
+        return html;
+    }
+
+    html = '<ul>';
+    html += '<li rel="root" cat_id="0"><a href="#"><ins>&nbsp;</ins>Catégories</a><ul>';
+    var children = ldc.m.categories.get_children(0);
+    for(var i in children) {
+        html = display_cat_r(children[i], html);
+    }
+    html += '</ul></li></ul>';
+    var jDiv = $('<div id="'+ldc.v.popup.cats.id+'">');
+    jDiv.append(html);
+
+    jDiv.tree( {
+        callback: {
+            onselect : select
+        },
+        types: {
+            "root" : {
+                clickable   : true,
+                deletable   : false,
+                draggable   : false,
+            }
+        }
+    });
+    $("body").append(jDiv);
+    jDiv.dialog({
+            modal: true,
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            title: 'Choix catégorie',
+            width: 500
+    });
+
+}
+
+ldc.v.popup.cats.open = function () {
+
+    $('#'+ldc.v.popup.cats.id).dialog('open');
+}
+
+ldc.v.popup.cats.close = function () {
+    $('#'+ldc.v.popup.cats.id).dialog('close');
+}
 
 /******************************************************************************
   * Parameters
