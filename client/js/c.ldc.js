@@ -10,13 +10,11 @@ ldc.c.init = function () {
             $(this).addClass("ui-state-highlight");
             ldc.v.popup.cats.open();
     });
-    console.debug("here");
+
+    ldc.v.stats($('body'));
     ldc.c.params();
-    console.debug("here");
     ldc.c.tabs();
-    console.debug("here");
     ldc.c.form();
-    console.debug("here");
 
     ldc.v.popup.cats.init(function(cat_id) {
             var c = ldc.m.categories.get(cat_id);
@@ -298,15 +296,14 @@ ldc.c.operations.add = function () {
     if (op.id == -1) {
         /* Add operation server side */
         op.id = ldc.m.operations.add(op);
+        ldc.v.operations.add(op);
         $("#form").dialog('close');
         /* add operation client side */
-        ldc.v.operations.add(op);
     } else {
         // update
         ldc.m.operations.update(op);
-        //ldc.v.operations.update(op);
-        //$("#form").dialog('close');
-        /* add operation client side */
+        ldc.v.operations.update(op);
+        $("#form").dialog('close');
     }
     return false;
 }
