@@ -13,8 +13,9 @@ ldc.v.init = function ()
         $("#tabs ul.tabs").append('<li><a href="#compte_'+c.id+'">'+c.name+'</a></li>');
         var div = '<div class="operations" id="'+id+'"></div>';
         $("#tabs").append(div);
-        ldc.v.stats(id, c);
-        ldc.v.operations.init(id, c);
+        var data = ldc.m.operations.getStats(2, 2009, 2010, 01, 12);
+        ldc.v.stats.init($("#"+id), "stats_"+c.id, data);
+        ldc.v.operations.init(id, c, data);
     }
     $("#tabs").tabs();
 
@@ -141,11 +142,12 @@ ldc.v.operations.init = function (id, compte) {
     html += '<button compte_id="'+compte.id+'" class="del" disabled="disabled">Supprimer</button>';
     html += '<table compte_id="'+compte.id+'" class="operations-table">';
     html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
-    for (var j in ldc.m.operations.data) {
-        var from = ldc.m.operations.data[j].from;
-        var to =  ldc.m.operations.data[j].to;
+    var ops = ldc.m.operations.getAll();
+    for (var j in ops) {
+        var from = ops[j].from;
+        var to =  ops[j].to;
         if (from == compte.id | to == compte.id) {
-            html += op2html(ldc.m.operations.data[j], compte);
+            html += op2html(ops[j], compte);
         }
     }
     html += '</tbody>';
@@ -227,43 +229,55 @@ ldc.v.categories.init = function (jContainer, id) {
   * STATS
 ******************************************************************************/
 
-ldc.v.stats = function (id, c) {
+/*
 
-    function show() {
-        $("#stats").show();
+ */
+ldc.v.stats = function () {
+
+    var charts = new Array();
+
+    function show(id) {
+        $("#"+id).show();
+
     }
 
-    function hide() {
-        $("#stats").hide();
+    function hide(id) {
+        $("#"+id).hide();
     }
 
-
-    var jDiv = $("#"+id);
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Date');
-    data.addRows(12);
-    for (var i in ldc.MONTHS) {
-        i = parseInt(i);
-        data.setValue(i, 0, ldc.MONTHS[i].name);
-    }
-    var children = ldc.m.categories.get_children(0);
-    for (var i in children) {
-        data.addColumn('number', children[i].name);
-    }
-    for (var i in children) {
-        for(var j in ldc.MONTHS) {
-            var v = ldc.stats.get_all_cats(children[i].id, 2, '2010', ldc.MONTHS[j].num);
-            data.setValue(parseInt(j), parseInt(i)+1, v);
+    function update(id, data) {
+        var gData = new google.visualization.DataTable();
+        gData.addColumn('string', 'Date');
+        gData.addColumn('number', 'Dépenses');
+        for(var i in data) {
+            gData.addRow(data[i]);
         }
+        var chart = charts[id];
+        chart.draw(gData, {width: 800, height: 250, legend: 'bottom', title: "toto"});
     }
-    var html = '<div id="stats_'+c.id+'"></div>';
-    jDiv.append(html);
-    var chart = new google.visualization.ColumnChart(document.getElementById("stats_"+c.id));
-    chart.draw(data, {width: 800, height: 250, legend: 'bottom', title: c.name});
+
+    function init(jContainer, id, data) {
+        var gData = new google.visualization.DataTable();
+        gData.addColumn('string', 'Date');
+        gData.addColumn('number', 'Dépenses');
+        for(var i in data) {
+            gData.addRow(data[i]);
+        }
+        var html = '<div id="'+id+'"></div>';
+        jContainer.append(html);
+        var chart = new google.visualization.LineChart(document.getElementById(id));
+        charts[id] = chart;
+        chart.draw(gData, {width: 800, height: 250, legend: 'bottom', title: "toto"});
+    }
+
 
     ldc.v.stats.show = show;
     ldc.v.stats.hide = hide;
+    ldc.v.stats.update = update;
+    ldc.v.stats.init = init;
 }
+
+ldc.v.stats();
 
 
 
