@@ -25,6 +25,7 @@ ldc.m.MONTHS = [
 
 ldc.m.init = function() 
 {
+    ldc.m.operations.initStats();
     ldc.m.init.nb_ajax_calls++;
     $.getJSON(ldc.m.SERVER + "get_categories.php", ldc.m.categories.store);
     ldc.m.init.nb_ajax_calls++;
@@ -206,6 +207,7 @@ ldc.m.comptes.get_solde = function (compte_id) {
 ldc.m.operations = function() {
     var OPERATIONS = new Array();
     var STATS = {};
+    var STATS2 = {};
 
 
     function getYear(date) {
@@ -214,6 +216,13 @@ ldc.m.operations = function() {
 
     function getMonth(date) {
         return date.substr(5, 2);
+    }
+    function getYear2(date) {
+        return parseInt(date.substr(0, 4));
+    }
+
+    function getMonth2(date) {
+        return parseInt(date.substr(5, 2));
     }
 
     function store(data, textStatus) {
@@ -272,6 +281,19 @@ ldc.m.operations = function() {
         }
     }
 
+    function updateStatsCat2(cat_id, val, year, month, compte_id) {
+        console.debug(month);
+        if ((STATS2[year][month][compte_id])== undefined) {
+            STATS2[year][month][compte_id] = {total:0};
+        }
+        if ((STATS2[year][month][compte_id][cat_id])== undefined) {
+            STATS2[year][month][compte_id][cat_id] = 0;
+        }
+        var v = parseFloat(val);
+        STATS2[year][month][compte_id][cat_id] += v;
+        STATS2[year][month][compte_id]['total'] += v;
+    }
+
     function updateStats(op) {
         if (op.from == 0) {
             return false;
@@ -281,15 +303,41 @@ ldc.m.operations = function() {
         for (var i in op.cats) {
             var c = op.cats[i];
             updateStatsCat(c.id, c.val, year, month, op.from);
+            updateStatsCat2(c.id, c.val, getYear2(op.date), getMonth2(op.date), op.from);
+        }
+    }
+
+    function initMonths() {
+        var year = {};
+        year[1] = {name:'Janvier', num:'01', total:0};
+        year[2] = {name:'Février', num:'02', total:0};
+        year[3] = {name:'Mars', num:'03', total:0};
+        year[4] = {name:'Avril', num:'04', total:0};
+        year[5] = {name:'Mai', num:'05', total:0};
+        year[6] = {name:'Juin', num:'06', total:0};
+        year[7] = {name:'Juillet', num:'07', total:0};
+        year[8] = {name:'Août', num:'08', total:0};
+        year[9] = {name:'Septembre', num:'09', total:0};
+        year[10] = {name:'Octobre', num:'10', total:0};
+        year[11] = {name:'Novembre', num:'11', total:0};
+        year[12] = {name:'Décembre', num:'12', total:0};
+        return year;
+    }
+
+    function initStats() {
+        for (var i = 2005; i < 2013; i++) {
+            STATS2[i] = initMonths();
         }
     }
     ldc.m.operations.STATS = STATS;
+    ldc.m.operations.STATS2 = STATS2;
 
     function addClientSide(op) {
         OPERATIONS.push(op);
         var year = getYear(op.date);
         var month = getMonth(op.date);
     }
+
 
     function incDate(d) {
         if (d.month == 12) {
@@ -302,6 +350,23 @@ ldc.m.operations = function() {
     }
 
     function getStats(compteId, yearB, yearE, monthB, monthE) {
+        var data = new Array();
+        var s = STATS[compteId].total;
+        var d = {"month": monthB, "year":yearB};
+        while(d.year != yearE || d.month != monthE) {
+            var monthStr = ldc.m.MONTHS[d.month-1].name;
+            console.debug(monthStr+" "+d.year);
+            d = incDate(d);
+            var v =  0;
+            if (STATS[compteId].total[d.year] != undefined && STATS[compteId].total[d.year][d.month] != undefined) {
+                v =  STATS[compteId].total[year][month];
+            }
+            data.push([monthStr+" "+d.year, v]);
+        }
+        return data;
+    }
+
+    function getStats2(compteId, yearB, yearE, monthB, monthE) {
         var data = new Array();
         var s = STATS[compteId].total;
         var d = {"month": monthB, "year":yearB};
@@ -390,6 +455,8 @@ ldc.m.operations = function() {
     ldc.m.operations.store = store; 
     ldc.m.operations.getAll = getAll; 
     ldc.m.operations.getStats = getStats;
+    ldc.m.operations.getStats2 = getStats2;
+    ldc.m.operations.initStats = initStats;
 
 }
 
