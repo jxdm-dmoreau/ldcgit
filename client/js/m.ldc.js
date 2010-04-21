@@ -367,18 +367,20 @@ ldc.m.operations = function() {
     }
 
     function getStats2(compteId, yearB, yearE, monthB, monthE) {
-        var data = new Array();
-        var s = STATS[compteId].total;
-        var d = {"month": monthB, "year":yearB};
-        while(d.year != yearE || d.month != monthE) {
-            var monthStr = ldc.m.MONTHS[d.month-1].name;
-            console.debug(monthStr+" "+d.year);
-            d = incDate(d);
-            var v =  0;
-            if (STATS[compteId].total[d.year] != undefined && STATS[compteId].total[d.year][d.month] != undefined) {
-                v =  STATS[compteId].total[year][month];
+        console.debug("getStats2("+compteId+", "+yearB+", "+yearE+" ,"+monthB+" ,"+monthE+")");
+        var data = [];
+        while(yearB != yearE || monthB != monthE) {
+            var x = STATS2[yearB][monthB].name + " "+yearB;
+            var y = 0;
+            if (STATS2[yearB][monthB][compteId] != undefined) {
+                y = STATS2[yearB][monthB][compteId].total;
             }
-            data.push([monthStr+" "+d.year, v]);
+            data.push([x, y]);
+            monthB++;
+            if (monthB == 13) {
+                monthB = 1;
+                yearB++;
+            }
         }
         return data;
     }

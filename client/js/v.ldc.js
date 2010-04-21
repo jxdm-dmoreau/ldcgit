@@ -13,9 +13,9 @@ ldc.v.init = function ()
         $("#tabs ul.tabs").append('<li><a href="#compte_'+c.id+'">'+c.name+'</a></li>');
         var div = '<div class="operations" id="'+id+'"></div>';
         $("#tabs").append(div);
-        var data = ldc.m.operations.getStats(2, 2009, 2010, 01, 12);
-        ldc.v.stats.init($("#"+id), "stats_"+c.id, data);
-        ldc.v.operations.init(id, c, data);
+        var data2 = ldc.m.operations.getStats2(c.id, 2010, 2010, 01, 12);
+        ldc.v.stats.init($("#"+id), "stats_"+c.id, data2);
+        ldc.v.operations.init(id, c);
     }
     $("#tabs").tabs();
 
