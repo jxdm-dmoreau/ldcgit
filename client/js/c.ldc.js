@@ -2,8 +2,21 @@ ldc.c = {};
 
 
 ldc.c.init = function () {
-    // init view
-    ldc.v.init();
+
+    ldc.v.menu.init($('#menu'));
+    // tabs + liste des opérations
+    for(var i in ldc.m.comptes.data) {
+        var c = ldc.m.comptes.data[i];
+        var id = "compte_"+c.id;
+        var div = '<div class="operations" id="'+id+'"></div>';
+        $("#tabs").append(div);
+        var data2 = ldc.m.operations.getStats2(c.id, 2010, 2010, 01, 12);
+        ldc.v.stats.init($("#"+id), "stats_"+c.id, data2, 'Mois', 'Dépenses', {axisFontSize:8});
+        ldc.v.operations.init(id, c);
+    }
+
+    // init params
+    ldc.v.params();
     ldc.v.form.init(ldc.c.operations.add,
         function() {
             ldc.v.form.cats.setSelected($(this));
@@ -11,11 +24,9 @@ ldc.c.init = function () {
             ldc.v.popup.cats.open();
     });
 
-    ldc.v.stats($('body'));
     ldc.c.params();
     ldc.c.tabs();
     ldc.c.form();
-
     ldc.v.popup.cats.init(function(cat_id) {
             var c = ldc.m.categories.get(cat_id);
             ldc.v.form.cats.set('id', c.id);
@@ -28,7 +39,6 @@ ldc.c.init = function () {
 
 ldc.c.pre_init = function () {
     ldc.m.init(ldc.c.init);
-
 }
 
 ldc.c.tabs = function() {
@@ -68,11 +78,18 @@ ldc.c.tabs = function() {
     // del button
     $("#tabs button.del").click(function() {
         var id = $(this).parents('div.operations').find("tr.ui-state-highlight td:first").text();
-        var op = ldc.m.operations.get(id);
-        ldc.v.operations.del(op);
-        ldc.m.operations.del(id);
-        $(this).parents('div.operations').children("button.del").attr("disabled", "disabled");
-        $(this).parents('div.operations').children("button.update").attr("disabled", "disabled");
+        if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
+            var op = ldc.m.operations.get(id);
+            ldc.v.operations.del(op);
+            ldc.m.operations.del(id);
+            if (op.from != 0) {
+                var data = ldc.m.operations.getStats2(op.from, 2010, 2010, 01, 12);
+                ldc.v.stats.update("stats_"+op.from, data);
+            }
+
+            $(this).parents('div.operations').children("button.del").attr("disabled", "disabled");
+            $(this).parents('div.operations').children("button.update").attr("disabled", "disabled");
+        }
         return false;
     });
 
@@ -287,22 +304,28 @@ ldc.c.operations.checkForm = function () {
 ldc.c.operations.add = function () {
 
     var op = ldc.c.operations.checkForm();
-    console.debug(op);
     if (op == false) {
         return false;
     }
-    console.debug(JSON.stringify(op));
 
     if (op.id == -1) {
         /* Add operation server side */
         op.id = ldc.m.operations.add(op);
         ldc.v.operations.add(op);
+        if (op.from != 0) {
+            var data = ldc.m.operations.getStats2(op.from, 2010, 2010, 01, 12);
+            ldc.v.stats.update("stats_"+op.from, data);
+        }
+
         $("#form").dialog('close');
-        /* add operation client side */
     } else {
         // update
         ldc.m.operations.update(op);
         ldc.v.operations.update(op);
+        if (op.from != 0) {
+            var data = ldc.m.operations.getStats2(op.from, 2010, 2010, 01, 12);
+            ldc.v.stats.update("stats_"+op.from, data);
+        }
         $("#form").dialog('close');
     }
     return false;

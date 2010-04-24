@@ -4,35 +4,34 @@
 ldc.v = {};
 
 
-ldc.v.init = function ()
-{
-    // tabs + liste des opérations
-    for(var i in ldc.m.comptes.data) {
-        var c = ldc.m.comptes.data[i];
-        var id = "compte_"+c.id;
-        $("#tabs ul.tabs").append('<li><a href="#compte_'+c.id+'">'+c.name+'</a></li>');
-        var div = '<div class="operations" id="'+id+'"></div>';
-        $("#tabs").append(div);
-        var data2 = ldc.m.operations.getStats2(c.id, 2010, 2010, 01, 12);
-        ldc.v.stats.init($("#"+id), "stats_"+c.id, data2);
-        ldc.v.operations.init(id, c);
+ldc.v.menu = function() {
+
+    function hideAll() {
+        $("div.operations").hide();
     }
-    $("#tabs").tabs();
 
-    // init params
-    ldc.v.params();
+    function show() {
+        hideAll();
+        var id = $(this).attr('href');
+        $(id).show();
+        return false;
+    }
 
-    // init form
-    //ldc.v.form.init(ldc.c.operations.add);
+    function init(jContainer) {
+        var html = '<ul class="menu">';
+        for(var i in ldc.m.comptes.data) {
+            var c = ldc.m.comptes.data[i];
+            html += '<li><a href="#compte_'+c.id+'">'+c.bank+' - '+c.name+'</a></li>';
+        }
+        html += '</ul>';
+        jContainer.append(html);
+        $("ul.menu").delegate('a', 'click', show);
+    }
 
-    // timeline
-    ldc.v.timeline();
-
-
-    return false;
+    ldc.v.menu.init = init;
 }
 
-
+ldc.v.menu();
 
 /******************************************************************************
   * log
@@ -92,31 +91,39 @@ ldc.v.operations.init = function (id, compte) {
         var t = total(op);
         var html = cats2html(op);
         if (op.from != 0) {
-            var jTr = $("#compte_"+op.from+" tr td.op-id:contains('"+op.id+"')").parents("tr");
-            var ret = ldc.v.operations.table[op.from].fnUpdate( [op.id, op.date, t, 0, html, op.description], jTr[0]);
+            var tr;
+            $("#compte_"+op.from+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
+            console.debug(tr);
+            return false;
+            var ret = ldc.v.operations.table[op.from].fnUpdate( [op.id, op.date, t, 0, html, op.description], tr);
         }
         if (op.to != 0) {
-            var jTr = $("#compte_"+op.to+" tr td.op-id:contains('"+op.id+"')").parents("tr");
-            var ret = ldc.v.operations.table[op.to].fnUpdate( [op.id, op.date, 0, t, html, op.description], jTr[0]);
+            var tr;
+            $("#compte_"+op.to+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
+            var ret = ldc.v.operations.table[op.to].fnUpdate( [op.id, op.date, 0, t, html, op.description], tr);
         }
         return false;
     }
 
     function del(op) {
+        alert(JSON.stringify(op));
         if (op.from != 0) {
-            var jTr = $("#compte_"+op.from+" tr td.op-id:contains('"+op.id+"')").parents("tr");
-            ldc.v.operations.table[op.from].fnDeleteRow(jTr[0]);
+            var tr;
+            $("#compte_"+op.from+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
+            ldc.v.operations.table[op.from].fnDeleteRow(tr);
         }
         if (op.to != 0) {
-            var jTr = $("#compte_"+op.to+" tr td.op-id:contains('"+op.id+"')").parents("tr");
-            ldc.v.operations.table[op.to].fnDeleteRow(jTr[0]);
+            var tr;
+            $("#compte_"+op.to+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
+            ldc.v.operations.table[op.to].fnDeleteRow(tr);
         }
         return false;
     }
 
     function op2html(op, compte) {
         var html = '<tr>';
-        html += '<td class="op-id">'+op.id+'</td>';
+        console.debug("op.id="+op.id);
+        html += '<td>'+op.id+'</td>';
         html += '<td>'+op.date+'</td>';
         var total = 0;
         for(var i in op.cats) {
@@ -158,6 +165,9 @@ ldc.v.operations.init = function (id, compte) {
             "bJQueryUI": true,
             "sPaginationType": "full_numbers"
     });
+    $("#"+id+" button").button();
+    /* actions */
+
     /* store the dataTable object (needed to add new values ...) */
     ldc.v.operations.table[compte.id] = dataTable;
 
@@ -247,27 +257,42 @@ ldc.v.stats = function () {
 
     function update(id, data) {
         var gData = new google.visualization.DataTable();
-        gData.addColumn('string', 'Date');
-        gData.addColumn('number', 'Dépenses');
+        gData.addColumn('string', charts[id].xTitle);
+        gData.addColumn('number', charts[id].yTitle);
         for(var i in data) {
             gData.addRow(data[i]);
         }
-        var chart = charts[id];
-        chart.draw(gData, {width: 800, height: 250, legend: 'bottom', title: "toto"});
+        charts[id].chart.draw(gData, charts[id].options);
     }
 
-    function init(jContainer, id, data) {
+    function init(jContainer, id, data, xTitle, yTitle, options) {
         var gData = new google.visualization.DataTable();
-        gData.addColumn('string', 'Date');
-        gData.addColumn('number', 'Dépenses');
+        gData.addColumn('string', xTitle);
+        gData.addColumn('number', yTitle);
         for(var i in data) {
             gData.addRow(data[i]);
         }
         var html = '<div id="'+id+'"></div>';
         jContainer.append(html);
         var chart = new google.visualization.LineChart(document.getElementById(id));
-        charts[id] = chart;
-        chart.draw(gData, {width: 800, height: 250, legend: 'bottom', title: "toto"});
+        /* default value */
+        if (options.width == undefined) {
+            options.width = 700;
+        }
+        if (options.height == undefined) {
+            options.height = 150;
+        }
+        if (options.legend == undefined) {
+            options.legend = 'none';
+        }
+        /* store parameters */
+        charts[id] = {};
+        charts[id].chart = chart;
+        charts[id].options = options;
+        charts[id].xTitle = xTitle;
+        charts[id].yTitle = yTitle;
+        /* draw */
+        chart.draw(gData, options);
     }
 
 
@@ -645,13 +670,3 @@ ldc.v.comptes = function(css_id) {
 }
 
 
-ldc.v.timeline = function() {
-    $("#timeline").slider({
-            range: true,
-            animate: true,
-    });
-}
-
-ldc.v.alert = function() {
-    alert("alert");
-}

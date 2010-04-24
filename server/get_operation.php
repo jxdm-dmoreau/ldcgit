@@ -69,6 +69,7 @@ $query .= ' AND `operations`.`id` = `valeurs`.`op_id`';
 if (isset($json->account_id)) {
     $query .= ' AND (`from` = '.mysql_real_escape_string($json->account_id).' OR `to` = '.mysql_real_escape_string($json->account_id).')';
 }
+$query .= 'ORDER by operations.id';
 DEBUG($query);
 $result = mysql_query($query);
 test_mysql_result($result);
@@ -97,6 +98,8 @@ while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
 mysql_close($link);
 
 /* contrust answer */
-print(json_encode($return));
+$ret = json_encode($return);
+DEBUG($ret);
+print($ret);
 
 ?>

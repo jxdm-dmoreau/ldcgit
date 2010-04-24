@@ -222,7 +222,11 @@ ldc.m.operations = function() {
     }
 
     function getMonth2(date) {
-        return parseInt(date.substr(5, 2));
+        if (date.substr(5, 1) == '0') {
+            return parseInt(date.substr(6, 1));
+        } else {
+            return parseInt(date.substr(5, 2));
+        }
     }
 
     function store(data, textStatus) {
@@ -230,8 +234,7 @@ ldc.m.operations = function() {
         // read all operations and stats
         for(var i in OPERATIONS) {
             var op = OPERATIONS[i];
-            addClientSide(op);
-            updateStats(op);
+            updateStatsAdd(op);
             var compte_from = ldc.m.comptes.get(op.from);
             var compte_to = ldc.m.comptes.get(op.to);
             for(var j in op.cats) {
@@ -243,46 +246,7 @@ ldc.m.operations = function() {
     };
 
 
-    function updateStatsCat(cat_id, val, year, month, compte_id) {
-        if (STATS[compte_id] == undefined) {
-            STATS[compte_id] = {};
-        }
-        if (STATS[compte_id][cat_id] == undefined) {
-            STATS[compte_id][cat_id] = {};
-        }
-        if (STATS[compte_id][cat_id][year] == undefined) {
-            STATS[compte_id][cat_id][year] = {};
-            STATS[compte_id][cat_id][year].total = 0;
-        }
-        if (STATS[compte_id][cat_id][year][month] == undefined) {
-            STATS[compte_id][cat_id][year][month] = 0;
-        }
-        if (STATS[compte_id].total == undefined) {
-            STATS[compte_id].total = {};
-        }
-        if (STATS[compte_id]['total'][year] == undefined) {
-            STATS[compte_id]['total'][year] = {};
-        }
-        if (STATS[compte_id]['total'][year].total == undefined) {
-            STATS[compte_id]['total'][year].total = 0;
-        }
-        if (STATS[compte_id]['total'][year][month] == undefined) {
-            STATS[compte_id]['total'][year][month] = 0;
-        }
-        var v = parseFloat(val);
-        STATS[compte_id][cat_id][year].total   += v;
-        STATS[compte_id][cat_id][year][month]  += v;
-        STATS[compte_id]['total'][year].total  += v;
-        STATS[compte_id]['total'][year][month] += v;
-        var c = ldc.m.categories.get(cat_id);
-        var fatherId = c.father_id;
-        if (fatherId != 0) {
-            updateStatsCat(fatherId, val, year, month, compte_id);
-        }
-    }
-
-    function updateStatsCat2(cat_id, val, year, month, compte_id) {
-        console.debug(month);
+    function updateStatsCat2Add(cat_id, val, year, month, compte_id) {
         if ((STATS2[year][month][compte_id])== undefined) {
             STATS2[year][month][compte_id] = {total:0};
         }
@@ -294,7 +258,13 @@ ldc.m.operations = function() {
         STATS2[year][month][compte_id]['total'] += v;
     }
 
-    function updateStats(op) {
+    function updateStatsCat2Remove(cat_id, val, year, month, compte_id) {
+        var v = parseFloat(val);
+        STATS2[year][month][compte_id][cat_id] -= v;
+        STATS2[year][month][compte_id]['total'] -= v;
+    }
+
+    function updateStatsAdd(op) {
         if (op.from == 0) {
             return false;
         }
@@ -302,8 +272,19 @@ ldc.m.operations = function() {
         var month = getMonth(op.date);
         for (var i in op.cats) {
             var c = op.cats[i];
-            updateStatsCat(c.id, c.val, year, month, op.from);
-            updateStatsCat2(c.id, c.val, getYear2(op.date), getMonth2(op.date), op.from);
+            updateStatsCat2Add(c.id, c.val, getYear2(op.date), getMonth2(op.date), op.from);
+        }
+    }
+
+    function updateStatsRemove(op) {
+        if (op.from == 0) {
+            return false;
+        }
+        var year = getYear(op.date);
+        var month = getMonth(op.date);
+        for (var i in op.cats) {
+            var c = op.cats[i];
+            updateStatsCat2Remove(c.id, c.val, getYear2(op.date), getMonth2(op.date), op.from);
         }
     }
 
@@ -329,42 +310,7 @@ ldc.m.operations = function() {
             STATS2[i] = initMonths();
         }
     }
-    ldc.m.operations.STATS = STATS;
     ldc.m.operations.STATS2 = STATS2;
-
-    function addClientSide(op) {
-        OPERATIONS.push(op);
-        var year = getYear(op.date);
-        var month = getMonth(op.date);
-    }
-
-
-    function incDate(d) {
-        if (d.month == 12) {
-            d.year++
-            d.month = 1;
-        } else {
-            d.month++;
-        }
-        return d;
-    }
-
-    function getStats(compteId, yearB, yearE, monthB, monthE) {
-        var data = new Array();
-        var s = STATS[compteId].total;
-        var d = {"month": monthB, "year":yearB};
-        while(d.year != yearE || d.month != monthE) {
-            var monthStr = ldc.m.MONTHS[d.month-1].name;
-            console.debug(monthStr+" "+d.year);
-            d = incDate(d);
-            var v =  0;
-            if (STATS[compteId].total[d.year] != undefined && STATS[compteId].total[d.year][d.month] != undefined) {
-                v =  STATS[compteId].total[year][month];
-            }
-            data.push([monthStr+" "+d.year, v]);
-        }
-        return data;
-    }
 
     function getStats2(compteId, yearB, yearE, monthB, monthE) {
         console.debug("getStats2("+compteId+", "+yearB+", "+yearE+" ,"+monthB+" ,"+monthE+")");
@@ -398,6 +344,7 @@ ldc.m.operations = function() {
 
         ldc.m.post_ajax(ldc.m.SERVER + "add_operation.php",  "json="+JSON.stringify(op) , on_success, false);
         OPERATIONS.push(op);
+        updateStatsAdd(op);
         return op.id;
     };
 
@@ -413,6 +360,7 @@ ldc.m.operations = function() {
         ldc.m.post_ajax(ldc.m.SERVER + "del_operation.php",  "json="+JSON.stringify(data) , on_success, true);
         for(var i in OPERATIONS) {
             if (OPERATIONS[i].id == id) {
+                updateStatsRemove(OPERATIONS[i]);
                 delete (OPERATIONS[i]);
                 break;
             }
@@ -430,7 +378,9 @@ ldc.m.operations = function() {
         ldc.m.post_ajax(ldc.m.SERVER + "update_operation.php",  "json="+JSON.stringify(op) , on_success, true);
         for(var i in OPERATIONS) {
             if (OPERATIONS[i].id == op.id) {
+                updateStatsRemove(OPERATIONS[i]);
                 OPERATIONS[i] = op;
+                updateStatsAdd(op);
                 break;
             }
         }
@@ -450,13 +400,12 @@ ldc.m.operations = function() {
         return OPERATIONS;
     }
 
-    ldc.m.operations.add = add;
-    ldc.m.operations.get =  get;
-    ldc.m.operations.update = update;
-    ldc.m.operations.del =del;
-    ldc.m.operations.store = store; 
-    ldc.m.operations.getAll = getAll; 
-    ldc.m.operations.getStats = getStats;
+    ldc.m.operations.add       = add;
+    ldc.m.operations.get       = get;
+    ldc.m.operations.update    = update;
+    ldc.m.operations.del       = del;
+    ldc.m.operations.store     = store; 
+    ldc.m.operations.getAll    = getAll; 
     ldc.m.operations.getStats2 = getStats2;
     ldc.m.operations.initStats = initStats;
 
