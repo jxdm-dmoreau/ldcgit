@@ -17,14 +17,14 @@ ldc.v.menu = function() {
         return false;
     }
 
-    function init(jContainer) {
+    function init() {
         var html = '<ul class="menu">';
         for(var i in ldc.m.comptes.data) {
             var c = ldc.m.comptes.data[i];
             html += '<li><a href="#compte_'+c.id+'">'+c.bank+' - '+c.name+'</a></li>';
         }
         html += '</ul>';
-        jContainer.append(html);
+        $("#menu").append(html);
         $("ul.menu").delegate('a', 'click', show);
     }
 
@@ -45,14 +45,12 @@ ldc.v.log.error = ldc.v.log;
 
 
 /******************* operations MODULE ***************************************/
-ldc.v.operations = {};
 
 
 
-ldc.v.operations.table = [];
 
 
-ldc.v.operations.init = function (id, compte) {
+ldc.v.operations = function (id, compte) {
 
     /* Functions */
 
@@ -143,33 +141,43 @@ ldc.v.operations.init = function (id, compte) {
         return html;
     }
 
-    /* generate html */
-    var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
-    html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
-    html += '<button compte_id="'+compte.id+'" class="del" disabled="disabled">Supprimer</button>';
-    html += '<table compte_id="'+compte.id+'" class="operations-table">';
-    html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
-    var ops = ldc.m.operations.getAll();
-    for (var j in ops) {
-        var from = ops[j].from;
-        var to =  ops[j].to;
-        if (from == compte.id | to == compte.id) {
-            html += op2html(ops[j], compte);
+    init = function(compte) {
+        var id = "compte_"+compte.id;
+        var div = '<div class="operations" id="'+id+'"></div>';
+        $("#tabs").append(div);
+        /* stats */
+        //$("#"+id).hide();
+        var data2 = ldc.m.operations.getStats2(compte.id, 2010, 2010, 01, 12);
+        ldc.v.stats.init($("#"+id), "stats_"+compte.id, data2, 'Mois', 'Dépenses', {axisFontSize:8});
+        console.debug($("#stats_"+compte.id+" body").text());
+        /* generate html */
+        var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
+        html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
+        html += '<button compte_id="'+compte.id+'" class="del" disabled="disabled">Supprimer</button>';
+        html += '<table compte_id="'+compte.id+'" class="operations-table">';
+        html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
+        var ops = ldc.m.operations.getAll();
+        for (var j in ops) {
+            var from = ops[j].from;
+            var to =  ops[j].to;
+            if (from == compte.id | to == compte.id) {
+                html += op2html(ops[j], compte);
+            }
         }
-    }
-    html += '</tbody>';
-    /* add to the the div */
-    $("#"+id).append(html);
-    /* generate the dataTable */
-    var dataTable = $("#"+id+" table").dataTable({
-            "bJQueryUI": true,
-            "sPaginationType": "full_numbers"
-    });
-    $("#"+id+" button").button();
-    /* actions */
+        html += '</tbody>';
+        /* add to the the div */
+        $("#"+id).append(html);
+        /* generate the dataTable */
+        var dataTable = $("#"+id+" table").dataTable({
+                "bJQueryUI": true,
+                "sPaginationType": "full_numbers"
+        });
+        $("#"+id+" button").button();
+        /* actions */
 
-    /* store the dataTable object (needed to add new values ...) */
-    ldc.v.operations.table[compte.id] = dataTable;
+        /* store the dataTable object (needed to add new values ...) */
+        ldc.v.operations.table[compte.id] = dataTable;
+    }
 
 
 
@@ -177,10 +185,12 @@ ldc.v.operations.init = function (id, compte) {
     ldc.v.operations.add    = add;
     ldc.v.operations.update = update;
     ldc.v.operations.del    = del;
+    ldc.v.operations.init   = init;
+    ldc.v.operations.table = [];
 
 }
 
-
+ldc.v.operations();
 /******************************************************************************
   * categories
 ******************************************************************************/

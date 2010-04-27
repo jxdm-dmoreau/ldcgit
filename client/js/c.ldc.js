@@ -3,17 +3,14 @@ ldc.c = {};
 
 ldc.c.init = function () {
 
-    ldc.v.menu.init($('#menu'));
+    ldc.v.menu.init();
     // tabs + liste des opérations
     for(var i in ldc.m.comptes.data) {
         var c = ldc.m.comptes.data[i];
-        var id = "compte_"+c.id;
-        var div = '<div class="operations" id="'+id+'"></div>';
-        $("#tabs").append(div);
-        var data2 = ldc.m.operations.getStats2(c.id, 2010, 2010, 01, 12);
-        ldc.v.stats.init($("#"+id), "stats_"+c.id, data2, 'Mois', 'Dépenses', {axisFontSize:8});
-        ldc.v.operations.init(id, c);
+        $("#tabs ul").append('<li><a href="#compte_'+c.id+'">'+c.bank+'-'+c.name+'</a></li>');
+        ldc.v.operations.init(c);
     }
+    $("#tabs").tabs();
 
     // init params
     ldc.v.params();
