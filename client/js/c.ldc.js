@@ -41,9 +41,10 @@ ldc.c.tabs.del = function () {
         ldc.v.operations.del(op);
         ldc.m.operations.del(id);
         if (op.from != 0) {
-            var data = ldc.m.operations.getStats2(op.from, 2010, 2010, 01, 12);
+            var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
             ldc.v.stats.update("stats_"+op.from, data);
         }
+        ldc.v.tabStats.update();
 
         $(this).parents('div.operations').children("button.del").attr("disabled", "disabled");
         $(this).parents('div.operations').children("button.update").attr("disabled", "disabled");
@@ -58,16 +59,11 @@ ldc.c.tabs.update = function() {
     var op = ldc.m.operations.get(id);
     ldc.v.form.compte_id.set(compte_id);
     ldc.v.form.operation_id.set(op.id);
-    console.debug("from="+op.from);
-    console.debug("to="+op.to);
-    console.debug("compte="+compte_id);
     if (op.from == compte_id) {
-        console.debug('debit detected')
         ldc.v.form.type.setChecked('debit');
         ldc.v.form.from.disabled(true);
         ldc.v.form.to.disabled(false);
     } else {
-        console.debug('credit detected')
         ldc.v.form.type.setChecked('credit');
         ldc.v.form.from.disabled(false);
         ldc.v.form.to.disabled(true);
@@ -162,15 +158,12 @@ ldc.c.operations.checkForm = function () {
         return false;
     }
     op.date = date;
-    console.debug("date:"+date);
     // from
     var from = ldc.v.form.from.get();
     op.from = from;
-    console.debug("from:"+from);
     // to
     var to = ldc.v.form.to.get();
     op.to = to;
-    console.debug("to:"+to);
     // cats
     op.cats = [];
     $('#form li.cats ul li').each( function() {
@@ -189,7 +182,6 @@ ldc.c.operations.checkForm = function () {
                 return false;
             }
             op.cats.push({id: c.id, val:cat_value});
-            console.debug('('+c.id+'):'+cat_value);
     });
     if (error) {
         return false;
@@ -211,7 +203,7 @@ ldc.c.operations.add = function () {
         op.id = ldc.m.operations.add(op);
         ldc.v.operations.add(op);
         if (op.from != 0) {
-            var data = ldc.m.operations.getStats2(op.from, 2010, 2010, 01, 12);
+            var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
             ldc.v.stats.update("stats_"+op.from, data);
         }
 
@@ -221,11 +213,12 @@ ldc.c.operations.add = function () {
         ldc.m.operations.update(op);
         ldc.v.operations.update(op);
         if (op.from != 0) {
-            var data = ldc.m.operations.getStats2(op.from, 2010, 2010, 01, 12);
+            var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
             ldc.v.stats.update("stats_"+op.from, data);
         }
         $("#form").dialog('close');
     }
+    ldc.v.tabStats.update();
     return false;
 }
 

@@ -43,7 +43,6 @@ ldc.m.init.nb_ajax_calls = 0;
 ldc.m.init.is_finished = function() 
 {
     ldc.m.init.nb_ajax_calls--;
-    console.debug("ldc.m.init.nb_ajax_calls="+ldc.m.init.nb_ajax_calls);
     if (ldc.m.init.nb_ajax_calls == 0) {
         ldc.v.init();
     }
@@ -77,7 +76,6 @@ ldc.m.categories.data = [];
 
 ldc.m.categories.store = function (data, textStatus) {
     ldc.m.categories.data = data;
-    console.debug("categories");
     ldc.m.init.is_finished();
 };
 
@@ -182,7 +180,6 @@ ldc.m.comptes.store = function (data, textStatus) {
     var data = { date_begin:'2000-01-01', date_end:'2020-12-12'};
     ldc.m.init.nb_ajax_calls++;
     jQuery.post(ldc.m.SERVER + "get_operation.php",  "json="+JSON.stringify(data) , ldc.m.operations.store)
-    console.debug("comptes");
     ldc.m.init.is_finished();
 };
 
@@ -201,22 +198,57 @@ ldc.m.comptes.get_solde = function (compte_id) {
     return ldc.m.comptes.get(compte_id).solde;
 }
 
+
+/******************************************************************************
+* Stats functions
+******************************************************************************/
+ldc.m.stats = {};
+
+ldc.m.stats.getTotal = function (yearB, monthB, yearE, monthE) {
+    var data = [];
+    var y = 0;
+    while(yearB != yearE || monthB != monthE) {
+        var stats = ldc.m.operations.STATS['somme'];
+        var x = stats[yearB][monthB].name + " "+yearB;
+        y += stats[yearB][monthB]['total'];
+        data.push([x, y]);
+        monthB++;
+        if (monthB == 13) {
+            monthB = 1;
+            yearB++;
+        }
+    }
+    return data;
+}
+
+ldc.m.stats.getDebit = function (compteId, yearB, yearE, monthB, monthE) {
+        var data = [];
+        while(yearB != yearE || monthB != monthE) {
+            var x = ldc.m.operations.STATS['debit'][yearB][monthB].name + " "+yearB;
+            var y = 0;
+            if (ldc.m.operations.STATS['debit'][yearB][monthB][compteId] != undefined) {
+                y = ldc.m.operations.STATS['debit'][yearB][monthB][compteId].total;
+            }
+            data.push([x, y]);
+            monthB++;
+            if (monthB == 13) {
+                monthB = 1;
+                yearB++;
+            }
+        }
+        return data;
+    }
+
 /******************************************************************************
 *  Opérations functions
 ******************************************************************************/
 ldc.m.operations = function() {
     var OPERATIONS = new Array();
     var STATS = {};
-    var STATS2 = {};
+    STATS['debit'] = {};
+    STATS['credit'] = {};
+    STATS['somme'] = {};
 
-
-    function getYear(date) {
-        return date.substr(0, 4);
-    }
-
-    function getMonth(date) {
-        return date.substr(5, 2);
-    }
     function getYear2(date) {
         return parseInt(date.substr(0, 4));
     }
@@ -246,45 +278,89 @@ ldc.m.operations = function() {
     };
 
 
-    function updateStatsCat2Add(cat_id, val, year, month, compte_id) {
-        if ((STATS2[year][month][compte_id])== undefined) {
-            STATS2[year][month][compte_id] = {total:0};
+    function updateStatsCatAdd(type, cat_id, val, year, month, compte_id) {
+        if ((STATS[type][year][month][compte_id])== undefined) {
+            STATS[type][year][month][compte_id] = {total:0};
         }
-        if ((STATS2[year][month][compte_id][cat_id])== undefined) {
-            STATS2[year][month][compte_id][cat_id] = 0;
+        if ((STATS[type][year][month][compte_id][cat_id])== undefined) {
+            STATS[type][year][month][compte_id][cat_id] = 0;
+        }
+        if ((STATS['somme'][year][month][compte_id])== undefined) {
+            STATS['somme'][year][month][compte_id] = {total:0};
+        }
+        if ((STATS['somme'][year][month][compte_id][cat_id])== undefined) {
+            STATS['somme'][year][month][compte_id][cat_id] = 0;
         }
         var v = parseFloat(val);
-        STATS2[year][month][compte_id][cat_id] += v;
-        STATS2[year][month][compte_id]['total'] += v;
+        STATS[type][year][month][compte_id][cat_id] += v;
+        STATS[type][year][month][compte_id]['total'] += v;
+        if (type == 'debit') {
+            STATS['somme'][year][month][compte_id][cat_id] -= v;
+            STATS['somme'][year][month][compte_id]['total'] -= v;
+            STATS['somme'][year][month]['total'] -= v;
+        } else {
+            STATS['somme'][year][month][compte_id][cat_id] += v;
+            STATS['somme'][year][month][compte_id]['total'] += v;
+            STATS['somme'][year][month]['total'] += v;
+        }
     }
 
-    function updateStatsCat2Remove(cat_id, val, year, month, compte_id) {
+    function updateStatsCatRemove(type, cat_id, val, year, month, compte_id) {
         var v = parseFloat(val);
-        STATS2[year][month][compte_id][cat_id] -= v;
-        STATS2[year][month][compte_id]['total'] -= v;
+        STATS[type][year][month][compte_id][cat_id] -= v;
+        STATS[type][year][month][compte_id]['total'] -= v;
+        if (type == 'credit') {
+            STATS['somme'][year][month][compte_id][cat_id] -= v;
+            STATS['somme'][year][month][compte_id]['total'] -= v;
+            STATS['somme'][year][month]['total'] -= v;
+        } else {
+            STATS['somme'][year][month][compte_id][cat_id] += v;
+            STATS['somme'][year][month][compte_id]['total'] += v;
+            STATS['somme'][year][month]['total'] += v;
+        }
     }
+
 
     function updateStatsAdd(op) {
-        if (op.from == 0) {
+        if (op.from != 0 && op.to != 0) {
             return false;
         }
-        var year = getYear(op.date);
-        var month = getMonth(op.date);
+        var year = getYear2(op.date);
+        var month = getMonth2(op.date);
+        var compte_id;
+        var type;
+        if (op.from == 0) {
+            type = 'credit';
+            compte_id = op.to;
+        } else {
+            type = 'debit';
+            compte_id = op.from;
+        }
+
         for (var i in op.cats) {
             var c = op.cats[i];
-            updateStatsCat2Add(c.id, c.val, getYear2(op.date), getMonth2(op.date), op.from);
+            updateStatsCatAdd(type, c.id, c.val, year, month, compte_id);
         }
     }
 
     function updateStatsRemove(op) {
-        if (op.from == 0) {
+        if (op.from != 0 && op.to != 0) {
             return false;
         }
-        var year = getYear(op.date);
-        var month = getMonth(op.date);
+        var compte_id;
+        var type;
+        if (op.from == 0) {
+            type = 'credit';
+            compte_id = op.to;
+        } else {
+            type = 'debit';
+            compte_id = op.from;
+        }
+        var year = getYear2(op.date);
+        var month = getMonth2(op.date);
         for (var i in op.cats) {
             var c = op.cats[i];
-            updateStatsCat2Remove(c.id, c.val, getYear2(op.date), getMonth2(op.date), op.from);
+            updateStatsCatRemove(type, c.id, c.val, year, month, compte_id);
         }
     }
 
@@ -307,29 +383,13 @@ ldc.m.operations = function() {
 
     function initStats() {
         for (var i = 2005; i < 2013; i++) {
-            STATS2[i] = initMonths();
+            STATS['debit'][i] = initMonths();
+            STATS['credit'][i] = initMonths();
+            STATS['somme'][i] = initMonths();
         }
     }
-    ldc.m.operations.STATS2 = STATS2;
+    ldc.m.operations.STATS = STATS;
 
-    function getStats2(compteId, yearB, yearE, monthB, monthE) {
-        console.debug("getStats2("+compteId+", "+yearB+", "+yearE+" ,"+monthB+" ,"+monthE+")");
-        var data = [];
-        while(yearB != yearE || monthB != monthE) {
-            var x = STATS2[yearB][monthB].name + " "+yearB;
-            var y = 0;
-            if (STATS2[yearB][monthB][compteId] != undefined) {
-                y = STATS2[yearB][monthB][compteId].total;
-            }
-            data.push([x, y]);
-            monthB++;
-            if (monthB == 13) {
-                monthB = 1;
-                yearB++;
-            }
-        }
-        return data;
-    }
 
     function add(op) {
         function on_success(data, textStatus) {
@@ -365,6 +425,7 @@ ldc.m.operations = function() {
                 break;
             }
         }
+        return false;
     };
 
     function update(op) {
@@ -406,7 +467,6 @@ ldc.m.operations = function() {
     ldc.m.operations.del       = del;
     ldc.m.operations.store     = store; 
     ldc.m.operations.getAll    = getAll; 
-    ldc.m.operations.getStats2 = getStats2;
     ldc.m.operations.initStats = initStats;
 
 }

@@ -6,13 +6,17 @@ ldc.v = {};
 
 
 ldc.v.init = function () {
-    ldc.v.menu.init();
     // tabs + liste des opérations
     for(var i in ldc.m.comptes.data) {
         var c = ldc.m.comptes.data[i];
         $("#tabs ul.top").append('<li><a href="#compte_'+c.id+'">'+c.bank+'-'+c.name+'</a></li>');
         ldc.v.operations.init(c);
     }
+    $("#tabs button.add").click(ldc.c.tabs.add);
+    $("#tabs button.update").click(ldc.c.tabs.update);
+    $("#tabs button.del").click(ldc.c.tabs.del);
+    $("#tabs ul.top").append('<li><a href="#tab-stats">Statistiques</a></li>');
+    ldc.v.tabStats.init();
     $("#tabs").tabs();
 
 
@@ -20,37 +24,10 @@ ldc.v.init = function () {
     ldc.v.params();
     ldc.v.form.init();
     ldc.v.popup.cats.init();
+    ldc.v.tabStats.init();
 }
 
 
-ldc.v.menu = function() {
-
-    function hideAll() {
-        $("div.operations").hide();
-    }
-
-    function show() {
-        hideAll();
-        var id = $(this).attr('href');
-        $(id).show();
-        return false;
-    }
-
-    function init() {
-        var html = '<ul class="menu">';
-        for(var i in ldc.m.comptes.data) {
-            var c = ldc.m.comptes.data[i];
-            html += '<li><a href="#compte_'+c.id+'">'+c.bank+' - '+c.name+'</a></li>';
-        }
-        html += '</ul>';
-        $("#menu").append(html);
-        $("ul.menu").delegate('a', 'click', show);
-    }
-
-    ldc.v.menu.init = init;
-}
-
-ldc.v.menu();
 
 /******************************************************************************
   * log
@@ -110,7 +87,6 @@ ldc.v.operations = function (id, compte) {
         if (op.from != 0) {
             var tr;
             $("#compte_"+op.from+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
-            console.debug(tr);
             return false;
             var ret = ldc.v.operations.table[op.from].fnUpdate( [op.id, op.date, t, 0, html, op.description], tr);
         }
@@ -123,7 +99,6 @@ ldc.v.operations = function (id, compte) {
     }
 
     function del(op) {
-        alert(JSON.stringify(op));
         if (op.from != 0) {
             var tr;
             $("#compte_"+op.from+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
@@ -139,7 +114,6 @@ ldc.v.operations = function (id, compte) {
 
     function op2html(op, compte) {
         var html = '<tr>';
-        console.debug("op.id="+op.id);
         html += '<td>'+op.id+'</td>';
         html += '<td>'+op.date+'</td>';
         var total = 0;
@@ -165,10 +139,8 @@ ldc.v.operations = function (id, compte) {
         var div = '<div class="operations" id="'+id+'"></div>';
         $("#tabs").append(div);
         /* stats */
-        //$("#"+id).hide();
-        var data2 = ldc.m.operations.getStats2(compte.id, 2010, 2010, 01, 12);
+        var data2 = ldc.m.stats.getDebit(compte.id, 2010, 2010, 01, 12);
         ldc.v.stats.init($("#"+id), "stats_"+compte.id, data2, 'Mois', 'Dépenses', {axisFontSize:8});
-        console.debug($("#stats_"+compte.id+" body").text());
         /* generate html */
         var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
         html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
@@ -194,9 +166,6 @@ ldc.v.operations = function (id, compte) {
         $("#"+id+" button").button();
         /* actions */
         $("#tabs #"+id).delegate('tr', 'click', ldc.c.tabs.onClickTr); 
-        $("#tabs button.add").click(ldc.c.tabs.add);
-        $("#tabs button.update").click(ldc.c.tabs.update);
-        $("#tabs button.del").click(ldc.c.tabs.del);
 
         /* store the dataTable object (needed to add new values ...) */
         ldc.v.operations.table[compte.id] = dataTable;
@@ -339,7 +308,68 @@ ldc.v.stats();
 
 
 
+ldc.v.tabStats = {};
 
+/* init */
+ldc.v.tabStats.init = function () {
+    var html = '<div id="tab-stats"><div>';
+    $("#tabs").append(html);
+    ldc.v.tabStats.TotalGraph.init();
+}
+
+ldc.v.tabStats.update = function () {
+    ldc.v.tabStats.TotalGraph.update();
+}
+
+
+ldc.v.tabStats.charts = {};
+
+ldc.v.tabStats.TotalGraph = {};
+
+ldc.v.tabStats.TotalGraph.init = function () {
+    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
+
+    var id = 'total-stats';
+    var html = '<div id="'+id+'"><div>';
+    $("#tab-stats").append(html);
+
+    var gData = new google.visualization.DataTable();
+    var xTitle = 'Mois';
+    var yTitle = 'Capital (€)';
+    gData.addColumn('string', xTitle);
+    gData.addColumn('number', yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+    var chart = new google.visualization.LineChart(document.getElementById(id));
+    var options = {};
+    options.width = 1000;
+    options.height = 300;
+    ldc.v.tabStats.charts[id] = {};
+    ldc.v.tabStats.charts[id].chart = chart;
+    ldc.v.tabStats.charts[id].options = options;
+    ldc.v.tabStats.charts[id].xTitle = xTitle;
+    ldc.v.tabStats.charts[id].yTitle = yTitle;
+    chart.draw(gData, options);
+}
+
+ldc.v.tabStats.TotalGraph.update = function () {
+    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
+
+    var id = 'total-stats';
+
+    var gData = new google.visualization.DataTable();
+    var xTitle = ldc.v.tabStats.charts[id].xTitle;
+    var yTitle = ldc.v.tabStats.charts[id].yTitle;
+    gData.addColumn('string', xTitle);
+    gData.addColumn('number', yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+    var chart =  ldc.v.tabStats.charts[id].chart;
+    var options = ldc.v.tabStats.charts[id].option;
+    chart.draw(gData, options);
+}
 
 
 /******************************************************************************
