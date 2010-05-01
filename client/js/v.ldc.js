@@ -10,7 +10,7 @@ ldc.v.init = function () {
     // tabs + liste des opérations
     for(var i in ldc.m.comptes.data) {
         var c = ldc.m.comptes.data[i];
-        $("#tabs ul").append('<li><a href="#compte_'+c.id+'">'+c.bank+'-'+c.name+'</a></li>');
+        $("#tabs ul.top").append('<li><a href="#compte_'+c.id+'">'+c.bank+'-'+c.name+'</a></li>');
         ldc.v.operations.init(c);
     }
     $("#tabs").tabs();
@@ -18,20 +18,8 @@ ldc.v.init = function () {
 
     // init params
     ldc.v.params();
-    ldc.v.form.init(ldc.c.operations.add,
-        function() {
-            ldc.v.form.cats.setSelected($(this));
-            $(this).addClass("ui-state-highlight");
-            ldc.v.popup.cats.open();
-    });
-    ldc.v.popup.cats.init(function(cat_id) {
-            var c = ldc.m.categories.get(cat_id);
-            ldc.v.form.cats.set('id', c.id);
-            ldc.v.form.cats.set('name', c.name);
-            ldc.v.form.cats.removeSelected();
-            ldc.v.form.cats.removeError();
-            ldc.v.popup.cats.close();
-    });
+    ldc.v.form.init();
+    ldc.v.popup.cats.init();
 }
 
 
@@ -359,7 +347,7 @@ ldc.v.stats();
 ******************************************************************************/
 ldc.v.form = {};
 
-ldc.v.form.init = function(onValidate, onCatNameClick) {
+ldc.v.form.init = function() {
     /* Functions */
 
     /* type */
@@ -398,11 +386,8 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
             $('#form li.to select').attr("disabled", "true");
             $('#form li.from select').removeAttr("disabled");
         });
-    $('#form li.cats button.add').click(function() {
-            ldc.v.form.cats.add();
-            return false;
-    });
     }
+
 
     ldc.v.form.type();
 
@@ -417,8 +402,8 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
             var html = '<li>';
             html += '<input type=hidden class="id" value="'+id+'" />';
             html += '<input type="text" class="name" value="'+name+'"/>';
-            html += '<input type="text" class="val" value="'+val+'"/>';
-            html += '<button class="del">-</button>';
+            html += '<input size="5" type="text" class="val" value="'+val+'"/>';
+            html += '<a href="#" class="del">Supprimer</a>';
             html += '</li>';
             $("#form li.cats ul").append(html);
         }
@@ -427,22 +412,28 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
             $("#form li.cats ul").empty();
         }
 
-        function set(name, value) {
+        function setTop(name, value) {
             if (name == 'id') {
-                $("#form li.cats input.ui-state-highlight").parent().children('input.id').val(value);
+                $("#form li.cats input.top-id").val(value);
             }
             if (name == 'name') {
-                $("#form li.cats input.ui-state-highlight").parent().children('input.name').val(value);
+                $("#form li.cats input.top-name").val(value);
             }
             if (name == 'val') {
-                $("#form li.cats input.ui-state-highlight").parent().children('input.val').val(value);
+                $("#form li.cats input.top-val").val(value);
             }
         }
-        function setSelected(jThis) {
-            jThis.addClass("ui-state-highlight");
-        }
-        function removeSelected(jThis) {
-            $("#form .ui-state-highlight").removeClass("ui-state-highlight");
+
+        function set(name, value) {
+            if (name == 'id') {
+                $("#form li.cats input.top-id").val(value);
+            }
+            if (name == 'name') {
+                $("#form li.cats input.top-name").val(value);
+            }
+            if (name == 'val') {
+                $("#form li.cats input.top-val").val(value);
+            }
         }
         function get(name, jThis) {
             if (name == 'id') {
@@ -455,11 +446,15 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
                 return jThis.children('.val').val();
             }
         }
-        function setError(jThis) {
-            jThis.addClass('ui-state-error');
+        function setError(name) {
+            $("#form li.cats .top-"+name).addClass('ui-state-error');
         }
-        function removeError() {
-            $('#form li.cats .ui-state-error').removeClass('ui-state-error');
+        function removeError(name) {
+            if (name == undefined) {
+                $(this).removeClass('ui-state-error');
+            } else {
+                $("#form li.cats .top-"+name).removeClass('ui-state-error');
+            }
         }
         function del() {
             $(this).parent().remove();
@@ -469,11 +464,10 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
         ldc.v.form.cats.get = get; 
         ldc.v.form.cats.del = del; 
         ldc.v.form.cats.set = set;
+        ldc.v.form.cats.setTop = setTop;
         ldc.v.form.cats.empty = empty;
         ldc.v.form.cats.removeError = removeError; 
         ldc.v.form.cats.setError = setError; 
-        ldc.v.form.cats.setSelected = setSelected;
-        ldc.v.form.cats.removeSelected = removeSelected;
     }
 
     ldc.v.form.date = function() {
@@ -591,8 +585,10 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
     $("div#form li.from select").append('<option value="0">Extérieur</option>');
 
 
-    $("#form li.cats").delegate('input.name', 'click', onCatNameClick);
-    $("#form li.cats").delegate('button.del', 'click', ldc.v.form.cats.del);
+    $("#form li.cats").delegate('input.top-name', 'click', function() {
+            ldc.v.popup.cats.open();
+    });
+    $("#form li.cats").delegate('#form li.cats .del', 'click', ldc.v.form.cats.del);
 
     // datepicker
     $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -601,7 +597,7 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
     // dialog
     $("#form").dialog({ 
             modal: true,
-            buttons: { "Ok": onValidate},
+            buttons: { "Ok": ldc.c.operations.add},
             autoOpen: false,
             draggable: false,
             title: 'Opérations',
@@ -609,9 +605,31 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
             resizable: false
     });
 
-    ldc.v.form.open = open;
-}
+    $('#form li.cats button.add').click(function() {
+            var name = $('#form li.cats .top-name').val();
+            var id =  $('#form li.cats .top-id').val();
+            var val =  $('#form li.cats .top-val').val();
+            if (id == '') {
+                ldc.v.form.cats.setError('name');
+                return false;
+            }
+           if (val == 0) { 
+                ldc.v.form.cats.setError('val');
+                return false;
+            }
+            ldc.v.form.cats.setTop('name', '');
+            ldc.v.form.cats.setTop('id', '');
+            ldc.v.form.cats.setTop('val', '0');
+            ldc.v.form.cats.add(id, name, val);
+            return false;
+        });
 
+    $("#form li.cats input.top-val").click(function() {
+        ldc.v.form.cats.removeError('val');;
+    });
+
+    ldc.v.form.open = open;
+    }
 
 
 
@@ -621,11 +639,15 @@ ldc.v.popup = {};
 ldc.v.popup.cats = {};
 ldc.v.popup.cats.id = 'popup_cats';
 
-ldc.v.popup.cats.init = function (onSelect) {
+ldc.v.popup.cats.init = function () {
 
     function select(NODE, TREE_OBJ) {
         var cat_id = $(NODE).attr('cat_id');
-        onSelect(cat_id);
+        var c = ldc.m.categories.get(cat_id);
+        ldc.v.form.cats.setTop('id', c.id);
+        ldc.v.form.cats.setTop('name', c.name);
+        ldc.v.form.cats.removeError('name');
+        ldc.v.popup.cats.close();
         return false;
     }
 

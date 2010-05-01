@@ -40,4 +40,7 @@ tr.selected {
     background-color: orange;
 }
 
+input.name, input.val {
+    border: 0;
+}
 

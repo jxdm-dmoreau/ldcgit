@@ -26,7 +26,9 @@ ldc.c.tabs.add = function () {
     ldc.v.form.to.set(0);
     ldc.v.form.to.disabled(false);
     ldc.v.form.cats.empty();
-    ldc.v.form.cats.add();
+    ldc.v.form.cats.setTop('name', '');
+    ldc.v.form.cats.setTop('id', '');
+    ldc.v.form.cats.setTop('val', 0);
     ldc.v.form.description.set('');
     ldc.v.form.open();
 }
