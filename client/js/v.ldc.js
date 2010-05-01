@@ -4,6 +4,37 @@
 ldc.v = {};
 
 
+
+ldc.v.init = function () {
+    ldc.v.menu.init();
+    // tabs + liste des opérations
+    for(var i in ldc.m.comptes.data) {
+        var c = ldc.m.comptes.data[i];
+        $("#tabs ul").append('<li><a href="#compte_'+c.id+'">'+c.bank+'-'+c.name+'</a></li>');
+        ldc.v.operations.init(c);
+    }
+    $("#tabs").tabs();
+
+
+    // init params
+    ldc.v.params();
+    ldc.v.form.init(ldc.c.operations.add,
+        function() {
+            ldc.v.form.cats.setSelected($(this));
+            $(this).addClass("ui-state-highlight");
+            ldc.v.popup.cats.open();
+    });
+    ldc.v.popup.cats.init(function(cat_id) {
+            var c = ldc.m.categories.get(cat_id);
+            ldc.v.form.cats.set('id', c.id);
+            ldc.v.form.cats.set('name', c.name);
+            ldc.v.form.cats.removeSelected();
+            ldc.v.form.cats.removeError();
+            ldc.v.popup.cats.close();
+    });
+}
+
+
 ldc.v.menu = function() {
 
     function hideAll() {
@@ -174,6 +205,10 @@ ldc.v.operations = function (id, compte) {
         });
         $("#"+id+" button").button();
         /* actions */
+        $("#tabs #"+id).delegate('tr', 'click', ldc.c.tabs.onClickTr); 
+        $("#tabs button.add").click(ldc.c.tabs.add);
+        $("#tabs button.update").click(ldc.c.tabs.update);
+        $("#tabs button.del").click(ldc.c.tabs.del);
 
         /* store the dataTable object (needed to add new values ...) */
         ldc.v.operations.table[compte.id] = dataTable;
@@ -342,6 +377,31 @@ ldc.v.form.init = function(onValidate, onCatNameClick) {
             $("#form li.type input#op-type2").button('refresh');
         }
         ldc.v.form.type.setChecked = setChecked;
+
+        $("#op-type1").unbind('click');
+        $("#op-type1").click(function() {
+            var compte_id = $('#form input.compte_id').attr("value");
+            $('#form li.from select option:selected').removeAttr('selected');
+            $('#form li.to select option:selected').removeAttr('selected');
+            $('#form li.from select option[value="'+compte_id+'"]').attr("selected", "selected");
+            $('#form li.to select option[value="0"]').attr("selected", "selected");
+            $('#form li.from select').attr("disabled", "true");
+            $('#form li.to select').removeAttr("disabled");
+        });
+        $("#op-type2").unbind('click');
+        $("#op-type2").click(function() {
+            var compte_id = $('#form input.compte_id').attr("value");
+            $('#form li.to select option:selected').removeAttr('selected');
+            $('#form li.from select option:selected').removeAttr('selected');
+            $('#form li.to select option[value="'+compte_id+'"]').attr("selected", "selected");
+            $('#form li.from select option[value="0"]').attr("selected", "selected");
+            $('#form li.to select').attr("disabled", "true");
+            $('#form li.from select').removeAttr("disabled");
+        });
+    $('#form li.cats button.add').click(function() {
+            ldc.v.form.cats.add();
+            return false;
+    });
     }
 
     ldc.v.form.type();
@@ -643,6 +703,12 @@ ldc.v.params = function() {
             hide: 'slide',
             closeText: 'hide'
     });
+    $("#submenu a[href=#params]").click(function() {
+            $("#params").dialog('open');
+    });
+    $("#params li.cats button.add").click(ldc.c.params.add);
+    $("#params li.cats button.del").click(ldc.c.params.del);
+    $("#params li.cats button.rename").click(ldc.c.params.rename);
 }
 
 

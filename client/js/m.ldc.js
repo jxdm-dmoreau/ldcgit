@@ -45,7 +45,7 @@ ldc.m.init.is_finished = function()
     ldc.m.init.nb_ajax_calls--;
     console.debug("ldc.m.init.nb_ajax_calls="+ldc.m.init.nb_ajax_calls);
     if (ldc.m.init.nb_ajax_calls == 0) {
-        ldc.c.init();
+        ldc.v.init();
     }
 }
 
