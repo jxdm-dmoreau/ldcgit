@@ -24,7 +24,6 @@ ldc.v.init = function () {
     ldc.v.params();
     ldc.v.form.init();
     ldc.v.popup.cats.init();
-    ldc.v.tabStats.init();
 }
 
 
@@ -307,6 +306,9 @@ ldc.v.stats = function () {
 ldc.v.stats();
 
 
+/******************************************************************************
+  * TAB STATS
+******************************************************************************/
 
 ldc.v.tabStats = {};
 
@@ -315,6 +317,12 @@ ldc.v.tabStats.init = function () {
     var html = '<div id="tab-stats"><div>';
     $("#tabs").append(html);
     ldc.v.tabStats.TotalGraph.init();
+    var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
+    console.debug(JSON.stringify(data));
+    ldc.v.tabStats.pie.init('pie-debit', data);
+    var data = ldc.m.stats.getCatChildren(0, 'credit', 2008, 01, 2010, 12);
+    console.debug(JSON.stringify(data));
+    ldc.v.tabStats.pie.init('pie-credit', data);
 }
 
 ldc.v.tabStats.update = function () {
@@ -371,6 +379,31 @@ ldc.v.tabStats.TotalGraph.update = function () {
     chart.draw(gData, options);
 }
 
+ldc.v.tabStats.pie = {};
+
+ldc.v.tabStats.pie.init = function (id, data) {
+    console.debug('pie.init)()');
+    var html = '<div id="'+id+'"><div>';
+    $("#tab-stats").append(html);
+    var gData = new google.visualization.DataTable();
+    var xTitle = 'Catégories';
+    var yTitle = 'Débit (€)';
+    gData.addColumn('string', xTitle);
+    gData.addColumn('number', yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+    var chart = new google.visualization.PieChart(document.getElementById(id));
+    chart.draw(gData, {width: 400, height: 240, is3D: true, title: 'My Daily Activities'});
+    /*
+    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
+
+
+    gData.addRow('1');
+    var chart = new google.visualization.PieChart(document.getElementById(id));
+    chart.draw(gData, options);
+    */
+}
 
 /******************************************************************************
   * Formulaire

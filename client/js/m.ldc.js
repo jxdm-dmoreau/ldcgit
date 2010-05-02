@@ -210,8 +210,13 @@ ldc.m.stats.getTotal = function (yearB, monthB, yearE, monthE) {
     while(yearB != yearE || monthB != monthE) {
         var stats = ldc.m.operations.STATS['somme'];
         var x = stats[yearB][monthB].name + " "+yearB;
-        y += stats[yearB][monthB]['total'];
-        data.push([x, y]);
+        for(var i in ldc.m.comptes.data) {
+            c = ldc.m.comptes.data[i];
+            if (stats[yearB][monthB][c.id] != undefined) {
+                y += stats[yearB][monthB][c.id][0];
+            }
+            data.push([x, y]);
+        }
         monthB++;
         if (monthB == 13) {
             monthB = 1;
@@ -222,22 +227,57 @@ ldc.m.stats.getTotal = function (yearB, monthB, yearE, monthE) {
 }
 
 ldc.m.stats.getDebit = function (compteId, yearB, yearE, monthB, monthE) {
-        var data = [];
-        while(yearB != yearE || monthB != monthE) {
-            var x = ldc.m.operations.STATS['debit'][yearB][monthB].name + " "+yearB;
-            var y = 0;
-            if (ldc.m.operations.STATS['debit'][yearB][monthB][compteId] != undefined) {
-                y = ldc.m.operations.STATS['debit'][yearB][monthB][compteId].total;
+    var data = [];
+    while(yearB != yearE || monthB != monthE) {
+        var x = ldc.m.operations.STATS['debit'][yearB][monthB].name + " "+yearB;
+        var y = 0;
+        if (ldc.m.operations.STATS['debit'][yearB][monthB][compteId] != undefined) {
+            y = ldc.m.operations.STATS['debit'][yearB][monthB][compteId][0];
+        }
+        data.push([x, y]);
+        monthB++;
+        if (monthB == 13) {
+            monthB = 1;
+            yearB++;
+        }
+    }
+    return data;
+}
+
+ldc.m.stats.getCatChildren = function (catId, type, yearB, monthB, yearE, monthE) {
+
+    var data = [];
+    var year = yearB;
+    var month = monthB;
+    var stats = ldc.m.operations.STATS[type];
+    var children = ldc.m.categories.get_children(catId);
+    console.debug(JSON.stringify(children));
+    for (var i in children) {
+        var total = 0;
+        year = yearB;
+        month = monthB;
+        while(year != yearE || month != monthE) {
+            for (var j in ldc.m.comptes.data) {
+                var c = ldc.m.comptes.data[j];
+                if (stats[year][month][c.id] != undefined) {
+                    if (catId == 31) {
+                        console.debug(catId+" year="+year+" month="+month);
+                    }
+                    if (stats[year][month][c.id][children[i].id] != undefined) {
+                        total += stats[year][month][c.id][children[i].id];
+                    }
+                }
             }
-            data.push([x, y]);
-            monthB++;
-            if (monthB == 13) {
-                monthB = 1;
-                yearB++;
+            month++;
+            if (month == 13) {
+                month = 1;
+                year++;
             }
         }
-        return data;
+        data.push([children[i].name, total]);
     }
+    return data;
+}
 
 /******************************************************************************
 *  Opérations functions
@@ -293,30 +333,28 @@ ldc.m.operations = function() {
         }
         var v = parseFloat(val);
         STATS[type][year][month][compte_id][cat_id] += v;
-        STATS[type][year][month][compte_id]['total'] += v;
         if (type == 'debit') {
             STATS['somme'][year][month][compte_id][cat_id] -= v;
-            STATS['somme'][year][month][compte_id]['total'] -= v;
-            STATS['somme'][year][month]['total'] -= v;
         } else {
             STATS['somme'][year][month][compte_id][cat_id] += v;
-            STATS['somme'][year][month][compte_id]['total'] += v;
-            STATS['somme'][year][month]['total'] += v;
+        }
+        if (cat_id != 0) {
+            var c = ldc.m.categories.get(cat_id);
+            updateStatsCatAdd(type, c.father_id, val, year, month, compte_id);
         }
     }
 
     function updateStatsCatRemove(type, cat_id, val, year, month, compte_id) {
         var v = parseFloat(val);
         STATS[type][year][month][compte_id][cat_id] -= v;
-        STATS[type][year][month][compte_id]['total'] -= v;
         if (type == 'credit') {
             STATS['somme'][year][month][compte_id][cat_id] -= v;
-            STATS['somme'][year][month][compte_id]['total'] -= v;
-            STATS['somme'][year][month]['total'] -= v;
         } else {
             STATS['somme'][year][month][compte_id][cat_id] += v;
-            STATS['somme'][year][month][compte_id]['total'] += v;
-            STATS['somme'][year][month]['total'] += v;
+        }
+        if (cat_id != 0) {
+            var c = ldc.m.categories.get(cat_id);
+            updateStatsCatRemove(type, c.father_id, val, year, month, compte_id);
         }
     }
 
