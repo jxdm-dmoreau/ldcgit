@@ -316,13 +316,17 @@ ldc.v.tabStats = {};
 ldc.v.tabStats.init = function () {
     var html = '<div id="tab-stats"><div>';
     $("#tabs").append(html);
-    ldc.v.tabStats.TotalGraph.init();
+
+
+    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
+    var id = 'total-stats';
+    ldc.v.tabStats.line.init(id, data, 'x', 'y', {title: 'coucou'});
     var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
-    console.debug(JSON.stringify(data));
-    ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"coucou"});
+    ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"Débit"});
     var data = ldc.m.stats.getCatChildren(0, 'credit', 2008, 01, 2010, 12);
-    console.debug(JSON.stringify(data));
-    ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"coucou"});
+    ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"Crédit"});
+    var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
+    ldc.v.tabStats.line.init('line-debit', data, "x", "y", {title:"Crédit"});
 }
 
 ldc.v.tabStats.update = function () {
@@ -330,60 +334,62 @@ ldc.v.tabStats.update = function () {
 }
 
 
-ldc.v.tabStats.charts = {};
 
-ldc.v.tabStats.TotalGraph = {};
 
-ldc.v.tabStats.TotalGraph.init = function () {
-    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
+ldc.v.tabStats.line = {};
 
-    var id = 'total-stats';
+ldc.v.tabStats.line.charts = {};
+
+ldc.v.tabStats.line.init = function(id, data, xTitle, yTitle, options) {
     var html = '<div id="'+id+'"><div>';
     $("#tab-stats").append(html);
 
     var gData = new google.visualization.DataTable();
-    var xTitle = 'Mois';
-    var yTitle = 'Capital (€)';
     gData.addColumn('string', xTitle);
     gData.addColumn('number', yTitle);
     for(var i in data) {
         gData.addRow(data[i]);
     }
     var chart = new google.visualization.LineChart(document.getElementById(id));
-    var options = {};
-    options.width = 1000;
-    options.height = 300;
-    ldc.v.tabStats.charts[id] = {};
-    ldc.v.tabStats.charts[id].chart = chart;
-    ldc.v.tabStats.charts[id].options = options;
-    ldc.v.tabStats.charts[id].xTitle = xTitle;
-    ldc.v.tabStats.charts[id].yTitle = yTitle;
-    chart.draw(gData, options);
+    ldc.v.tabStats.line.charts[id] = {};
+    ldc.v.tabStats.line.charts[id].options = options;
+    if(ldc.v.tabStats.line.charts[id].options.width == undefined) {
+        ldc.v.tabStats.line.charts[id].options.width = 1000;
+    }
+    if(ldc.v.tabStats.line.charts[id].options.height == undefined) {
+        ldc.v.tabStats.line.charts[id].options.height = 300;
+    }
+    ldc.v.tabStats.line.charts[id].options.xTitle = xTitle;
+    ldc.v.tabStats.line.charts[id].options.yTitle = yTitle;
+    chart.draw(gData, ldc.v.tabStats.line.charts[id].options);
 }
 
-ldc.v.tabStats.TotalGraph.update = function () {
-    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
-
-    var id = 'total-stats';
-
+ldc.v.tabStats.line.update = function(id, data) {
+    console.debug('line.update('+id+')');
+    if (ldc.v.tabStats.line.charts[id] == undefined) {
+        alert("ldc.v.tabStats.line.charts[id] == undefined");
+        return false;
+    }
     var gData = new google.visualization.DataTable();
-    var xTitle = ldc.v.tabStats.charts[id].xTitle;
-    var yTitle = ldc.v.tabStats.charts[id].yTitle;
+    var xTitle = ldc.v.tabStats.line.charts[id].xTitle;
+    var yTitle = ldc.v.tabStats.line.charts[id].yTitle;
     gData.addColumn('string', xTitle);
     gData.addColumn('number', yTitle);
     for(var i in data) {
         gData.addRow(data[i]);
     }
-    var chart =  ldc.v.tabStats.charts[id].chart;
-    var options = ldc.v.tabStats.charts[id].option;
-    chart.draw(gData, options);
+    var chart = new google.visualization.LineChart(document.getElementById(id));
+    chart.draw(gData, ldc.v.tabStats.line.charts[id].options);
 }
 
+
+/******************** PIE ****************************/
+
 ldc.v.tabStats.pie = {};
+
 ldc.v.tabStats.pie.charts = {};
 
 ldc.v.tabStats.pie.init = function (id, data, xTitle, yTitle, options) {
-    console.debug('pie.init)()');
     var html = '<div id="'+id+'"><div>';
     $("#tab-stats").append(html);
     var gData = new google.visualization.DataTable();
@@ -403,16 +409,29 @@ ldc.v.tabStats.pie.init = function (id, data, xTitle, yTitle, options) {
     if(ldc.v.tabStats.pie.charts[id].options.height == undefined) {
         ldc.v.tabStats.pie.charts[id].options.height = 240;
     }
+    ldc.v.tabStats.pie.charts[id].options.xTitle = xTitle;
+    ldc.v.tabStats.pie.charts[id].options.yTitle = yTitle;
     var chart = new google.visualization.PieChart(document.getElementById(id));
     chart.draw(gData, ldc.v.tabStats.pie.charts[id].options);
-    /*
-    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
+}
 
 
-    gData.addRow('1');
+ldc.v.tabStats.pie.update = function (id, data) {
+    console.debug('pie.update('+id+')');
+    if (ldc.v.tabStats.pie.charts[id] == undefined) {
+        alert("ldc.v.tabStats.pie.charts[id] == undefined");
+        return false;
+    }
+    var gData = new google.visualization.DataTable();
+    var xTitle = ldc.v.tabStats.pie.charts[id].xTitle;
+    var yTitle = ldc.v.tabStats.pie.charts[id].yTitle;
+    gData.addColumn('string', xTitle);
+    gData.addColumn('number', yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
     var chart = new google.visualization.PieChart(document.getElementById(id));
-    chart.draw(gData, options);
-    */
+    chart.draw(gData, ldc.v.tabStats.pie.charts[id].options);
 }
 
 /******************************************************************************

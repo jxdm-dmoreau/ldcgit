@@ -2,7 +2,7 @@
 
 var ldc = {};
 ldc.m = {};
-ldc.m.SERVER="http://192.168.1.6/ldc/server/";
+ldc.m.SERVER="http://127.0.0.1/ldc/server/";
 
 ldc.m.MONTHS = [
     {name:'Janvier',   num:'01'},
