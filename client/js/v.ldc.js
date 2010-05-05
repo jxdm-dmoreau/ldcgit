@@ -319,10 +319,10 @@ ldc.v.tabStats.init = function () {
     ldc.v.tabStats.TotalGraph.init();
     var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
     console.debug(JSON.stringify(data));
-    ldc.v.tabStats.pie.init('pie-debit', data);
+    ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"coucou"});
     var data = ldc.m.stats.getCatChildren(0, 'credit', 2008, 01, 2010, 12);
     console.debug(JSON.stringify(data));
-    ldc.v.tabStats.pie.init('pie-credit', data);
+    ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"coucou"});
 }
 
 ldc.v.tabStats.update = function () {
@@ -380,21 +380,31 @@ ldc.v.tabStats.TotalGraph.update = function () {
 }
 
 ldc.v.tabStats.pie = {};
+ldc.v.tabStats.pie.charts = {};
 
-ldc.v.tabStats.pie.init = function (id, data) {
+ldc.v.tabStats.pie.init = function (id, data, xTitle, yTitle, options) {
     console.debug('pie.init)()');
     var html = '<div id="'+id+'"><div>';
     $("#tab-stats").append(html);
     var gData = new google.visualization.DataTable();
-    var xTitle = 'Catégories';
-    var yTitle = 'Débit (€)';
     gData.addColumn('string', xTitle);
     gData.addColumn('number', yTitle);
     for(var i in data) {
         gData.addRow(data[i]);
     }
+    ldc.v.tabStats.pie.charts[id] = {};
+    ldc.v.tabStats.pie.charts[id].options = options;
+    if(ldc.v.tabStats.pie.charts[id].options.is3D == undefined) {
+        ldc.v.tabStats.pie.charts[id].options.is3D = true;
+    }
+    if(ldc.v.tabStats.pie.charts[id].options.width == undefined) {
+        ldc.v.tabStats.pie.charts[id].options.width = 400;
+    }
+    if(ldc.v.tabStats.pie.charts[id].options.height == undefined) {
+        ldc.v.tabStats.pie.charts[id].options.height = 240;
+    }
     var chart = new google.visualization.PieChart(document.getElementById(id));
-    chart.draw(gData, {width: 400, height: 240, is3D: true, title: 'My Daily Activities'});
+    chart.draw(gData, ldc.v.tabStats.pie.charts[id].options);
     /*
     var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
 
