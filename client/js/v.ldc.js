@@ -186,7 +186,18 @@ ldc.v.operations();
   * categories
 ******************************************************************************/
 ldc.v.categories = {};
+
 ldc.v.categories.init = function (jContainer, id) {
+
+        var callbacks = {
+            onrename : ldc.c.params.onrename_categories,
+            ondelete : ldc.c.params.ondelete_categories,
+            onmove   : ldc.c.params.onmove_categories
+        };
+        ldc.v.categories.tree(jContainer, id, callbacks);
+};
+
+ldc.v.categories.tree = function (jContainer, id, callbacks)  {
 
     var div = '<div class="categories" id="'+id+'"></div>';
     jContainer.append(div);
@@ -216,11 +227,7 @@ ldc.v.categories.init = function (jContainer, id) {
     jDiv.append(html);
 
     $("#"+id).tree( {
-        callback: {
-            onrename : ldc.c.params.onrename_categories,
-            ondelete : ldc.c.params.ondelete_categories,
-            onmove   : ldc.c.params.onmove_categories
-        },
+        callback: callbacks,
         types: {
             "root" : {
                 clickable   : true,
@@ -229,11 +236,7 @@ ldc.v.categories.init = function (jContainer, id) {
             }
         }
     });
-
-
 };
-
-
 
 
 /******************************************************************************
@@ -321,12 +324,13 @@ ldc.v.tabStats.init = function () {
     var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
     var id = 'total-stats';
     ldc.v.tabStats.line.init(id, data, 'x', 'y', {title: 'coucou'});
+    ldc.v.categories.tree($("#tab-stats"), 'tab-stats-cat-tree');
     var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
     ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"Débit"});
     var data = ldc.m.stats.getCatChildren(0, 'credit', 2008, 01, 2010, 12);
     ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"Crédit"});
-    var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
-    ldc.v.tabStats.line.init('line-debit', data, "x", "y", {title:"Crédit"});
+    var data = ldc.m.stats.getCatDebit(0, 2008, 2010, 01, 12);
+    ldc.v.tabStats.line.init('line-debit', data, "x", "y", {title:"Débit"});
 }
 
 ldc.v.tabStats.update = function () {
@@ -743,56 +747,22 @@ ldc.v.popup.cats.init = function () {
         return false;
     }
 
-    function display_cat_r(cat, html) {
-        html += '<li cat_id="'+cat.id+'"><a href="#"><ins>&nbsp;</ins>'+cat.name+'</a>';
-        var children = ldc.m.categories.get_children(cat.id);
-        if (children.length > 0) {
-            html += '<ul>';
-            for(var i in children) {
-                html = display_cat_r(children[i], html);
-            }
-            html += '</ul>';
-        }
-        html += '</li>';
-        return html;
-    }
-
-    html = '<ul>';
-    html += '<li rel="root" cat_id="0"><a href="#"><ins>&nbsp;</ins>Catégories</a><ul>';
-    var children = ldc.m.categories.get_children(0);
-    for(var i in children) {
-        html = display_cat_r(children[i], html);
-    }
-    html += '</ul></li></ul>';
-    var jDiv = $('<div id="'+ldc.v.popup.cats.id+'">');
-    jDiv.append(html);
-
-    jDiv.tree( {
-        callback: {
-            onselect : select
-        },
-        types: {
-            "root" : {
-                clickable   : true,
-                deletable   : false,
-                draggable   : false,
-            }
-        }
+    var callbacks = { onselect : select };
+    ldc.v.categories.tree($('body'), 'popup_cats', callbacks);
+    $("#popup_cats").dialog({
+        modal: true,
+        autoOpen: false,
+        draggable: false,
+        resizable: false,
+        title: 'Choix catégorie',
+        width: 500
     });
-    $("body").append(jDiv);
-    jDiv.dialog({
-            modal: true,
-            autoOpen: false,
-            draggable: false,
-            resizable: false,
-            title: 'Choix catégorie',
-            width: 500
-    });
+
+
 
 }
 
 ldc.v.popup.cats.open = function () {
-
     $('#'+ldc.v.popup.cats.id).dialog('open');
 }
 

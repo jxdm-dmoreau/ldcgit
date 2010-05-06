@@ -210,13 +210,11 @@ ldc.m.stats.getTotal = function (yearB, monthB, yearE, monthE) {
     while(yearB != yearE || monthB != monthE) {
         var stats = ldc.m.operations.STATS['somme'];
         var x = stats[yearB][monthB].name + " "+yearB;
-        for(var i in ldc.m.comptes.data) {
-            c = ldc.m.comptes.data[i];
-            if (stats[yearB][monthB][c.id] != undefined) {
-                y += stats[yearB][monthB][c.id][0];
-            }
-            data.push([x, y]);
+        if (stats[yearB][monthB]['all'] != undefined) {
+            y += stats[yearB][monthB]['all'][0];
         }
+        console.debug("y="+y);
+        data.push([x, y]);
         monthB++;
         if (monthB == 13) {
             monthB = 1;
@@ -243,6 +241,27 @@ ldc.m.stats.getDebit = function (compteId, yearB, yearE, monthB, monthE) {
     }
     return data;
 }
+
+ldc.m.stats.getCatDebit = function (catId, yearB, yearE, monthB, monthE) {
+    var data = [];
+    while(yearB != yearE || monthB != monthE) {
+        var x = ldc.m.operations.STATS['debit'][yearB][monthB].name + " "+yearB;
+        var y = 0;
+        if (ldc.m.operations.STATS['debit'][yearB][monthB]['all'] != undefined) {
+            if (ldc.m.operations.STATS['debit'][yearB][monthB]['all'][catId] != undefined) {
+                y = ldc.m.operations.STATS['debit'][yearB][monthB]['all'][catId];
+            }
+        }
+        data.push([x, y]);
+        monthB++;
+        if (monthB == 13) {
+            monthB = 1;
+            yearB++;
+        }
+    }
+    return data;
+}
+
 
 ldc.m.stats.getCatChildren = function (catId, type, yearB, monthB, yearE, monthE) {
 
@@ -319,24 +338,39 @@ ldc.m.operations = function() {
 
 
     function updateStatsCatAdd(type, cat_id, val, year, month, compte_id) {
+        if ((STATS[type][year][month]['all'])== undefined) {
+            STATS[type][year][month]['all'] = {};
+        }
+        if ((STATS[type][year][month]['all'][cat_id])== undefined) {
+            STATS[type][year][month]['all'][cat_id] = 0;
+        }
         if ((STATS[type][year][month][compte_id])== undefined) {
-            STATS[type][year][month][compte_id] = {total:0};
+            STATS[type][year][month][compte_id] = {};
         }
         if ((STATS[type][year][month][compte_id][cat_id])== undefined) {
             STATS[type][year][month][compte_id][cat_id] = 0;
         }
+        if ((STATS['somme'][year][month]['all'])== undefined) {
+            STATS['somme'][year][month]['all'] = {};
+        }
+        if ((STATS['somme'][year][month]['all'][cat_id])== undefined) {
+            STATS['somme'][year][month]['all'][cat_id] = 0;
+        }
         if ((STATS['somme'][year][month][compte_id])== undefined) {
-            STATS['somme'][year][month][compte_id] = {total:0};
+            STATS['somme'][year][month][compte_id] = {};
         }
         if ((STATS['somme'][year][month][compte_id][cat_id])== undefined) {
             STATS['somme'][year][month][compte_id][cat_id] = 0;
         }
         var v = parseFloat(val);
         STATS[type][year][month][compte_id][cat_id] += v;
+        STATS[type][year][month]['all'][cat_id] += v;
         if (type == 'debit') {
             STATS['somme'][year][month][compte_id][cat_id] -= v;
+            STATS['somme'][year][month]['all'][cat_id] -= v;
         } else {
             STATS['somme'][year][month][compte_id][cat_id] += v;
+            STATS['somme'][year][month]['all'][cat_id] += v;
         }
         if (cat_id != 0) {
             var c = ldc.m.categories.get(cat_id);
@@ -404,18 +438,18 @@ ldc.m.operations = function() {
 
     function initMonths() {
         var year = {};
-        year[1] = {name:'Janvier', num:'01', total:0};
-        year[2] = {name:'Février', num:'02', total:0};
-        year[3] = {name:'Mars', num:'03', total:0};
-        year[4] = {name:'Avril', num:'04', total:0};
-        year[5] = {name:'Mai', num:'05', total:0};
-        year[6] = {name:'Juin', num:'06', total:0};
-        year[7] = {name:'Juillet', num:'07', total:0};
-        year[8] = {name:'Août', num:'08', total:0};
-        year[9] = {name:'Septembre', num:'09', total:0};
-        year[10] = {name:'Octobre', num:'10', total:0};
-        year[11] = {name:'Novembre', num:'11', total:0};
-        year[12] = {name:'Décembre', num:'12', total:0};
+        year[1] = {name:'Janvier', num:'01'};
+        year[2] = {name:'Février', num:'02'};
+        year[3] = {name:'Mars', num:'03'};
+        year[4] = {name:'Avril', num:'04'};
+        year[5] = {name:'Mai', num:'05'};
+        year[6] = {name:'Juin', num:'06'};
+        year[7] = {name:'Juillet', num:'07'};
+        year[8] = {name:'Août', num:'08'};
+        year[9] = {name:'Septembre', num:'09'};
+        year[10] = {name:'Octobre', num:'10'};
+        year[11] = {name:'Novembre', num:'11'};
+        year[12] = {name:'Décembre', num:'12'};
         return year;
     }
 
