@@ -314,19 +314,27 @@ ldc.v.stats();
 ******************************************************************************/
 
 ldc.v.tabStats = {};
-ldc.v.tabStats.catId = 0;
-ldc.v.tabStats.nbYear = 1;
 
 /* init */
 ldc.v.tabStats.init = function () {
+
+    ldc.v.tabStats.catId = 0;
+    ldc.v.tabStats.startYear = ldc.m.date.year - 1;
+    ldc.v.tabStats.stopYear = ldc.m.date.year;
+
+
     var html = '<div id="tab-stats"><div>';
     $("#tabs").append(html);
 
+    ldc.v.tabStats.slider();
 
-    var data = ldc.m.stats.getTotal(ldc.m.date.year-ldc.v.tabStats.nbYear, ldc.m.date.month, ldc.m.date.year, ldc.m.date.month);
+    var data = ldc.m.stats.getTotal(
+            ldc.v.tabStats.startYear,
+            ldc.m.date.month,
+            ldc.v.tabStats.stopYear,
+            ldc.m.date.month);
     ldc.v.tabStats.line.init('total-stats', data, 'Mois', 'Total', {title: 'Total (€)'});
 
-    ldc.v.tabStats.slider();
 
     function select(NODE, TREE_OBJ) {
         ldc.v.tabStats.catId = $(NODE).attr('cat_id');
@@ -340,48 +348,61 @@ ldc.v.tabStats.init = function () {
     var data = ldc.m.stats.getCatChildren(
             ldc.v.tabStats.catId ,
             'debit',
-            ldc.m.date.year-ldc.v.tabStats.nbYear,
+            ldc.v.tabStats.startYear,
             ldc.m.date.month,
-            ldc.m.date.year,
+            ldc.v.tabStats.stopYear,
             ldc.m.date.month);
     ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"Débit"});
-    var data = ldc.m.stats.getCatChildren(ldc.v.tabStats.catId, 'credit', ldc.m.date.year-ldc.v.tabStats.nbYear, ldc.m.date.month, ldc.m.date.year, ldc.m.date.month);
+
+    var data = ldc.m.stats.getCatChildren(
+            ldc.v.tabStats.catId,
+            'credit',
+            ldc.v.tabStats.startYear,
+            ldc.m.date.month,
+            ldc.v.tabStats.stopYear,
+            ldc.m.date.month);
     ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"Crédit"});
-    var data = ldc.m.stats.getCatDebit(ldc.v.tabStats.catId , ldc.m.date.year-ldc.v.tabStats.nbYear, ldc.m.date.month, ldc.m.date.year, ldc.m.date.month);
+
+    var data = ldc.m.stats.getCatDebit(
+            ldc.v.tabStats.catId,
+            ldc.v.tabStats.startYear,
+            ldc.m.date.month,
+            ldc.v.tabStats.stopYear,
+            ldc.m.date.month);
     ldc.v.tabStats.line.init('line-debit', data, "x", "y", {title:"Débit"});
 }
 
 ldc.v.tabStats.update = function () {
     var data = ldc.m.stats.getTotal(
-                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.v.tabStats.startYear,
                 ldc.m.date.month,
-                ldc.m.date.year,
+                ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
     ldc.v.tabStats.line.update('total-stats', data);
 
     var data = ldc.m.stats.getCatChildren(
                 ldc.v.tabStats.catId,
                 'debit',
-                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.v.tabStats.startYear,
                 ldc.m.date.month,
-                ldc.m.date.year,
+                ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
     ldc.v.tabStats.pie.update('pie-debit', data);
 
     var data = ldc.m.stats.getCatChildren(
                 ldc.v.tabStats.catId,
                 'credit',
-                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.v.tabStats.startYear,
                 ldc.m.date.month,
-                ldc.m.date.year,
+                ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
     ldc.v.tabStats.pie.update('pie-credit', data);
 
     var data = ldc.m.stats.getCatDebit(
                 ldc.v.tabStats.catId,
-                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.v.tabStats.startYear,
                 ldc.m.date.month,
-                ldc.m.date.year,
+                ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
     ldc.v.tabStats.line.update('line-debit', data);
 }
@@ -389,24 +410,25 @@ ldc.v.tabStats.update = function () {
 
 ldc.v.tabStats.slider = function() {
     var html = '<div id="tab-stats-slider">';
-    html += '<p><label for="nbYear">Nombre d\'années :</label>';
-    html += '<input type="text" id="nbYear" style="border:0; color:#f6931f; font-weight:bold;" />';
+    html += '<p><label for="amout">Range :</label>';
+    html += '<input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" />';
     html += '</p>';
-    html += '<div id="slider-vertical" style="height:200px;"></div></div>';
+    html += '<div id="slider-range" style="width:300px;"></div></div>';
     $("#tab-stats").append(html);
-    $("#slider-vertical").slider({
-        orientation: "vertical",
-        range: "min",
-        min: 1,
-        max: 5,
-        value: 1,
+    $("#slider-range").slider({
+        range: true,
+        animate: true,
+        min: 2005,
+        max: ldc.m.date.year,
+        values: [ldc.m.date.year-1, ldc.m.date.year],
         slide: function(event, ui) {
-            $("#nbYear").val(ui.value);
-            ldc.v.tabStats.nbYear = ui.value;
+            $("#amount").val(ui.values[0] + ' - ' + ui.values[1]);
+            ldc.v.tabStats.startYear = ui.values[0];
+            ldc.v.tabStats.stopYear = ui.values[1];
             ldc.v.tabStats.update();
         }
     });
-    $("#nbYear").val($("#slider-vertical").slider("value"));
+    $("#amount").val($("#slider-range").slider("values", 0) + ' - ' + $("#slider-range").slider("values", 1));
 
 }
 
