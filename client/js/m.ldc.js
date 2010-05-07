@@ -2,7 +2,7 @@
 
 var ldc = {};
 ldc.m = {};
-ldc.m.SERVER="http://127.0.0.1/ldc/server/";
+ldc.m.SERVER="http://192.168.1.6/ldc/server/";
 
 ldc.m.MONTHS = [
     {name:'Janvier',   num:'01'},
@@ -30,6 +30,10 @@ ldc.m.init = function()
     $.getJSON(ldc.m.SERVER + "get_categories.php", ldc.m.categories.store);
     ldc.m.init.nb_ajax_calls++;
     $.getJSON(ldc.m.SERVER + "get_comptes.php",   ldc.m.comptes.store);
+    var date = new Date();
+    ldc.m.date = {};
+    ldc.m.date.month = date.getMonth() + 1;
+    ldc.m.date.year = date.getFullYear();
 }
 
 ldc.m.init.after_init = function()
@@ -207,13 +211,17 @@ ldc.m.stats = {};
 ldc.m.stats.getTotal = function (yearB, monthB, yearE, monthE) {
     var data = [];
     var y = 0;
+    monthE++;
+    if (monthE == 13) {
+        monthE = 1;
+        yearE++;
+    }
     while(yearB != yearE || monthB != monthE) {
         var stats = ldc.m.operations.STATS['somme'];
         var x = stats[yearB][monthB].name + " "+yearB;
         if (stats[yearB][monthB]['all'] != undefined) {
             y += stats[yearB][monthB]['all'][0];
         }
-        console.debug("y="+y);
         data.push([x, y]);
         monthB++;
         if (monthB == 13) {
@@ -226,6 +234,11 @@ ldc.m.stats.getTotal = function (yearB, monthB, yearE, monthE) {
 
 ldc.m.stats.getDebit = function (compteId, yearB, yearE, monthB, monthE) {
     var data = [];
+    monthE++;
+    if (monthE == 13) {
+        monthE = 1;
+        yearE++;
+    }
     while(yearB != yearE || monthB != monthE) {
         var x = ldc.m.operations.STATS['debit'][yearB][monthB].name + " "+yearB;
         var y = 0;
@@ -242,8 +255,13 @@ ldc.m.stats.getDebit = function (compteId, yearB, yearE, monthB, monthE) {
     return data;
 }
 
-ldc.m.stats.getCatDebit = function (catId, yearB, yearE, monthB, monthE) {
+ldc.m.stats.getCatDebit = function (catId, yearB, monthB, yearE, monthE) {
     var data = [];
+    monthE++;
+    if (monthE == 13) {
+        monthE = 1;
+        yearE++;
+    }
     while(yearB != yearE || monthB != monthE) {
         var x = ldc.m.operations.STATS['debit'][yearB][monthB].name + " "+yearB;
         var y = 0;
@@ -270,7 +288,11 @@ ldc.m.stats.getCatChildren = function (catId, type, yearB, monthB, yearE, monthE
     var month = monthB;
     var stats = ldc.m.operations.STATS[type];
     var children = ldc.m.categories.get_children(catId);
-    console.debug(JSON.stringify(children));
+    monthE++;
+    if (monthE == 13) {
+        monthE = 1;
+        yearE++;
+    }
     for (var i in children) {
         var total = 0;
         year = yearB;
@@ -280,7 +302,6 @@ ldc.m.stats.getCatChildren = function (catId, type, yearB, monthB, yearE, monthE
                 var c = ldc.m.comptes.data[j];
                 if (stats[year][month][c.id] != undefined) {
                     if (catId == 31) {
-                        console.debug(catId+" year="+year+" month="+month);
                     }
                     if (stats[year][month][c.id][children[i].id] != undefined) {
                         total += stats[year][month][c.id][children[i].id];

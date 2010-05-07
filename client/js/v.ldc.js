@@ -314,6 +314,8 @@ ldc.v.stats();
 ******************************************************************************/
 
 ldc.v.tabStats = {};
+ldc.v.tabStats.catId = 0;
+ldc.v.tabStats.nbYear = 1;
 
 /* init */
 ldc.v.tabStats.init = function () {
@@ -321,24 +323,92 @@ ldc.v.tabStats.init = function () {
     $("#tabs").append(html);
 
 
-    var data = ldc.m.stats.getTotal(2009, 01, 2010, 12);
-    var id = 'total-stats';
-    ldc.v.tabStats.line.init(id, data, 'x', 'y', {title: 'coucou'});
-    ldc.v.categories.tree($("#tab-stats"), 'tab-stats-cat-tree');
-    var data = ldc.m.stats.getCatChildren(0, 'debit', 2008, 01, 2010, 12);
+    var data = ldc.m.stats.getTotal(ldc.m.date.year-ldc.v.tabStats.nbYear, ldc.m.date.month, ldc.m.date.year, ldc.m.date.month);
+    ldc.v.tabStats.line.init('total-stats', data, 'Mois', 'Total', {title: 'Total (€)'});
+
+    ldc.v.tabStats.slider();
+
+    function select(NODE, TREE_OBJ) {
+        ldc.v.tabStats.catId = $(NODE).attr('cat_id');
+        ldc.v.tabStats.update();
+        return false;
+    }
+
+    var callbacks = { onselect : select };
+    ldc.v.categories.tree($("#tab-stats"), 'tab-stats-cat-tree', callbacks);
+
+    var data = ldc.m.stats.getCatChildren(
+            ldc.v.tabStats.catId ,
+            'debit',
+            ldc.m.date.year-ldc.v.tabStats.nbYear,
+            ldc.m.date.month,
+            ldc.m.date.year,
+            ldc.m.date.month);
     ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"Débit"});
-    var data = ldc.m.stats.getCatChildren(0, 'credit', 2008, 01, 2010, 12);
+    var data = ldc.m.stats.getCatChildren(ldc.v.tabStats.catId, 'credit', ldc.m.date.year-ldc.v.tabStats.nbYear, ldc.m.date.month, ldc.m.date.year, ldc.m.date.month);
     ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"Crédit"});
-    var data = ldc.m.stats.getCatDebit(0, 2008, 2010, 01, 12);
+    var data = ldc.m.stats.getCatDebit(ldc.v.tabStats.catId , ldc.m.date.year-ldc.v.tabStats.nbYear, ldc.m.date.month, ldc.m.date.year, ldc.m.date.month);
     ldc.v.tabStats.line.init('line-debit', data, "x", "y", {title:"Débit"});
 }
 
 ldc.v.tabStats.update = function () {
-    ldc.v.tabStats.TotalGraph.update();
+    var data = ldc.m.stats.getTotal(
+                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.m.date.month,
+                ldc.m.date.year,
+                ldc.m.date.month);
+    ldc.v.tabStats.line.update('total-stats', data);
+
+    var data = ldc.m.stats.getCatChildren(
+                ldc.v.tabStats.catId,
+                'debit',
+                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.m.date.month,
+                ldc.m.date.year,
+                ldc.m.date.month);
+    ldc.v.tabStats.pie.update('pie-debit', data);
+
+    var data = ldc.m.stats.getCatChildren(
+                ldc.v.tabStats.catId,
+                'credit',
+                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.m.date.month,
+                ldc.m.date.year,
+                ldc.m.date.month);
+    ldc.v.tabStats.pie.update('pie-credit', data);
+
+    var data = ldc.m.stats.getCatDebit(
+                ldc.v.tabStats.catId,
+                ldc.m.date.year-ldc.v.tabStats.nbYear,
+                ldc.m.date.month,
+                ldc.m.date.year,
+                ldc.m.date.month);
+    ldc.v.tabStats.line.update('line-debit', data);
 }
 
 
+ldc.v.tabStats.slider = function() {
+    var html = '<div id="tab-stats-slider">';
+    html += '<p><label for="nbYear">Nombre d\'années :</label>';
+    html += '<input type="text" id="nbYear" style="border:0; color:#f6931f; font-weight:bold;" />';
+    html += '</p>';
+    html += '<div id="slider-vertical" style="height:200px;"></div></div>';
+    $("#tab-stats").append(html);
+    $("#slider-vertical").slider({
+        orientation: "vertical",
+        range: "min",
+        min: 1,
+        max: 5,
+        value: 1,
+        slide: function(event, ui) {
+            $("#nbYear").val(ui.value);
+            ldc.v.tabStats.nbYear = ui.value;
+            ldc.v.tabStats.update();
+        }
+    });
+    $("#nbYear").val($("#slider-vertical").slider("value"));
 
+}
 
 ldc.v.tabStats.line = {};
 
@@ -369,7 +439,6 @@ ldc.v.tabStats.line.init = function(id, data, xTitle, yTitle, options) {
 }
 
 ldc.v.tabStats.line.update = function(id, data) {
-    console.debug('line.update('+id+')');
     if (ldc.v.tabStats.line.charts[id] == undefined) {
         alert("ldc.v.tabStats.line.charts[id] == undefined");
         return false;
@@ -421,7 +490,6 @@ ldc.v.tabStats.pie.init = function (id, data, xTitle, yTitle, options) {
 
 
 ldc.v.tabStats.pie.update = function (id, data) {
-    console.debug('pie.update('+id+')');
     if (ldc.v.tabStats.pie.charts[id] == undefined) {
         alert("ldc.v.tabStats.pie.charts[id] == undefined");
         return false;
