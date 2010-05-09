@@ -9,10 +9,6 @@ body {
 
 
 
-div#log {
-    height: 50px;
-    width: 200px;
-}
 
 div#chart_div {
     display: none;
@@ -26,12 +22,8 @@ div#form {
     cursor: pointer;
 }
 
-div.operations {
-    width: 800px;
-    border: 1px solid black;
-}
 div.operations .operations-table  {
-    width: 800px;
+    width: 100%;
 }
 table, tr, td {
     border-collapse: collapse;
@@ -44,3 +36,98 @@ input.name, input.val {
     border: 0;
 }
 
+
+#tabs {
+    width: 1400px;
+    margin: auto;
+}
+/* opérations */
+.operations {
+    overflow: auto;
+    width: 100%;
+}
+.div-op-table {
+    float: left;
+    width: 700px;
+}
+.operations .chart-line {
+    float: left;
+    margin-left: 20px;
+}
+
+/* tab stats */
+#tab-stats {
+    height: 100%;
+}
+#tab-stats-top {
+    float:none;
+    overflow: auto;
+    width: 100%;
+}
+
+#tab-stats-bottom {
+    float:none;
+    overflow: auto;
+    width: 100%;
+}
+#tab-stats-graph {
+    min-height: 400px;
+    float: left;
+}
+#tab-stats-graph-debit {
+    width: 100%;
+}
+#tab-stats-graph-credit {
+    width: 100%;
+}
+
+#tab-stats-cat-tree {
+    width:  250px;
+    float: left;
+}
+
+#pie-debit {
+    float: left;
+}
+
+#line-debit, #line-credit {
+    float: left;
+}
+
+#pie-credit {
+    float: left;
+}
+
+#total-stats {
+    float: left;
+}
+
+
+#tab-stats-slider {
+    float: left;
+    margin: auto;
+    text-align: center;
+}
+
+#slider-range {
+    height: 200px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    text-shadow: 2px 2px 4px #999;
+}
+
+#submenu {
+    text-align: right;
+    width: 90%;
+}
+#submenu a {
+    text-decoration: none;
+    color: black;
+}
+#submenu a:hover {
+    text-shadow: 2px 2px 4px #999;
+}

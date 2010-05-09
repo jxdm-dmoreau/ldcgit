@@ -137,10 +137,6 @@ ldc.v.operations = function (id, compte) {
         var id = "compte_"+compte.id;
         var div = '<div class="operations" id="'+id+'"></div>';
         $("#tabs").append(div);
-        /* stats */
-        var data2 = ldc.m.stats.getDebit(compte.id, 2010, 2010, 01, 12);
-        var opts = { height: 200, width: 1000};
-        ldc.v.charts.line.init($("#"+id), 'chart-line-compte-'+compte.id, data2, 'Mois','Débit', opts);
         /* generate html */
         var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
         html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
@@ -157,13 +153,19 @@ ldc.v.operations = function (id, compte) {
         }
         html += '</tbody>';
         /* add to the the div */
-        $("#"+id).append(html);
+
+        $("#"+id).append('<div class="div-op-table"></div>');
+        $("#"+id+" .div-op-table").append(html);
         /* generate the dataTable */
         var dataTable = $("#"+id+" table").dataTable({
                 "bJQueryUI": true,
                 "sPaginationType": "full_numbers"
         });
         $("#"+id+" button").button();
+        /* stats */
+        var data2 = ldc.m.stats.getDebit(compte.id, 2010, 2010, 01, 12);
+        var opts = { height: 200, width: 500, legend:'bottom'};
+        ldc.v.charts.line.init($("#"+id), 'chart-line-compte-'+compte.id, data2, 'Mois','Débit', opts);
         /* actions */
         $("#tabs #"+id).delegate('tr', 'click', ldc.c.tabs.onClickTr); 
 
@@ -333,7 +335,7 @@ ldc.v.charts.line.init = function(jContainer, id, data, xTitle, yTitle, options)
         gData.addRow(data[i]);
     }
 
-    var html = '<div id="'+id+'"><div>';
+    var html = '<div class="chart-line" id="'+id+'"><div>';
     jContainer.append(html);
 
     var chart = new google.visualization.LineChart(document.getElementById(id));
@@ -369,8 +371,10 @@ ldc.v.charts.pie = {};
 
 ldc.v.charts.pie.defaultOptions = { 
     height: 200,
-    width: 800,
+    width: 250,
     is3D: true,
+    legend: 'bottom',
+    colors:[{color:'#FF0000', darker:'#680000'}, {color:'cyan', darker:'deepskyblue'}]
 };
 
 ldc.v.charts.pie.init = function (jContainer, id, data, xTitle, yTitle, options) {
@@ -434,7 +438,8 @@ ldc.v.tabStats.init = function () {
     var html = '<div id="tab-stats"><div>';
     $("#tabs").append(html);
 
-    ldc.v.tabStats.slider();
+    $("#tab-stats").append('<div id="tab-stats-top"></div>');
+    ldc.v.tabStats.slider('tab-stats-top');
 
     var data = ldc.m.stats.getTotal(
             ldc.v.tabStats.startYear,
@@ -442,9 +447,10 @@ ldc.v.tabStats.init = function () {
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
     var opts =  {title: 'Total (€)', height: 300, width: 1000}
-    ldc.v.charts.line.init($("#tab-stats"), 'total-stats', data, 'Mois', 'Total', opts);
+    ldc.v.charts.line.init($("#tab-stats-top"), 'total-stats', data, 'Mois', 'Total', opts);
 
 
+    $("#tab-stats").append('<div id="tab-stats-bottom"></div>');
 
     function select(NODE, TREE_OBJ) {
         ldc.v.tabStats.catId = $(NODE).attr('cat_id');
@@ -453,7 +459,11 @@ ldc.v.tabStats.init = function () {
     }
 
     var callbacks = { onselect : select };
-    ldc.v.categories.tree($("#tab-stats"), 'tab-stats-cat-tree', callbacks);
+    ldc.v.categories.tree($("#tab-stats-bottom"), 'tab-stats-cat-tree', callbacks);
+
+    $("#tab-stats-bottom").append('<div id="tab-stats-graph"></div>');
+    $("#tab-stats-graph").append('<div id="tab-stats-graph-debit"></div>');
+    $("#tab-stats-graph").append('<div id="tab-stats-graph-credit"></div>');
 
     var data = ldc.m.stats.getCatChildren(
             ldc.v.tabStats.catId ,
@@ -462,7 +472,7 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.charts.pie.init($('#tab-stats'), 'pie-debit', data, "x", "y", {title:"Débit"});
+    ldc.v.charts.pie.init($('#tab-stats-graph-debit'), 'pie-debit', data, "x", "y", {title:"Débit"});
 
     var data = ldc.m.stats.getCatChildren(
             ldc.v.tabStats.catId,
@@ -471,7 +481,7 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.charts.pie.init($('#tab-stats'), 'pie-credit', data, "x", "y", {title:"Crédit"});
+    ldc.v.charts.pie.init($('#tab-stats-graph-credit'), 'pie-credit', data, "x", "y", {title:"Crédit"});
 
     var data = ldc.m.stats.getCatDebit(
             ldc.v.tabStats.catId,
@@ -479,7 +489,15 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.charts.line.init($("#tab-stats"),'line-debit', data, "x", "y", {title:"Débit"});
+    ldc.v.charts.line.init($("#tab-stats-graph-debit"),'line-debit', data, "x", "y", {title:"Débit", legend:'none', width: 700});
+
+    var data = ldc.m.stats.getCatCredit(
+            ldc.v.tabStats.catId,
+            ldc.v.tabStats.startYear,
+            ldc.m.date.month,
+            ldc.v.tabStats.stopYear,
+            ldc.m.date.month);
+    ldc.v.charts.line.init($("#tab-stats-graph-credit"),'line-credit', data, "x", "y", {title:"Crédit", legend:'none', width: 700});
 }
 
 ldc.v.tabStats.update = function () {
@@ -515,18 +533,27 @@ ldc.v.tabStats.update = function () {
                 ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
     ldc.v.charts.line.update('line-debit', data);
+
+    var data = ldc.m.stats.getCatCredit(
+                ldc.v.tabStats.catId,
+                ldc.v.tabStats.startYear,
+                ldc.m.date.month,
+                ldc.v.tabStats.stopYear,
+                ldc.m.date.month);
+    ldc.v.charts.line.update('line-credit', data);
 }
 
 
-ldc.v.tabStats.slider = function() {
+ldc.v.tabStats.slider = function(id) {
     var html = '<div id="tab-stats-slider">';
     html += '<p><label for="amout">Range :</label>';
     html += '<input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" />';
     html += '</p>';
-    html += '<div id="slider-range" style="width:300px;"></div></div>';
-    $("#tab-stats").append(html);
+    html += '<div id="slider-range"></div></div>';
+    $("#"+id).append(html);
     $("#slider-range").slider({
         range: true,
+        orientation: "vertical",
         animate: true,
         min: 2005,
         max: ldc.m.date.year,
@@ -891,7 +918,6 @@ ldc.v.params = function() {
             resizable: false,
             title: 'Paramères',
             width: 500,
-            hide: 'slide',
             closeText: 'hide'
     });
     $("#submenu a[href=#params]").click(function() {

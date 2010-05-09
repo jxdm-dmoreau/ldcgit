@@ -280,6 +280,31 @@ ldc.m.stats.getCatDebit = function (catId, yearB, monthB, yearE, monthE) {
     return data;
 }
 
+ldc.m.stats.getCatCredit = function (catId, yearB, monthB, yearE, monthE) {
+    var data = [];
+    monthE++;
+    if (monthE == 13) {
+        monthE = 1;
+        yearE++;
+    }
+    while(yearB != yearE || monthB != monthE) {
+        var x = ldc.m.operations.STATS['credit'][yearB][monthB].name + " "+yearB;
+        var y = 0;
+        if (ldc.m.operations.STATS['credit'][yearB][monthB]['all'] != undefined) {
+            if (ldc.m.operations.STATS['credit'][yearB][monthB]['all'][catId] != undefined) {
+                y = ldc.m.operations.STATS['credit'][yearB][monthB]['all'][catId];
+            }
+        }
+        data.push([x, y]);
+        monthB++;
+        if (monthB == 13) {
+            monthB = 1;
+            yearB++;
+        }
+    }
+    return data;
+}
+
 
 ldc.m.stats.getCatChildren = function (catId, type, yearB, monthB, yearE, monthE) {
 
