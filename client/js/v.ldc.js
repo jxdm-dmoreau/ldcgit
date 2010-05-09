@@ -334,7 +334,6 @@ ldc.v.charts.line.init = function(jContainer, id, data, xTitle, yTitle, options)
     }
 
     var html = '<div id="'+id+'"><div>';
-    console.debug(id);
     jContainer.append(html);
 
     var chart = new google.visualization.LineChart(document.getElementById(id));
@@ -348,6 +347,58 @@ ldc.v.charts.line.init = function(jContainer, id, data, xTitle, yTitle, options)
 }
 
 ldc.v.charts.line.update = function(id, data, options) {
+    if (ldc.v.charts.data[id] == undefined) {
+        alert("chart "+id+ " undefined");
+        return false;
+    }
+
+    var opts = $.extend({}, ldc.v.charts.data[id].options, options);
+        
+    var gData = new google.visualization.DataTable();
+    gData.addColumn('string', ldc.v.charts.data[id].xTitle);
+    gData.addColumn('number', ldc.v.charts.data[id].yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+
+    ldc.v.charts.data[id].chart.draw(gData, opts);
+    ldc.v.charts.data[id].options = opts;
+}
+
+ldc.v.charts.pie = {};
+
+ldc.v.charts.pie.defaultOptions = { 
+    height: 200,
+    width: 800,
+    is3D: true,
+};
+
+ldc.v.charts.pie.init = function (jContainer, id, data, xTitle, yTitle, options) {
+
+    var opts = $.extend({}, ldc.v.charts.pie.defaultOptions, options);
+
+    var gData = new google.visualization.DataTable();
+    gData.addColumn('string', xTitle);
+    gData.addColumn('number', yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+    var html = '<div id="'+id+'"><div>';
+    jContainer.append(html);
+
+    var chart = new google.visualization.PieChart(document.getElementById(id));
+    chart.draw(gData, opts);
+
+    ldc.v.charts.data[id] = {
+        xTitle: xTitle,
+        yTitle: yTitle,
+        options : opts,
+        chart : chart
+    };
+}
+
+
+ldc.v.charts.pie.update = function (id, data, options) {
     if (ldc.v.charts.data[id] == undefined) {
         alert("chart "+id+ " undefined");
         return false;
@@ -411,7 +462,7 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.tabStats.pie.init('pie-debit', data, "x", "y", {title:"Débit"});
+    ldc.v.charts.pie.init($('#tab-stats'), 'pie-debit', data, "x", "y", {title:"Débit"});
 
     var data = ldc.m.stats.getCatChildren(
             ldc.v.tabStats.catId,
@@ -420,7 +471,7 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.tabStats.pie.init('pie-credit', data, "x", "y", {title:"Crédit"});
+    ldc.v.charts.pie.init($('#tab-stats'), 'pie-credit', data, "x", "y", {title:"Crédit"});
 
     var data = ldc.m.stats.getCatDebit(
             ldc.v.tabStats.catId,
@@ -446,7 +497,7 @@ ldc.v.tabStats.update = function () {
                 ldc.m.date.month,
                 ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
-    ldc.v.tabStats.pie.update('pie-debit', data);
+    ldc.v.charts.pie.update('pie-debit', data);
 
     var data = ldc.m.stats.getCatChildren(
                 ldc.v.tabStats.catId,
@@ -455,7 +506,7 @@ ldc.v.tabStats.update = function () {
                 ldc.m.date.month,
                 ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
-    ldc.v.tabStats.pie.update('pie-credit', data);
+    ldc.v.charts.pie.update('pie-credit', data);
 
     var data = ldc.m.stats.getCatDebit(
                 ldc.v.tabStats.catId,
@@ -493,55 +544,6 @@ ldc.v.tabStats.slider = function() {
 
 
 
-/******************** PIE ****************************/
-
-ldc.v.tabStats.pie = {};
-
-ldc.v.tabStats.pie.charts = {};
-
-ldc.v.tabStats.pie.init = function (id, data, xTitle, yTitle, options) {
-    var html = '<div id="'+id+'"><div>';
-    $("#tab-stats").append(html);
-    var gData = new google.visualization.DataTable();
-    gData.addColumn('string', xTitle);
-    gData.addColumn('number', yTitle);
-    for(var i in data) {
-        gData.addRow(data[i]);
-    }
-    ldc.v.tabStats.pie.charts[id] = {};
-    ldc.v.tabStats.pie.charts[id].options = options;
-    if(ldc.v.tabStats.pie.charts[id].options.is3D == undefined) {
-        ldc.v.tabStats.pie.charts[id].options.is3D = true;
-    }
-    if(ldc.v.tabStats.pie.charts[id].options.width == undefined) {
-        ldc.v.tabStats.pie.charts[id].options.width = 400;
-    }
-    if(ldc.v.tabStats.pie.charts[id].options.height == undefined) {
-        ldc.v.tabStats.pie.charts[id].options.height = 240;
-    }
-    ldc.v.tabStats.pie.charts[id].options.xTitle = xTitle;
-    ldc.v.tabStats.pie.charts[id].options.yTitle = yTitle;
-    var chart = new google.visualization.PieChart(document.getElementById(id));
-    chart.draw(gData, ldc.v.tabStats.pie.charts[id].options);
-}
-
-
-ldc.v.tabStats.pie.update = function (id, data) {
-    if (ldc.v.tabStats.pie.charts[id] == undefined) {
-        alert("ldc.v.tabStats.pie.charts[id] == undefined");
-        return false;
-    }
-    var gData = new google.visualization.DataTable();
-    var xTitle = ldc.v.tabStats.pie.charts[id].xTitle;
-    var yTitle = ldc.v.tabStats.pie.charts[id].yTitle;
-    gData.addColumn('string', xTitle);
-    gData.addColumn('number', yTitle);
-    for(var i in data) {
-        gData.addRow(data[i]);
-    }
-    var chart = new google.visualization.PieChart(document.getElementById(id));
-    chart.draw(gData, ldc.v.tabStats.pie.charts[id].options);
-}
 
 /******************************************************************************
   * Formulaire
