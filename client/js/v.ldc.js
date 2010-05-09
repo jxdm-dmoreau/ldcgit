@@ -139,7 +139,8 @@ ldc.v.operations = function (id, compte) {
         $("#tabs").append(div);
         /* stats */
         var data2 = ldc.m.stats.getDebit(compte.id, 2010, 2010, 01, 12);
-        ldc.v.stats.init($("#"+id), "stats_"+compte.id, data2, 'Mois', 'Dépenses', {axisFontSize:8});
+        var opts = { height: 200, width: 1000};
+        ldc.v.charts.line.init($("#"+id), 'chart-line-compte-'+compte.id, data2, 'Mois','Débit', opts);
         /* generate html */
         var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
         html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
@@ -309,6 +310,62 @@ ldc.v.stats = function () {
 ldc.v.stats();
 
 
+
+ldc.v.charts = {};
+
+ldc.v.charts.data = {};
+
+ldc.v.charts.line = {};
+
+ldc.v.charts.line.defaultOptions = { 
+    height: 200,
+    width: 800
+};
+
+
+ldc.v.charts.line.init = function(jContainer, id, data, xTitle, yTitle, options) {
+    var opts = $.extend({}, ldc.v.charts.line.defaultOptions, options);
+
+    var gData = new google.visualization.DataTable();
+    gData.addColumn('string', xTitle);
+    gData.addColumn('number', yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+
+    var html = '<div id="'+id+'"><div>';
+    console.debug(id);
+    jContainer.append(html);
+
+    var chart = new google.visualization.LineChart(document.getElementById(id));
+    chart.draw(gData, opts);
+    ldc.v.charts.data[id] = {
+        xTitle: xTitle,
+        yTitle: yTitle,
+        options : opts,
+        chart : chart
+    };
+}
+
+ldc.v.charts.line.update = function(id, data, options) {
+    if (ldc.v.charts.data[id] == undefined) {
+        alert("chart "+id+ " undefined");
+        return false;
+    }
+
+    var opts = $.extend({}, ldc.v.charts.data[id].options, options);
+        
+    var gData = new google.visualization.DataTable();
+    gData.addColumn('string', ldc.v.charts.data[id].xTitle);
+    gData.addColumn('number', ldc.v.charts.data[id].yTitle);
+    for(var i in data) {
+        gData.addRow(data[i]);
+    }
+
+    ldc.v.charts.data[id].chart.draw(gData, opts);
+    ldc.v.charts.data[id].options = opts;
+}
+
 /******************************************************************************
   * TAB STATS
 ******************************************************************************/
@@ -333,7 +390,9 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.tabStats.line.init('total-stats', data, 'Mois', 'Total', {title: 'Total (€)'});
+    var opts =  {title: 'Total (€)', height: 300, width: 1000}
+    ldc.v.charts.line.init($("#tab-stats"), 'total-stats', data, 'Mois', 'Total', opts);
+
 
 
     function select(NODE, TREE_OBJ) {
@@ -369,7 +428,7 @@ ldc.v.tabStats.init = function () {
             ldc.m.date.month,
             ldc.v.tabStats.stopYear,
             ldc.m.date.month);
-    ldc.v.tabStats.line.init('line-debit', data, "x", "y", {title:"Débit"});
+    ldc.v.charts.line.init($("#tab-stats"),'line-debit', data, "x", "y", {title:"Débit"});
 }
 
 ldc.v.tabStats.update = function () {
@@ -378,7 +437,7 @@ ldc.v.tabStats.update = function () {
                 ldc.m.date.month,
                 ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
-    ldc.v.tabStats.line.update('total-stats', data);
+    ldc.v.charts.line.update('total-stats', data);
 
     var data = ldc.m.stats.getCatChildren(
                 ldc.v.tabStats.catId,
@@ -404,7 +463,7 @@ ldc.v.tabStats.update = function () {
                 ldc.m.date.month,
                 ldc.v.tabStats.stopYear,
                 ldc.m.date.month);
-    ldc.v.tabStats.line.update('line-debit', data);
+    ldc.v.charts.line.update('line-debit', data);
 }
 
 
@@ -432,50 +491,6 @@ ldc.v.tabStats.slider = function() {
 
 }
 
-ldc.v.tabStats.line = {};
-
-ldc.v.tabStats.line.charts = {};
-
-ldc.v.tabStats.line.init = function(id, data, xTitle, yTitle, options) {
-    var html = '<div id="'+id+'"><div>';
-    $("#tab-stats").append(html);
-
-    var gData = new google.visualization.DataTable();
-    gData.addColumn('string', xTitle);
-    gData.addColumn('number', yTitle);
-    for(var i in data) {
-        gData.addRow(data[i]);
-    }
-    var chart = new google.visualization.LineChart(document.getElementById(id));
-    ldc.v.tabStats.line.charts[id] = {};
-    ldc.v.tabStats.line.charts[id].options = options;
-    if(ldc.v.tabStats.line.charts[id].options.width == undefined) {
-        ldc.v.tabStats.line.charts[id].options.width = 1000;
-    }
-    if(ldc.v.tabStats.line.charts[id].options.height == undefined) {
-        ldc.v.tabStats.line.charts[id].options.height = 300;
-    }
-    ldc.v.tabStats.line.charts[id].options.xTitle = xTitle;
-    ldc.v.tabStats.line.charts[id].options.yTitle = yTitle;
-    chart.draw(gData, ldc.v.tabStats.line.charts[id].options);
-}
-
-ldc.v.tabStats.line.update = function(id, data) {
-    if (ldc.v.tabStats.line.charts[id] == undefined) {
-        alert("ldc.v.tabStats.line.charts[id] == undefined");
-        return false;
-    }
-    var gData = new google.visualization.DataTable();
-    var xTitle = ldc.v.tabStats.line.charts[id].xTitle;
-    var yTitle = ldc.v.tabStats.line.charts[id].yTitle;
-    gData.addColumn('string', xTitle);
-    gData.addColumn('number', yTitle);
-    for(var i in data) {
-        gData.addRow(data[i]);
-    }
-    var chart = new google.visualization.LineChart(document.getElementById(id));
-    chart.draw(gData, ldc.v.tabStats.line.charts[id].options);
-}
 
 
 /******************** PIE ****************************/

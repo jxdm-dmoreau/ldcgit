@@ -393,6 +393,10 @@ ldc.m.operations = function() {
             STATS['somme'][year][month][compte_id][cat_id] += v;
             STATS['somme'][year][month]['all'][cat_id] += v;
         }
+        if (cat_id == undefined) {
+            alert("Incohérence de catégories");
+            return false;
+        }
         if (cat_id != 0) {
             var c = ldc.m.categories.get(cat_id);
             updateStatsCatAdd(type, c.father_id, val, year, month, compte_id);
