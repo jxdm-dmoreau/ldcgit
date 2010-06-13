@@ -76,11 +76,11 @@ ldc.v.operations = function (id, compte) {
         var html = cats2html(op);
         if (op.from != 0) {
             ldc.v.operations.table[op.from].fnAddData( 
-                [op.id, op.date, t, 0, html, op.description, get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
+                [op.id, op.date, t, 0, html, get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
         }
         if (op.to != 0) {
             ldc.v.operations.table[op.to].fnAddData(
-                [op.id, op.date, 0, t, html, op.description,  get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
+                [op.id, op.date, 0, t, html,  get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
         }
 
         return false;
@@ -93,12 +93,12 @@ ldc.v.operations = function (id, compte) {
             var tr;
             $("#compte_"+op.from+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
             return false;
-            var ret = ldc.v.operations.table[op.from].fnUpdate( [op.id, op.date, t, 0, html, op.description], tr);
+            var ret = ldc.v.operations.table[op.from].fnUpdate( [op.id, op.date, t, 0, html,  get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')], tr);
         }
         if (op.to != 0) {
             var tr;
             $("#compte_"+op.to+" tr").each(function(index, Element) {if ($(Element).children('td').first().text()==op.id) { tr = Element;}});
-            var ret = ldc.v.operations.table[op.to].fnUpdate( [op.id, op.date, 0, t, html, op.description], tr);
+            var ret = ldc.v.operations.table[op.to].fnUpdate( [op.id, op.date, 0, t, html,  get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')], tr);
         }
         return false;
     }
@@ -119,22 +119,21 @@ ldc.v.operations = function (id, compte) {
 
     function op2html(op, compte) {
         var html = '<tr>';
-        html += '<td>'+op.id+'</td>';
-        html += '<td>'+op.date+'</td>';
+        html += '<td class="center">'+op.id+'</td>';
+        html += '<td class="center">'+op.date+'</td>';
         var total = 0;
         for(var i in op.cats) {
             total += parseFloat(op.cats[i].val);
         }
         if (compte.id == op.from) {
-            html += '<td>'+total+'€</td><td>0€</td>';
+            html += '<td class="right">'+total+'€</td><td class="right">0,00€</td>';
         } else {
-            html += '<td>0€</td><td>'+total+'€</td>';
+            html += '<td class="right">0,00€</td><td class="right">'+total+'€</td>';
         }
         // cats
         html += '<td>';
         html += cats2html(op);
         html += '</td>';
-        html += '<td>'+op.description+'</td>'
         html += '<td>';
         html += get_html_icon('trash');
         html += get_html_icon('wrench');
@@ -150,8 +149,10 @@ ldc.v.operations = function (id, compte) {
         $("#tabs").append(div);
         /* generate html */
         var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
-        html += '<table compte_id="'+compte.id+'" class="operations-table">';
-        html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th><th>Actions</th></tr></thead><tbody>';
+        html += '<table compte_id="'+compte.id+'" class="operations-table display"  cellpadding="0" cellspacing="0" border="0">';
+        html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Actions</th></tr></thead>';
+        html += '<tfoot><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Actions</th></tr></tfoot>';
+        html += '<tbody>';
         var ops = ldc.m.operations.getAll();
         for (var j in ops) {
             var from = ops[j].from;
@@ -167,9 +168,10 @@ ldc.v.operations = function (id, compte) {
         $("#"+id+" .div-op-table").append(html);
         /* generate the dataTable */
         var dataTable = $("#"+id+" table").dataTable({
-                "bJQueryUI": true,
-                "sPaginationType": "full_numbers"
-        });
+                "sScrollY": "500px",
+                "bPaginate": false
+
+                });
         $("#"+id+" button").button();
         /* stats */
         var data2 = ldc.m.stats.getDebit(compte.id, 2010, 2010, 01, 12);

@@ -22,18 +22,19 @@ div#form {
     cursor: pointer;
 }
 
+.operations-table {
+    float: left;
+}
+
 div.operations .operations-table  {
     width: 100%;
-}
-table, tr, td {
-    border-collapse: collapse;
-}
-tr.selected {
-    background-color: orange;
 }
 
 input.name, input.val {
     border: 0;
+}
+.right {
+    text-align: right;
 }
 
 
