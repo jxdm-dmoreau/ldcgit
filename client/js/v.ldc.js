@@ -13,8 +13,6 @@ ldc.v.init = function () {
         ldc.v.operations.init(c);
     }
     $("#tabs button.add").click(ldc.c.tabs.add);
-    $("#tabs button.update").click(ldc.c.tabs.update);
-    //$("#tabs button.del").click(ldc.c.tabs.del);
     $("#tabs ul.top").append('<li><a href="#tab-stats">Statistiques</a></li>');
     ldc.v.tabStats.init();
     $("#tabs").tabs();
@@ -48,6 +46,12 @@ ldc.v.log.error = ldc.v.log;
 ldc.v.operations = function (id, compte) {
 
     /* Functions */
+    function get_html_icon(name) {
+        var html = '<div class="ldc-icon ui-state-default ui-corner-all">';
+        html += '<span class="ui-icon ui-icon-'+name+'"></span>';
+        html += '</div>';
+        return html;
+    }
 
     function total(op) {
         var total = 0;
@@ -71,10 +75,12 @@ ldc.v.operations = function (id, compte) {
         var t = total(op);
         var html = cats2html(op);
         if (op.from != 0) {
-            ldc.v.operations.table[op.from].fnAddData( [op.id, op.date, t, 0, html, op.description]);
+            ldc.v.operations.table[op.from].fnAddData( 
+                [op.id, op.date, t, 0, html, op.description, get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
         }
         if (op.to != 0) {
-            ldc.v.operations.table[op.to].fnAddData( [op.id, op.date, 0, t, html, op.description]);
+            ldc.v.operations.table[op.to].fnAddData(
+                [op.id, op.date, 0, t, html, op.description,  get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
         }
 
         return false;
@@ -130,15 +136,9 @@ ldc.v.operations = function (id, compte) {
         html += '</td>';
         html += '<td>'+op.description+'</td>'
         html += '<td>';
-        html += '<div class="ldc-icon ui-state-default ui-corner-all">';
-        html += '<span class="ui-icon ui-icon-trash"></span>';
-        html += '</div>';
-        html += '<div class="ldc-icon ui-state-default ui-corner-all">';
-        html += '<span class="ui-icon ui-icon-wrench"></span>';
-        html += '</div>';
-        html += '<div class="ldc-icon ui-state-default ui-corner-all">';
-        html += '<span class="ui-icon ui-icon-check"></span>';
-        html += '</div>';
+        html += get_html_icon('trash');
+        html += get_html_icon('wrench');
+        html += get_html_icon('check');
         html += '</td>';
         html += '</tr>';
         return html;
@@ -150,8 +150,6 @@ ldc.v.operations = function (id, compte) {
         $("#tabs").append(div);
         /* generate html */
         var html = '<button compte_id="'+compte.id+'" class="add">Ajouter</button>';
-        html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
-        html += '<button compte_id="'+compte.id+'" class="del" disabled="disabled">Supprimer</button>';
         html += '<table compte_id="'+compte.id+'" class="operations-table">';
         html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th><th>Actions</th></tr></thead><tbody>';
         var ops = ldc.m.operations.getAll();
