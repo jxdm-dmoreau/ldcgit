@@ -23,7 +23,7 @@ ldc.m.MONTHS = [
   * INIT
   ****************************************************************************/
 
-ldc.m.init = function() 
+ldc.m.init = function()
 {
     ldc.m.operations.initStats();
     ldc.m.init.nb_ajax_calls++;
@@ -44,7 +44,7 @@ ldc.m.init.after_init = function()
 
 ldc.m.init.nb_ajax_calls = 0;
 
-ldc.m.init.is_finished = function() 
+ldc.m.init.is_finished = function()
 {
     ldc.m.init.nb_ajax_calls--;
     if (ldc.m.init.nb_ajax_calls == 0) {

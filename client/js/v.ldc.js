@@ -14,7 +14,7 @@ ldc.v.init = function () {
     }
     $("#tabs button.add").click(ldc.c.tabs.add);
     $("#tabs button.update").click(ldc.c.tabs.update);
-    $("#tabs button.del").click(ldc.c.tabs.del);
+    //$("#tabs button.del").click(ldc.c.tabs.del);
     $("#tabs ul.top").append('<li><a href="#tab-stats">Statistiques</a></li>');
     ldc.v.tabStats.init();
     $("#tabs").tabs();
@@ -129,6 +129,17 @@ ldc.v.operations = function (id, compte) {
         html += cats2html(op);
         html += '</td>';
         html += '<td>'+op.description+'</td>'
+        html += '<td>';
+        html += '<div class="ldc-icon ui-state-default ui-corner-all">';
+        html += '<span class="ui-icon ui-icon-trash"></span>';
+        html += '</div>';
+        html += '<div class="ldc-icon ui-state-default ui-corner-all">';
+        html += '<span class="ui-icon ui-icon-wrench"></span>';
+        html += '</div>';
+        html += '<div class="ldc-icon ui-state-default ui-corner-all">';
+        html += '<span class="ui-icon ui-icon-check"></span>';
+        html += '</div>';
+        html += '</td>';
         html += '</tr>';
         return html;
     }
@@ -142,7 +153,7 @@ ldc.v.operations = function (id, compte) {
         html += '<button compte_id="'+compte.id+'" class="update" disabled="disabled">Modifier</button>';
         html += '<button compte_id="'+compte.id+'" class="del" disabled="disabled">Supprimer</button>';
         html += '<table compte_id="'+compte.id+'" class="operations-table">';
-        html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th></tr></thead><tbody>';
+        html += '<thead><tr><th>id</th><th>date</th><th>Débit</th><th>Crédit</th><th>Catégories</th><th>Description</th><th>Actions</th></tr></thead><tbody>';
         var ops = ldc.m.operations.getAll();
         for (var j in ops) {
             var from = ops[j].from;
@@ -167,7 +178,32 @@ ldc.v.operations = function (id, compte) {
         var opts = { height: 200, width: 500, legend:'bottom'};
         ldc.v.charts.line.init($("#"+id), 'chart-line-compte-'+compte.id, data2, 'Mois','Débit', opts);
         /* actions */
-        $("#tabs #"+id).delegate('tr', 'click', ldc.c.tabs.onClickTr); 
+        $("#tabs").delegate('.ldc-icon', 'mouseover', function() {
+                $(this).addClass('ui-state-hover');
+                return false;
+        }); 
+        $("#tabs").delegate('.ldc-icon', 'mouseout', function() {
+                $(this).removeClass('ui-state-hover');
+                return false;
+        }); 
+        $("#tabs").delegate('.ui-icon-trash', 'click', function() {
+                var id = $(this).parent().parent().parent().children('td').first().text();
+                if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
+                    ldc.c.tabs.del(id);
+                }
+                return false;
+        }); 
+        $("#tabs").delegate('.ui-icon-wrench', 'click', function() {
+                var id = $(this).parent().parent().parent().children('td').first().text();
+                var compte_id = $(this).parents('table.operations-table').attr('compte_id');
+                ldc.c.tabs.update(compte_id, id);
+                return false;
+        }); 
+        $("#tabs").delegate('.ui-icon-check', 'click', function() {
+                alert('click');
+                $(this).parent().addClass('ui-state-highlight');
+                return false;
+        }); 
 
         /* store the dataTable object (needed to add new values ...) */
         ldc.v.operations.table[compte.id] = dataTable;
@@ -374,7 +410,6 @@ ldc.v.charts.pie.defaultOptions = {
     width: 250,
     is3D: true,
     legend: 'bottom',
-    colors:[{color:'#FF0000', darker:'#680000'}, {color:'cyan', darker:'deepskyblue'}]
 };
 
 ldc.v.charts.pie.init = function (jContainer, id, data, xTitle, yTitle, options) {

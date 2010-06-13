@@ -131,3 +131,13 @@ h1 {
 #submenu a:hover {
     text-shadow: 2px 2px 4px #999;
 }
+
+
+.ldc-icon {
+    width: 16px;
+    height: 16px;
+    margin: 2px;
+    padding: 4px;
+    float: right;
+    cursor: pointer;
+}

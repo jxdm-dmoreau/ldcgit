@@ -34,12 +34,10 @@ ldc.c.tabs.add = function () {
 }
 
 
-ldc.c.tabs.del = function () {
-    var id = $(this).parents('div.operations').find("tr.ui-state-highlight td:first").text();
-    if (confirm("Voulez-vous supprimer l'opération "+id+"?")) {
-        var op = ldc.m.operations.get(id);
+ldc.c.tabs.del = function (opId) {
+        var op = ldc.m.operations.get(opId);
         ldc.v.operations.del(op);
-        ldc.m.operations.del(id);
+        ldc.m.operations.del(opId);
         if (op.from != 0) {
             var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
             ldc.v.stats.update("stats_"+op.from, data);
@@ -48,14 +46,11 @@ ldc.c.tabs.del = function () {
 
         $(this).parents('div.operations').children("button.del").attr("disabled", "disabled");
         $(this).parents('div.operations').children("button.update").attr("disabled", "disabled");
-    }
     return false;
 }
 
 
-ldc.c.tabs.update = function() {
-    var compte_id = $(this).attr('compte_id');
-    var id = $(this).parents('div.operations').find("tr.ui-state-highlight td:first").text();
+ldc.c.tabs.update = function(compte_id, id) {
     var op = ldc.m.operations.get(id);
     ldc.v.form.compte_id.set(compte_id);
     ldc.v.form.operation_id.set(op.id);
