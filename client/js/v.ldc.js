@@ -118,7 +118,12 @@ ldc.v.operations = function (id, compte) {
     }
 
     function op2html(op, compte) {
-        var html = '<tr>';
+        var html = '';
+        if (op.confirm == "0") {
+            html = '<tr class="gradeX">';
+        } else {
+            html = '<tr class="gradeA">';
+        }
         html += '<td class="center">'+op.id+'</td>';
         html += '<td class="center">'+op.date+'</td>';
         var total = 0;
@@ -126,9 +131,9 @@ ldc.v.operations = function (id, compte) {
             total += parseFloat(op.cats[i].val);
         }
         if (compte.id == op.from) {
-            html += '<td class="right">'+total+'€</td><td class="right">0,00€</td>';
+            html += '<td class="gradeA right">'+total+'€</td><td class="right">0,00€</td>';
         } else {
-            html += '<td class="right">0,00€</td><td class="right">'+total+'€</td>';
+            html += '<td class="right gradeX">0,00€</td><td class="right">'+total+'€</td>';
         }
         // cats
         html += '<td>';
@@ -656,6 +661,28 @@ ldc.v.form.init = function() {
 
     ldc.v.form.type();
 
+    ldc.v.form.check = function() {
+
+        function set(choice) {
+            if (choice == 'yes') {
+                $("#form li.check input#check-no").removeAttr("checked");
+                $("#form li.check input#check-yes").attr("checked", "checked");
+            } else {
+                $("#form li.check input#check-yes").removeAttr("checked");
+                $("#form li.check input#check-no").attr("checked", "checked");
+            }
+        }
+
+        function get() {
+             return $("#form li.check input:checked").val();
+
+        }
+
+        ldc.v.form.check.set = set;
+        ldc.v.form.check.get = get;
+    }
+    ldc.v.form.check();
+
 
     /* cats */
     ldc.v.form.cats = function() {
@@ -859,6 +886,7 @@ ldc.v.form.init = function() {
     $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
     // radios
     $("#type").buttonset();
+    $("#checked").buttonset();
     // dialog
     $("#form").dialog({ 
             modal: true,

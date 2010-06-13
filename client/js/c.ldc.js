@@ -183,6 +183,12 @@ ldc.c.operations.checkForm = function () {
     }
     //description
     op.description = $('#form li.description textarea').val();
+    // pointé
+    if (ldc.v.form.check.get() == 'true') {
+        op.confirm = 1;
+    } else {
+        op.confirm = 0;
+    }
     return op;
 }
 
