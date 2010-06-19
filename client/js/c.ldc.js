@@ -40,7 +40,7 @@ ldc.c.tabs.del = function (opId) {
         ldc.m.operations.del(opId);
         if (op.from != 0) {
             var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
-            ldc.v.stats.update("stats_"+op.from, data);
+            //ldc.v.stats.update("stats_"+op.from, data);
         }
         ldc.v.tabStats.update();
 
@@ -205,7 +205,7 @@ ldc.c.operations.add = function () {
         ldc.v.operations.add(op);
         if (op.from != 0) {
             var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
-            ldc.v.stats.update("stats_"+op.from, data);
+            //ldc.v.stats.update("stats_"+op.from, data);
         }
 
         $("#form").dialog('close');
@@ -215,7 +215,7 @@ ldc.c.operations.add = function () {
         ldc.v.operations.update(op);
         if (op.from != 0) {
             var data = ldc.m.stats.getDebit(op.from, 2010, 2010, 01, 12);
-            ldc.v.stats.update("stats_"+op.from, data);
+            //ldc.v.stats.update("stats_"+op.from, data);
         }
         $("#form").dialog('close');
     }

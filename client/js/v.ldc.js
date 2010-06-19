@@ -75,12 +75,10 @@ ldc.v.operations = function (id, compte) {
         var t = total(op);
         var html = cats2html(op);
         if (op.from != 0) {
-            ldc.v.operations.table[op.from].fnAddData( 
-                [op.id, op.date, t, 0, html, get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
+            $("#compte_"+op.from+" .operations-table tbody").append(op2html(op, op.from));
         }
         if (op.to != 0) {
-            ldc.v.operations.table[op.to].fnAddData(
-                [op.id, op.date, 0, t, html,  get_html_icon('trash') + get_html_icon('wrench') +  get_html_icon('check')]);
+            $("#compte_"+op.to+" .operations-table tbody").append(op2html(op, op.to));
         }
 
         return false;
@@ -131,9 +129,9 @@ ldc.v.operations = function (id, compte) {
             total += parseFloat(op.cats[i].val);
         }
         if (compte.id == op.from) {
-            html += '<td class="gradeA right">'+total+'€</td><td class="right">0,00€</td>';
+            html += '<td class="right">'+total+'€</td><td class="right">0,00€</td>';
         } else {
-            html += '<td class="right gradeX">0,00€</td><td class="right">'+total+'€</td>';
+            html += '<td class="right">0,00€</td><td class="right">'+total+'€</td>';
         }
         // cats
         html += '<td>';
@@ -205,9 +203,25 @@ ldc.v.operations = function (id, compte) {
                 return false;
         }); 
         $("#tabs").delegate('.ui-icon-check', 'click', function() {
-                alert('click');
-                $(this).parent().addClass('ui-state-highlight');
+                if ($(this).parents('tr').hasClass('gradeX')) {
+                    if (confirm("voulez-vous pointer cette opération?")) {
+                        var jTr =  $(this).parents('tr');
+                        var id = jTr.children().first().text();
+                        var op = {'id':id, 'confirm':1};
+                        ldc.m.operations.update(op);
+                        $(this).parents('tr').removeClass('gradeX').addClass('gradeA');
+                    }
+                } else {
+                    if (confirm("voulez-vous dépointer cette opération?")) {
+                        var jTr =  $(this).parents('tr');
+                        var id = jTr.children().first().text();
+                        var op = {'id':id, 'confirm':0};
+                        ldc.m.operations.update(op);
+                        $(this).parents('tr').removeClass('gradeA').addClass('gradeX');
+                    }
+                }
                 return false;
+
         }); 
 
         /* store the dataTable object (needed to add new values ...) */
@@ -304,6 +318,10 @@ ldc.v.stats = function () {
     }
 
     function update(id, data) {
+        if ( charts[id] == undefined) {
+            console.error('charts['+id+'] is indefined');
+            return false;
+        }
         var gData = new google.visualization.DataTable();
         gData.addColumn('string', charts[id].xTitle);
         gData.addColumn('number', charts[id].yTitle);
@@ -341,6 +359,7 @@ ldc.v.stats = function () {
         charts[id].yTitle = yTitle;
         /* draw */
         chart.draw(gData, options);
+        ldc.v.stats.charts = charts;
     }
 
 
@@ -886,7 +905,7 @@ ldc.v.form.init = function() {
     $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
     // radios
     $("#type").buttonset();
-    $("#checked").buttonset();
+    //$("#checked").buttonset();
     // dialog
     $("#form").dialog({ 
             modal: true,
