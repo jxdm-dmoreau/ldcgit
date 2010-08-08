@@ -1,0 +1,48 @@
+<?php 
+require_once 'logger.php';
+require_once 'config.php';
+
+if (!isset($_GET['id']) ) {
+    exit(0);
+}
+
+$compteId=$_GET['id'];
+
+$link = mysql_connect($LDC_MYSQL_HOST, $LDC_MYSQL_USER, $LDC_MYSQL_PASSWD);
+mysql_select_db($LDC_MYSQL_DB, $link);
+$query="SELECT date FROM `operations` WHERE (`from`=$compteId OR `to`=$compteId) ORDER BY `date` LIMIT 1";
+DEBUG($query);
+
+$result = mysql_query($query);
+if (!$result) {
+    echo "Erreur Mysql";
+}
+$row = mysql_fetch_array($result);
+mysql_close($link);
+$date = $row['date'];
+$tabs = preg_split('/-/', $date);
+
+$year = $tabs[0];
+$month = $tabs[1]+0;
+$year_now = date("Y");
+$month_now = date("n");
+
+$date_name='';
+echo "<select name=\"mois\">\n";
+while($year != $year_now ||  $month != $month_now) {
+    setlocale (LC_TIME, 'fr_FR.utf8','fra');
+    $date_name = strftime("%B %G", strtotime("$year-$month-".date('d')));
+    echo "\t<option value=\"$year-$month\">$date_name</option>\n";
+    $month += 1;
+    if ($month == 13) {
+        $month = 1;
+        $year++;
+    }
+}
+$date_name = strftime("%B %G", strtotime($year_now."-".$month_now."-".date('d')));
+echo "\t<option selected=\"selected\" value=\"\">$date_name</option>\n";
+echo "</select>\n";
+
+?>
+
+
