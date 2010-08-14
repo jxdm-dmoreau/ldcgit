@@ -8,13 +8,21 @@
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="js/jquery-ui-1.8.2.custom.min.js"></script>
+        <script type="text/javascript" src="js/ldc.js"></script>
+        <script type="text/javascript" src="js/ldc.tabs.js"></script>
+        <script type="text/javascript" src="js/ldc.topPanel.js"></script>
+        <script type="text/javascript" src="js/ldc.opTable.js"></script>
+        <script type="text/javascript" src="js/ldc.logger.js"></script>
+        
+        <!--
         <script type="text/javascript" src="js/m.ldc.js"></script>
         <script type="text/javascript" src="js/v.ldc.js"></script>
         <script type="text/javascript" src="js/c.ldc.js"></script>
+        -->
         <script type="text/javascript" src="js/jquery.tree.js"></script>
         <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(ldc.m.init);
+            $(document).ready(ldc.init);
           google.load("visualization", "1", {packages:["linechart", "columnchart", "piechart"]});
         </script>
         <link rel="StyleSheet" href="css/smoothness/jquery-ui-1.8.2.custom.css" type="text/css" />
@@ -23,80 +31,15 @@
     </head>
 
     <body>
+    <div id="logger"></div>
 
         <h1>Logiciel de Compte</h1>
 
-        <div id="log"></div>
-        <div id="submenu"><a href="#params">Paramètres</a></div>
-
-        <div id="menu"></div>
-
         <div id="tabs">
-        <ul class="top"></ul>
+        <ul></ul>
         </div>
 
-        <div id="params">
-            <ul>
-                <li class="cats">
-                    <h3>Catégories</h3>
-                    <button class="add">Ajouter</button>
-                    <button class="rename">Modifier</button>
-                    <button class="del">Supprimer</button>
-                </li>
-            </ul>
-        </div>
 
-        <div id="form">
-            <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
-                    <ol>
-                        <input type="hidden" class="compte_id" />
-                        <input type="hidden" class="operation_id" />
-                        <li class="date">
-                            <label for="datepicker">Date :</label>
-                            <input autocomplete="off" type="text" size="10" value="" id="datepicker" name="op-calendar" />
-                        </li>
-                        <li class="type">
-                            
-                            <div id="type">
-                            <input type="radio" id="op-type1" name="op-type" value="debit" checked />
-                                <label for="op-type1">Débit</label>
-                            <input type="radio" id="op-type2" name="op-type" value="credit" />
-                                <label for="op-type2">Crédit</label>
-                            </div>
-                        </li>
-                        <li class="from">
-                            <label for="">De :</label>
-                            <select name="menu" size="1" >
-                            </select>
-                        </li>
-                        <li class="to">
-                            <label for="">Pour :</label>
-                            <select name="menu" size="1" >
-                            </select>
-                        </li>
-                        <li class="cats">
-                            <input class="top-id" type="hidden" value="" />
-                            <input class="top-name" type="text" value="" />
-                            <input class="top-val" type="text" size="5" />
-                            <button class="add">+</button>
-                            <ul></ul>
-                        </li>
-                        <li class="check">
-                            <div id="checked">
-                            <input type="radio" id="check-yes" name="op-check" value="true" />
-                                <label for="check-yes">Pointé</label>
-                            <input type="radio" id="check-no" name="op-check" value="false" checked/>
-                                <label for="check-no">Non-pointé</label>
-                            </div>
-                        </li>
-                        <li class="description">
-                            <label for="">Description :</label>
-                            <textarea rows="2" cols="30"></textarea>
-                        </li>
-                    </ol>
-                    <div id="tree"></div>
-            </form>
-        </div>
     </body>
 </html>
 

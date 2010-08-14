@@ -13,8 +13,8 @@ ldc.v.init = function () {
         ldc.v.operations.init(c);
     }
     $("#tabs button.add").click(ldc.c.tabs.add);
-    $("#tabs ul.top").append('<li><a href="#tab-stats">Statistiques</a></li>');
-    ldc.v.tabStats.init();
+    //$("#tabs ul.top").append('<li><a href="#tab-stats">Statistiques</a></li>');
+    //ldc.v.tabStats.init();
     $("#tabs").tabs();
 
 
@@ -35,9 +35,6 @@ ldc.v.log = function (text) {
 
 ldc.v.log.success = ldc.v.log;
 ldc.v.log.error = ldc.v.log;
-
-
-/******************* operations MODULE ***************************************/
 
 
 
@@ -167,8 +164,22 @@ ldc.v.operations = function (id, compte) {
         html += '</tbody>';
         /* add to the the div */
 
+        $("#"+id).append('<div><a class="switch-stats-op"  href="#stats-'+id+'">Change</a>');
         $("#"+id).append('<div class="div-op-table"></div>');
         $("#"+id+" .div-op-table").append(html);
+        $("#"+id).append('<div class="clear-both div-op-stats" id="stats-'+id+'"></div>');
+
+        $('body').delegate(".switch-stats-op", "click", function() {
+                if ($(this).parents().children(".div-op-table").is(":visible")) {
+                    $(this).parents().children(".div-op-table").hide();
+                    $(this).parents().children(".div-op-stats").show();
+                } else {
+                    $(this).parents().children(".div-op-stats").hide();
+                    $(this).parents().children(".div-op-table").show();
+                }
+
+                return false;
+        });
         /* generate the dataTable */
         var dataTable = $("#"+id+" table").dataTable({
                 "sScrollY": "500px",
@@ -179,7 +190,8 @@ ldc.v.operations = function (id, compte) {
         /* stats */
         var data2 = ldc.m.stats.getDebit(compte.id, 2010, 2010, 01, 12);
         var opts = { height: 200, width: 500, legend:'bottom'};
-        ldc.v.charts.line.init($("#"+id), 'chart-line-compte-'+compte.id, data2, 'Mois','Débit', opts);
+        ldc.v.charts.line.init($("#stats-"+id), 'chart-line-compte-'+compte.id, data2, 'Mois','Débit', opts);
+        $('#stats-'+id).hide();
         /* actions */
         $("#tabs").delegate('.ldc-icon', 'mouseover', function() {
                 $(this).addClass('ui-state-hover');

@@ -1,13 +1,77 @@
 /* progress bar */
 
 body {
-    font-size: 0.75em;
+    font-size: 0.7em;
 }
-#pb {
-    height: 20px;
+
+/***************** TOP PANEL *************************/
+.top-panel {
+    margin-bottom: 20px;
+    clear: both;
+    overflow: auto;
+    padding: 5px;
+
 }
 
 
+.month-choice, .solde-all, .solde-p {
+    float: left;
+}
+.solde-all, .solde-p {
+    margin-left: 20px;
+}
+
+/***************** MAIN PANEL *************************/
+.main-panel {
+    margin: auto;
+}
+.main-panel table {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #AAAAAA;
+}
+
+.op-table {
+    width: 100%;
+    margin: auto;
+}
+
+.op-id, .op-value, .op-cats, .op-date, .op-actions {
+    padding-left: 10px;
+    padding-right: 10px;
+   /* border: 1px dashed black;*/
+}
+
+.op-value {
+    text-align: right;
+}
+
+#tabs {
+    width: 1000px;
+    margin: auto;
+}
+
+#logger {
+    font-size: 1em;
+    font-weight: bold;
+    position: fixed;
+    bottom: 2px;
+    text-align:center;
+    padding: 5px;
+    z-index: 1000;
+    -moz-border-radius: 5px;
+    left:40%;
+    width: 20%;
+}
+#logger.info {
+    background-color: rgba(198, 198, 198, 0.5);
+}
+#logger.error {
+    background-color: rgba(200, 0, 0, 0.5);
+}
+#logger.success {
+    background-color: rgba(0, 200, 0, 0.5);
+}
 
 
 div#chart_div {
@@ -23,7 +87,6 @@ div#form {
 }
 
 .operations-table {
-    float: left;
 }
 
 div.operations .operations-table  {
@@ -38,22 +101,23 @@ input.name, input.val {
 }
 
 
-#tabs {
-    width: 1400px;
-    margin: auto;
-}
 /* opérations */
 .operations {
     overflow: auto;
     width: 100%;
 }
 .div-op-table {
-    float: left;
-    width: 700px;
+    width: 80%;
 }
+/*
 .operations .chart-line {
     float: left;
     margin-left: 20px;
+}
+*/
+.clear-both {
+clear: both;
+border: 1px solid black;
 }
 
 /* tab stats */
@@ -81,6 +145,7 @@ input.name, input.val {
 #tab-stats-graph-credit {
     width: 100%;
 }
+
 
 #tab-stats-cat-tree {
     width:  250px;

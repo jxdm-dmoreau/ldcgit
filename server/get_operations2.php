@@ -46,11 +46,13 @@ $query = 'SELECT operations.id,
     operations.description,
     operations.confirm,
     valeurs.cat_id,
-    valeurs.val
-    FROM `operations`,`valeurs` WHERE';
+    valeurs.val,
+    categories.name
+    FROM `operations`,`valeurs`, `categories` WHERE';
 $query .= " `date` >= '$date_begin'";
 $query .= " AND `date` <= '$date_end'";
 $query .= ' AND `operations`.`id` = `valeurs`.`op_id`';
+$query .= ' AND `valeurs`.`cat_id` = `categories`.`id`';
 if (isset($json->account_id)) {
     $query .= ' AND (`from` = '.mysql_real_escape_string($json->account_id).' OR `to` = '.mysql_real_escape_string($json->account_id).')';
 }
@@ -63,11 +65,13 @@ test_mysql_result($result);
 $current_id = 0;
 $old_id = 0;
 $i = -1;
+$total = 0.00;
 while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
     extract($row);
     $current_id = $id;
     if($current_id != $old_id) {
         $i++;
+        $total = 0.00;
         $old_id = $current_id;
         $return[$i]->id = $id;
         $return[$i]->from = $from;
@@ -76,7 +80,10 @@ while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
         $return[$i]->description = utf8_encode($description);
         $return[$i]->confirm = $confirm;
     }
-    $return[$i]->cats[] = (object) array('id' => $cat_id, 'val' => $val);
+    $return[$i]->cats[] = (object) array('id' => $cat_id, 'val' => sprintf("%.2f", $val), 'name' =>$name);
+    DEBUG($val);
+    $total +=  $val;
+    $return[$i]->total = sprintf("%.2f", $total);
 }
 
 
