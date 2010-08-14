@@ -6,7 +6,7 @@ var DEBUG = console.debug;
 
 /* First function called */
 ldc.init = function() {
-    ldc.logger.loading('begin');
+    ldc.logger();
     $.getJSON("../server/get_comptes.php",   store_comptes);
     $.getJSON("../server/get_categories2.php", store_categories);
 
@@ -15,7 +15,6 @@ ldc.init = function() {
 store_comptes = function (data, textStatus) {
     ldc.data.comptes = data;
     ldc.tabs();
-    ldc.logger.loading('end');
 };
 store_categories = function (data, textStatus) {
     ldc.data.cats = data;

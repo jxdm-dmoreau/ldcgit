@@ -41,37 +41,52 @@ body {
     padding-right: 10px;
    /* border: 1px dashed black;*/
 }
+.op-date {  width: 15%; text-align: center;}
+.op-id   {  width:  5%; text-align: center;}
+.op-value  {  width: 15%; text-align: right; }
 
-.op-value {
-    text-align: right;
+
+.op-buttons {
+    margin: 20px;
 }
+
+
 
 #tabs {
     width: 1000px;
     margin: auto;
 }
 
+/***************** LOGGER *************************/
+
 #logger {
     font-size: 1em;
     font-weight: bold;
     position: fixed;
     bottom: 2px;
-    text-align:center;
-    padding: 5px;
     z-index: 1000;
-    -moz-border-radius: 5px;
     left:40%;
     width: 20%;
 }
-#logger.info {
-    background-color: rgba(198, 198, 198, 0.5);
+
+.info, .error, .success {
+    text-align:center;
+    padding: 5px;
+    -moz-border-radius: 5px;
+    margin-top: 2px;
 }
-#logger.error {
-    background-color: rgba(200, 0, 0, 0.5);
-}
-#logger.success {
-    background-color: rgba(0, 200, 0, 0.5);
-}
+
+.info    { background-color: rgba(198, 198, 198, 0.5); }
+.error   { background-color: rgba(200, 0, 0, 0.5);     }
+.success { background-color: rgba(0, 200, 0, 0.5);     }
+
+#logger .ui-icon { cursor: pointer; }
+
+
+
+
+
+
 
 
 div#chart_div {

@@ -1,35 +1,39 @@
 
-ldc.logger = {}
+ldc.logger = function() {
     
-ldc.logger.info = function (msg)
-{
-    $("#logger").empty().addClass('info').text(msg).fadeIn(800).delay(800).delay(800).fadeOut(800).removeClass('info');;
-}
-
-ldc.logger.error = function (msg)
-{
-    $("#logger").empty().addClass('error').text(msg).fadeIn(800).delay(800).delay(800).fadeOut(800).removeClass('error');
-}
-
-ldc.logger.success = function (msg)
-{
-    $("#logger").empty().addClass('success').text(msg).fadeIn(800).delay(800).delay(800).fadeOut(800).removeClass('success');
-}
-
-ldc.logger.loading = function (state)
-{
-    if (state == 'begin') {
-        $("#logger").empty().addClass('info').text("Chargement...");
-    } else {
-        $("#logger").empty().removeClass('info');
+    function log(level, msg)
+    {
+        var html = '<div class="'+level+'">'+msg+'<div style="float: right;" class="ui-icon ui-icon-close"></div></div>';
+        if ($("#logger div").length == 0) {
+            $("#logger").append(html);
+        } else {
+            $(html).insertBefore($("#logger div:first"));
+        }
+        $("#logger div:first").fadeIn('slow').delay(3000).fadeOut('slow',
+            function() {
+                $(this).remove()
+            }
+        );
+        $("#logger").delegate(".ui-icon-close", "click", 
+            function () {
+                $(this).parent().remove()
+            }
+        );
     }
-}
 
-ldc.checkStatus = function (msg, textStatus) {
-    if (textStatus != 'success') {
-    /*    ldc.logger.error(msg+': '+textStatus);*/
-        var i = 0;
-    } else {
-        ldc.logger.success(msg+': '+textStatus);
+
+    ldc.logger.info = function (msg) {
+        log('info', msg);
     }
+
+    ldc.logger.error = function (msg)
+    {
+        log('error', msg);
+    }
+
+    ldc.logger.success = function (msg)
+    {
+        log('success', msg);
+    }
+
 }

@@ -3,7 +3,7 @@
 ldc.tabs = function ()
 {
     /* PUBLIC VARIABLES */
-    ldc.MONTH = new Date().getMonth();
+    ldc.MONTH = new Date().getMonth()+1;
     ldc.YEAR = new Date().getFullYear();
     ldc.CID = 0;
 
@@ -30,7 +30,7 @@ ldc.tabs = function ()
         var id = PREFIX+ldc.CID;
         $(id).load("html/compte_panel.html", function() {
                 ldc.topPanel();
-                ldc.opTable.init(PREFIX+ldc.CID+" div.op-table");
+                ldc.opTable(PREFIX+ldc.CID+" div.op-table");
         });
     }
 

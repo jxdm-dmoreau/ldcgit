@@ -1,18 +1,23 @@
 
 
 
-ldc.opTable = {};
-
-ldc.opTable.dataTable = [];
-
-ldc.opTable.init = function (s) {
+ldc.opTable = function() {
 
 
-    /************** PRIVATE VARIABLES ***********************/
-    var selector = s;
+    /*** CONFUGURATION VARIABLES ***/
+    var CLASS_OP_TABLE = " .op-table";
+    var PREFIX         = "#compte-";
 
 
-    /************* PRIVATE FUNCTIONS ************************/
+    /*** PRIVATE VARIABLES ***/
+    ldc.opTable.dataTable = []; //used to update dataTable object
+
+
+    /*** PRIVATE FUNCTIONS ***/
+
+    function getSelector() {
+        return PREFIX+ldc.CID+CLASS_OP_TABLE;
+    }
 
 
     /* 
@@ -56,6 +61,7 @@ ldc.opTable.init = function (s) {
     }
 
     function createDataTable_cb(data, textStatus) {
+            var selector = getSelector();
             ldc.opTable.operations = JSON.parse(data);
             var html = '';
             for (var i in ldc.opTable.operations) {
@@ -69,15 +75,18 @@ ldc.opTable.init = function (s) {
                 $(selector+' table tbody').html(html);
                 ldc.opTable.dataTable[ldc.CID] = $(selector+' table').dataTable( {sPaginationType: 'full_numbers'});
             }
+            /* actions */
+            $("td.op-actions").delegate(".ui-icon-trash", "click", onClickTrash);
+            $("td.op-actions").delegate(".ui-icon-check", "click", onClickCheck);
+            $("td.op-actions").delegate(".ui-icon-help", "click", onClickHelp);
+            $("td.op-actions").delegate(".ui-icon-pencil", "click", onClickPencil);
             $(selector).show();
-            ldc.logger.loading('end');
     }
 
     /* 
      * Get the operations lists
      */
-    function get_operations() {
-        ldc.logger.loading('begin');
+    function createDataTable() {
         var json = "json="+constructJSON(ldc.YEAR, ldc.MONTH);
         $.post("../server/get_operations2.php",  json , createDataTable_cb); 
     }
@@ -121,22 +130,48 @@ ldc.opTable.init = function (s) {
         return html;
     }
 
+    function onClickAdd() {
+        ldc.logger.info("Ajout d'une opération");
+        return false;
+    }
+
+    function onClickPencil() {
+        ldc.logger.info("pencil");
+        return false;
+    }
+
+    function onClickHelp() {
+        ldc.logger.error("help");
+        return false;
+    }
+
+    function onClickCheck() {
+        ldc.logger.info("check");
+        return false;
+    }
+
+    function onClickTrash() {
+        ldc.logger.success("trash");
+        return false;
+    }
 
 
 
     /**************** PUBLIC FUNCTIONS ************************/
 
     /* when we change the month */
-    ldc.opTable.update = function(s) {
-        selector = s;
+    ldc.opTable.update = function() {
+        var selector = getSelector();
         $(selector).hide();
-        get_operations();
+        createDataTable();
     }
 
 
 
     /******************** MAIN ******************************/
-    ldc.opTable.update(selector);
+    ldc.opTable.update();
+
+    $("div.op-buttons").delegate("button.add", "click", onClickAdd);
 
 
 }
