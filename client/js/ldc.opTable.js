@@ -91,8 +91,13 @@ ldc.opTable = function() {
         $.post("../server/get_operations2.php",  json , createDataTable_cb); 
     }
 
-    function get_html_icon(name) {
-        var html = '<span class="ldc-icon">';
+    function get_html_icon(name, state) {
+        var html = '<span style="background: none; border:0;"';
+        if (state == undefined) {
+            html += ' class="ldc-icon ui-state-default">';
+        } else {
+            html += ' class="ldc-icon '+state+'">';
+        }
         html += '<span class="ui-icon ui-icon-'+name+'"></span>';
         html += '</span>';
         return html;
@@ -121,9 +126,9 @@ ldc.opTable = function() {
         html += get_html_icon('trash');
         html += get_html_icon('pencil');
         if (op.confirm == '1') {
-            html += get_html_icon('check');
+            html += get_html_icon('check', 'ui-state-highlight');
         } else {
-            html += get_html_icon('help');
+            html += get_html_icon('check', 'ui-state-error');
         }
         html += '</td>';
         html += '</tr>';
@@ -131,7 +136,7 @@ ldc.opTable = function() {
     }
 
     function onClickAdd() {
-        ldc.logger.info("Ajout d'une opération");
+        ldc.form.open();
         return false;
     }
 

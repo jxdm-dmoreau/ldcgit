@@ -1,51 +1,67 @@
-<div id="form">
-    <form id="form" name="form" action="api_xml/add_operation.php" method="post" >
-            <ol>
-                <input type="hidden" class="compte_id" />
-                <input type="hidden" class="operation_id" />
-                <li class="date">
-                    <label for="datepicker">Date :</label>
-                    <input autocomplete="off" type="text" size="10" value="" id="datepicker" name="op-calendar" />
-                </li>
-                <li class="type">
-                    
-                    <div id="type">
-                    <input type="radio" id="op-type1" name="op-type" value="debit" checked />
-                        <label for="op-type1">Débit</label>
-                    <input type="radio" id="op-type2" name="op-type" value="credit" />
-                        <label for="op-type2">Crédit</label>
-                    </div>
-                </li>
-                <li class="from">
-                    <label for="">De :</label>
-                    <select name="menu" size="1" >
-                    </select>
-                </li>
-                <li class="to">
-                    <label for="">Pour :</label>
-                    <select name="menu" size="1" >
-                    </select>
-                </li>
-                <li class="cats">
-                    <input class="top-id" type="hidden" value="" />
-                    <input class="top-name" type="text" value="" />
-                    <input class="top-val" type="text" size="5" />
-                    <button class="add">+</button>
-                    <ul></ul>
-                </li>
-                <li class="check">
-                    <div id="checked">
-                    <input type="radio" id="check-yes" name="op-check" value="true" />
-                        <label for="check-yes">Pointé</label>
-                    <input type="radio" id="check-no" name="op-check" value="false" checked/>
-                        <label for="check-no">Non-pointé</label>
-                    </div>
-                </li>
-                <li class="description">
-                    <label for="">Description :</label>
-                    <textarea rows="2" cols="30"></textarea>
-                </li>
-            </ol>
-            <div id="tree"></div>
-    </form>
-</div>
+<form id="op-form" name="form" action="api_xml/add_operation.php" method="post" >
+        <input type="hidden" class="compte_id" />
+        <input type="hidden" class="operation_id" />
+
+        <div class="date form-row">
+            <label for="datepicker"><strong>Date :</strong></label>
+            <input autocomplete="off" type="text" size="10" value="" id="datepicker" name="op-calendar" />
+        </div>
+
+
+        <div class="type form-row">            
+            <div id="type">
+                <label for="op-type"><strong>Opération :</strong></label>
+                <select>
+                    <option selected="selected" value="debit">Débit</option>
+                    <option value="credit">Crédit</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="message-compte">
+            <div class="ui-state-default ui-corner-all form-icon">
+            <span class="ui-icon ui-icon-triangle-1-s"></span>
+            </div>
+        </div>
+
+        <div class="compte form-row">
+            <label for="compte"><strong>Pour :</strong></label>
+            <select name="compte" size="1" ></select>
+        </div>
+
+        <div class="cat form-row">
+            <label><strong>Catégories :</strong></label>
+            <select name="cat-name"></select>
+            <!--
+            <input class="top-id" type="hidden" value="" />
+            <input class="top-name" type="text" value="" />
+            -->
+            <div id="cat-tree"></div>
+        </div>
+
+        <div class="somme form-row">
+            <label><strong>Somme :</strong></label>
+            <input class="top-val" type="text" size="5" />
+        </div>
+
+        <div class="check form-row">
+            <label for="check"><strong>Pointage :</strong></label>
+            <select>
+                <option value="true">Pointé</option>
+                <option value="false">Non Pointé</option>
+            </select>
+        </div>
+
+        <div class="message-desc">
+            <div class="ui-state-default ui-corner-all form-icon">
+            <span class="ui-icon ui-icon-triangle-1-s"></span>
+            </div>
+        </div>
+
+        <div class="description form-row">
+            <label for=""><strong>Description :</strong></label>
+            <textarea rows="2" cols="30"></textarea>
+        </div>
+
+    <div id="tree"></div>
+</form>

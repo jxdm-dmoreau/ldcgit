@@ -83,6 +83,74 @@ body {
 #logger .ui-icon { cursor: pointer; }
 
 
+/***************** FORM *************************/
+
+div#form {
+    display: none;
+    font-size: 14px;
+}
+
+#form select, .month-choice select {
+    background:none repeat scroll 0 0 #FFFFFF;
+    -moz-border-radius:5px 5px 5px 5px;
+    -moz-box-shadow:0 0 5px #B2B2B2;
+    border:1px solid #C0C0C0;
+    color:#5A5A5A;
+    min-width:250px;
+    outline:medium none;
+    padding:2px 7px;
+    width:35%;
+}
+
+.form-row {
+    clear:both;
+    margin:1.5em 0 0;
+}
+
+.form-row label {
+    display: inline-block;
+    cursor:pointer;
+    text-align: right;
+    width: 40%;
+    vertical-align: top;
+}
+
+.form-row input, .form-row textarea {
+    background:url("../images/input-bg.gif") repeat-x scroll 0 0 #FFFFFF;
+    border:1px solid #C0C0C0;
+    color:#5A5A5A;
+    min-width:250px;
+    outline:medium none;
+    padding:2px 7px;
+    width:35%;
+    -moz-border-radius:5px 5px 5px 5px;
+    -moz-box-shadow:0 0 5px #B2B2B2;
+}
+
+.form-row select {
+    width: 36.6%;
+}
+
+.form-row input:hover, .form-row textarea:hover {
+    background:none repeat scroll 0 0 #FFFFFF;
+}
+
+.form-row input:focus, .form-row textarea:focus {
+    border-color: #175EFC;
+}
+
+#form .form-icon {
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    cursor: pointer;
+}
+
+
+
+
+
+
 
 
 
@@ -90,9 +158,6 @@ body {
 
 
 div#chart_div {
-    display: none;
-}
-div#form {
     display: none;
 }
 
@@ -106,13 +171,6 @@ div#form {
 
 div.operations .operations-table  {
     width: 100%;
-}
-
-input.name, input.val {
-    border: 0;
-}
-.right {
-    text-align: right;
 }
 
 
@@ -221,4 +279,5 @@ h1 {
     padding: 4px;
     float: right;
     cursor: pointer;
+background: none;
 }
