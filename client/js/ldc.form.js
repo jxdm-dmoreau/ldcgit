@@ -4,7 +4,8 @@ ldc.form = function() {
     var AJAX_URL = "html/form.html";
     var SELECTOR = "#form";
     
-    ldc.logger.error("Jie est très jolie");
+
+    ldc.form.data = {};
 
 
     function fillCatSelect(html, id) {
@@ -21,6 +22,47 @@ ldc.form = function() {
                 $(html).insertAfter($("#form .cat:last"));
             }
         );
+    }
+
+
+    function selectAutoComplete(event, ui) {
+        var name = $(ui.item).val();
+        var id = ldc.form.data.categories[name];
+        if (id == undefined) {
+            alert("Error");
+            return false;
+        }
+    }
+
+    function initCategories(html, id) {
+        /* autocomplete */
+        $.getJSON("../server/get_categories6.php",
+            function(data) {
+                ldc.form.data.categories = data;
+                ldc.form.data.catNames = [];
+                for (var i in data) {
+                    ldc.form.data.catNames.push(i);
+                }
+                $(".cat-name").autocomplete({
+                        source: ldc.form.data.catNames,
+                });
+            }
+        );
+        /* tree */
+        ldc.catTree.fill();
+        $("#cat-tree-dialog").dialog({ 
+                modal: true,
+                buttons: { "Ok": validForm},
+                autoOpen: false,
+                draggable: true,
+                title: 'Catégories',
+                resizable: true
+        });
+        /* open tree */
+        $("div.cat").delegate("a", "click", function() {
+                $("#cat-tree-dialog").dialog("open");
+                return false;
+        });
     }
 
     function addSelectCat(id) {
@@ -84,47 +126,46 @@ ldc.form = function() {
                     $("#form .description").slideUp();
                 }
         });
-        /*
-        //$("#form .description label").hide();
-        //$("#form .description textarea").hide();
-        DEBUG($("#form .description label"));
-        $("#form .description &").click(function() {
-                $("#form .description label").show();
-                $("#form .description textarea").show();
-                return false;
-        });
-        */
 
-        for(var i in ldc.data.cats) {
-            var name = ldc.data.cats[i].name;
-            var id = ldc.data.cats[i].id;
-            $("div#form .cat select").append('<option value="'+id+'">'+name+'</option>');
-        }
+        initCategories();
 
-        $("div#form").delegate(".cat select", "change", 
-            function() {
-                /* Remove all children */
-                var index = $(this).parent().index(".cat");
-                $("#form .cat:gt("+index+")").remove();
-                addSelectCat($(this).val());
-                return false;
-            }
-        );
-        //ldc.catTree.fill();
+
 
         // actions
-        /*
-        $("div#form .top-name").click(function() {
-                ldc.catTree.
-                */
     }
+
+
+
+
+
+    function validForm()
+    {
+
+        /* Categories */
+        $(".cat-name").each(function(index) {
+                var name = this.value;
+                var id = ldc.form.data.categories[name];
+                if (id == undefined) {
+                    $(this).addClass("ui-state-error");
+                    ldc.logger.error("Erreurs dans le formulaire");
+                    return false;
+                } else {
+                    $(this).removeClass("ui-state-error");
+                    $(this).parent().children(".cat-id").val(id);
+                }
+                return false;
+        });
+    }
+
+
+
 
 
     function form_cb() {
         fillForm();
         $("#form").dialog({ 
                 modal: true,
-                buttons: { "Ok": function() { alert("coucou")}},
+                buttons: { "Ok": validForm},
                 autoOpen: true,
                 draggable: false,
                 title: 'Opérations',

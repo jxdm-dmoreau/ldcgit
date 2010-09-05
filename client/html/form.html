@@ -31,11 +31,14 @@
 
         <div class="cat form-row">
             <label><strong>Catégories :</strong></label>
-            <select name="cat-name"></select>
-            <!--
-            <input class="top-id" type="hidden" value="" />
-            <input class="top-name" type="text" value="" />
-            -->
+            <input name="cat-id" class="cat-id" type="hidden" value="" />
+            <input name="cat-name" class="cat-name" value=""/>
+            <a href="#cat-tree">Gestion</a>
+        </div>
+        <div id="cat-tree-dialog">
+            <button>Nouveau</button>
+            <button>Editer</button>
+            <button>Supprimer</button>
             <div id="cat-tree"></div>
         </div>
 

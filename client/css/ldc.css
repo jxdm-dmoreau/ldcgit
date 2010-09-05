@@ -87,7 +87,7 @@ body {
 
 div#form {
     display: none;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 #form select, .month-choice select {

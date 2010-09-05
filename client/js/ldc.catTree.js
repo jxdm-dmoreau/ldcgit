@@ -17,6 +17,7 @@ ldc.catTree = function () {
 
         var jDiv = $("#cat-tree");
 
+
         function display_cat_r(cat, html) {
             html += '<li cat_id="'+cat.id+'"><a href="#"><ins>&nbsp;</ins>'+cat.name+'</a>';
             var children = cat.children;
@@ -47,18 +48,6 @@ ldc.catTree = function () {
         },
         "plugins" : [ "themes",  "html_data" ],
     });
-    /*
-    $("#cat-tree").tree( {
-        callback: function() {ldc.logger.info("coucou")},
-        types: {
-            "root" : {
-                clickable   : true,
-                deletable   : false,
-                draggable   : false,
-            }
-        }
-    });
-    */
 }
 
     ldc.catTree.fill = function () {
