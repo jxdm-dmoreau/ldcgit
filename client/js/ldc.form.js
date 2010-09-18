@@ -34,6 +34,7 @@ ldc.form = function() {
         }
     }
 
+
     function initCategories(html, id) {
         /* autocomplete */
         $.getJSON("../server/get_categories6.php",
@@ -48,21 +49,8 @@ ldc.form = function() {
                 });
             }
         );
-        /* tree */
-        ldc.catTree.fill();
-        $("#cat-tree-dialog").dialog({ 
-                modal: true,
-                buttons: { "Ok": validForm},
-                autoOpen: false,
-                draggable: true,
-                title: 'Catégories',
-                resizable: true
-        });
-        /* open tree */
-        $("div.cat").delegate("a", "click", function() {
-                $("#cat-tree-dialog").dialog("open");
-                return false;
-        });
+        ldc.catTreeDialog();
+
     }
 
     function addSelectCat(id) {

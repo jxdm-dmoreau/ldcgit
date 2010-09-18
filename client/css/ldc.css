@@ -67,6 +67,7 @@ body {
     z-index: 1000;
     left:40%;
     width: 20%;
+    z-index: 10000;
 }
 
 .info, .error, .success {

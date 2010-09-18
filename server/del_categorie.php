@@ -22,6 +22,19 @@ function test_mysql_result($result)
     }
 }
 
+function delete_r($id)
+{
+    $query = "SELECT * from categories WHERE `father_id` = $id";
+    DEBUG($query);
+    $result = mysql_query($query);
+    while($row = mysql_fetch_array($result)) {
+        delete_r($row['id']);
+        $query = 'DELETE FROM `categories` WHERE `id` = '.$row['id'];
+        DEBUG($query);
+        test_mysql_result(mysql_query($query));
+    }
+}
+
 /*****************************************************************************
  * traitement sur le JSON
  *****************************************************************************/
@@ -41,6 +54,7 @@ mysql_select_db($LDC_MYSQL_DB, $link);
 
 
 /* delete in categories table */
+delete_r(mysql_real_escape_string($json->id));
 $query = 'DELETE FROM `categories` WHERE `id` = '.mysql_real_escape_string($json->id);
 DEBUG($query);
 test_mysql_result(mysql_query($query));

@@ -9,6 +9,7 @@ ldc.init = function() {
     ldc.logger();
     ldc.form();
     ldc.catTree();
+    ldc.cat();
     $.getJSON("../server/get_comptes.php",   store_comptes);
     $.getJSON("../server/get_categories3.php", store_categories);
 
