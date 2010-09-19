@@ -35,20 +35,20 @@ ldc.form = function() {
     }
 
 
+    ldc.form.setCat = function(name)
+    {
+        $(".cat-name").val(name);
+    }
+
+    ldc.form.setAutocomplete = function()
+    {
+        $(".cat-name").autocomplete({
+                source: ldc.cat.data.names,
+        });
+    }
+
     function initCategories(html, id) {
-        /* autocomplete */
-        $.getJSON("../server/get_categories6.php",
-            function(data) {
-                ldc.form.data.categories = data;
-                ldc.form.data.catNames = [];
-                for (var i in data) {
-                    ldc.form.data.catNames.push(i);
-                }
-                $(".cat-name").autocomplete({
-                        source: ldc.form.data.catNames,
-                });
-            }
-        );
+        ldc.form.setAutocomplete();
         ldc.catTreeDialog();
 
     }
@@ -132,7 +132,7 @@ ldc.form = function() {
         /* Categories */
         $(".cat-name").each(function(index) {
                 var name = this.value;
-                var id = ldc.form.data.categories[name];
+                var id = ldc.cat.data.byName[name];
                 if (id == undefined) {
                     $(this).addClass("ui-state-error");
                     ldc.logger.error("Erreurs dans le formulaire");

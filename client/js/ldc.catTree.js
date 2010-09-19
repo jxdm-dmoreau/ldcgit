@@ -47,6 +47,8 @@ ldc.catTree = function () {
                 var fNode = $(SELECTOR).jstree("get_selected");
                 var fId = xtractId($(fNode).attr("id"));
                 var name = $(SELECTOR+" li.new a").text();
+                name = name.substring(1, name.length);
+                DEBUG("["+name+"]");
                 ldc.cat.add(name, fId, function(id) {
                     $(SELECTOR+" li.new").attr("id", "cat_"+id).removeClass("new");
                 });
@@ -57,8 +59,9 @@ ldc.catTree = function () {
             var fNode = $(SELECTOR).jstree("get_selected");
             var id = xtractId($(fNode).attr("id"));
             var name = $(fNode).children("a").text();
-            DEBUG($(fNode).attr("id"));
-                return false;
+            name = name.substring(1, name.length);
+            ldc.cat.rename(id, name);
+            return false;
         });
 
         $(SELECTOR).bind("remove.jstree", function(e, data) {
@@ -68,13 +71,13 @@ ldc.catTree = function () {
 
         $(SELECTOR).jstree({
             "themes" : {
-                "theme" : "apple",
+                "theme" : "classic",
                 "dots" : true,
-                "icons" : true
+                "icons" : false
             },
             "plugins" : [ "themes",  "html_data", "ui", "crrm" ],
             "core" : { "initially_open" : [ "cat_0" ] },
-            "ui" :{ "select_limit" : 1}
+            "ui" :{ "select_limit" : 1},
         });
 
 
@@ -107,8 +110,7 @@ ldc.catTree = function () {
     }
 
     ldc.catTree.getSelected = function() {
-        var node = ($(SELECTOR).jstree("get_selected"));
-        return ($(node).children("a").text());
+        return ($(SELECTOR).jstree("get_selected"));
     }
 
     function xtractId(str) {

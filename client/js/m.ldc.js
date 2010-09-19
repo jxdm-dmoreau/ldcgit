@@ -150,7 +150,7 @@ ldc.m.categories.del = function (id) {
     }
 };
 
-ldc.m.categories.update = function(id, name, father_id) {
+ldc.m.categories.rename = function(id, name) {
     function on_success(data, textStatus) {
         if (data == 1) {
             ldc.view.log.error("La Modification de la catégorie a échoué...");
@@ -158,7 +158,7 @@ ldc.m.categories.update = function(id, name, father_id) {
             ldc.view.log.success("Catégorie modifiée.");
         }
     }
-    var data = { id: id, name: name, father_id: father_id };
+    var data = { id: id, name: name};
     ldc.m.post_ajax(ldc.m.SERVER + "update_categorie.php",  "json="+JSON.stringify(data) , on_success, false);
     for(var i in ldc.m.categories) {
         if (ldc.m.categories[i].id == data.id) {
