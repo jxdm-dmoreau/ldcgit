@@ -3,26 +3,12 @@ ldc.form = function() {
 
     var AJAX_URL = "html/form.html";
     var SELECTOR = "#form";
+
+    var CURRENT_CAT = undefined;
     
 
     ldc.form.data = {};
 
-
-    function fillCatSelect(html, id) {
-        $.getJSON("../server/get_cat_children.php?id="+id,
-            function(data) {
-                if (data == null) {
-                    return false;
-                }
-                for(var i in data) {
-                    var name = data[i].name;
-                    html += '<option value="'+data[i].id+'">'+name+'</option>';
-                }
-                html += '</select></div>';
-                $(html).insertAfter($("#form .cat:last"));
-            }
-        );
-    }
 
 
     function selectAutoComplete(event, ui) {
@@ -37,7 +23,7 @@ ldc.form = function() {
 
     ldc.form.setCat = function(name)
     {
-        $(".cat-name").val(name);
+        CURRENT_CAT.children(".cat-name").val(name);
     }
 
     ldc.form.setAutocomplete = function()
@@ -51,13 +37,13 @@ ldc.form = function() {
         ldc.form.setAutocomplete();
         ldc.catTreeDialog();
 
-    }
+        /* open tree */
+        $("div.cat").delegate("a", "click", function() {
+                CURRENT_CAT = $(this).parent();
+                $("#cat-tree-dialog").dialog("open");
+                return false;
+        });
 
-    function addSelectCat(id) {
-        var html = '<div class="cat form-row">';
-        html += '<label><strong>Catégories :</strong></label>';
-        html += '<select name="cat-name">';
-        fillCatSelect(html, id);
     }
 
     function fillForm() {
@@ -131,6 +117,7 @@ ldc.form = function() {
 
         /* Categories */
         $(".cat-name").each(function(index) {
+                DEBUG("test");
                 var name = this.value;
                 var id = ldc.cat.data.byName[name];
                 if (id == undefined) {
@@ -141,7 +128,6 @@ ldc.form = function() {
                     $(this).removeClass("ui-state-error");
                     $(this).parent().children(".cat-id").val(id);
                 }
-                return false;
         });
     }
 

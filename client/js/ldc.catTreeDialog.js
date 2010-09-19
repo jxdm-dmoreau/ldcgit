@@ -13,11 +13,6 @@ ldc.catTreeDialog = function() {
                 title: 'Catégories',
                 resizable: true
         });
-        /* open tree */
-        $("div.cat").delegate("a", "click", function() {
-                $("#cat-tree-dialog").dialog("open");
-                return false;
-        });
 
         /* actions on tree buttons */
         $(SELECTOR+" button.create").click(function() {
