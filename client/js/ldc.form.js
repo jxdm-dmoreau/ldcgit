@@ -38,9 +38,32 @@ ldc.form = function() {
         ldc.catTreeDialog();
 
         /* open tree */
-        $("div.cat").delegate("a", "click", function() {
+        $("#op-form").delegate("div.cat button.cat-tree", "click", function() {
                 CURRENT_CAT = $(this).parent();
                 $("#cat-tree-dialog").dialog("open");
+                return false;
+        });
+
+        $("#add-cat").click(function() {
+                var html = '<div class="cat">';
+                html += '<div class="form-row">';
+                html += '<label><strong>Catégories :</strong></label>';
+                html += '<input name="cat-id" class="cat-id" type="hidden" value="" />';
+                html += ' <input name="cat-name" class="cat-name" value=""/>';
+                html += '<button class="cat-tree">Choix</button>';
+                html += '</div>';
+                html+= '<div class="somme form-row">';
+                html += '<label><strong>Somme :</strong></label>';
+                html += '<input class="top-val" type="text" size="5" />';
+                html += '<a class="del" href="#">Supprimer</a>';
+                html += '</div>';
+                html += '</div>';
+                $(this).parent().before(html);
+                return false;
+        });
+
+        $("#op-form").delegate('.del', 'click', function() {
+                $(this).parent().parent().remove();
                 return false;
         });
 
@@ -70,35 +93,12 @@ ldc.form = function() {
         // datepicker
         $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
 
-        // compte
-        $("#form .compte").hide();
-        $("form .message-compte .form-icon").click(function() {
-                if ($("#form .compte").is(":hidden")) {
-                    $("#form .message-compte .ui-icon").removeClass("ui-icon-triangle-1-s");
-                    $("#form .message-compte .ui-icon").addClass("ui-icon-triangle-1-n");
-                    $("#form .compte select").val(1);
-                    $("#form .compte").slideDown();
-                } else {
-                    $("#form .message-compte .ui-icon").removeClass("ui-icon-triangle-1-n");
-                    $("#form .message-compte .ui-icon").addClass("ui-icon-triangle-1-s");
-                    $("#form .compte").slideUp(function() {
-                        $("#form .compte select").val(0);
-                    });
-                }
-        });
 
         /* Description */
         $("#form .description").hide();
-        $("form .message-desc .form-icon").click(function() {
-                if ($("#form .description").is(":hidden")) {
-                    $("#form .message-dest .ui-icon").removeClass("ui-icon-triangle-1-s");
-                    $("#form .message-desc .ui-icon").addClass("ui-icon-triangle-1-n");
-                    $("#form .description").slideDown();
-                } else {
-                    $("#form .message-desc .ui-icon").removeClass("ui-icon-triangle-1-n");
-                    $("#form .message-desc .ui-icon").addClass("ui-icon-triangle-1-s");
-                    $("#form .description").slideUp();
-                }
+        $("#add-desc").click(function() {
+                $(this).parent().remove();
+                $("#form .description").show();
         });
 
         initCategories();
@@ -143,7 +143,7 @@ ldc.form = function() {
                 autoOpen: true,
                 draggable: false,
                 title: 'Opérations',
-                width: 800,
+                width: 500,
                 resizable: true
         });
     }

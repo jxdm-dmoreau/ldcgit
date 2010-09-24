@@ -18,40 +18,25 @@
             </div>
         </div>
 
-        <div class="message-compte">
-            <div class="ui-state-default ui-corner-all form-icon">
-            <span class="ui-icon ui-icon-triangle-1-s"></span>
-            </div>
-        </div>
-
         <div class="compte form-row">
             <label for="compte"><strong>Pour :</strong></label>
             <select name="compte" size="1" ></select>
         </div>
 
-        <div class="cat form-row">
-            <label><strong>Catégories :</strong></label>
-            <input name="cat-id" class="cat-id" type="hidden" value="" />
-            <input name="cat-name" class="cat-name" value=""/>
-            <a href="#cat-tree">Choix</a>
+        <div class="cat">
+            <div class="form-row">
+                <label><strong>Catégories :</strong></label>
+                <input name="cat-id" class="cat-id" type="hidden" value="" />
+                <input name="cat-name" class="cat-name" value=""/>
+                <button class="cat-tree">Choix</button>
+            </div>
+            <div class="somme form-row">
+                <label><strong>Somme :</strong></label>
+                <input class="top-val" type="text" size="5" />
+            </div>
         </div>
 
-        <div class="somme form-row">
-            <label><strong>Somme :</strong></label>
-            <input class="top-val" type="text" size="5" />
-        </div>
-
-        <div class="cat form-row">
-            <label><strong>Catégories :</strong></label>
-            <input name="cat-id" class="cat-id" type="hidden" value="" />
-            <input name="cat-name" class="cat-name" value=""/>
-            <a href="#cat-tree">Choix</a>
-        </div>
-
-        <div class="somme form-row">
-            <label><strong>Somme :</strong></label>
-            <input class="top-val" type="text" size="5" />
-        </div>
+        <div class="form-a"><a id="add-cat" href="#">Ajouter une catégorie</a></div>
 
         <div id="cat-tree-dialog">
             <button class="create">Nouveau</button>
@@ -68,11 +53,7 @@
             </select>
         </div>
 
-        <div class="message-desc">
-            <div class="ui-state-default ui-corner-all form-icon">
-            <span class="ui-icon ui-icon-triangle-1-s"></span>
-            </div>
-        </div>
+        <div class="form-a"><a id="add-desc" href="#">Ajouter une description</a></div>
 
         <div class="description form-row">
             <label for=""><strong>Description :</strong></label>

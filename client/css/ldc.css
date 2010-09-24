@@ -1,11 +1,18 @@
+html {
+    background-color: white;
+    background: -moz-linear-gradient(top, #FA900B, rgba(248, 202, 144, 0.5));
+}
 
 body {
+    position: absolute;
+    top:0;
+    bottom:0;
     font-size: 0.7em;
     margin: 0;
-/*    background-color: #E6E6E6;*/
-    background-image: url("../images/gradient.png");
-    background-repeat: repeat-x;
-/*    background-color: #2A5B6C; */
+    background: -moz-linear-gradient(top, #0609C5, rgba(248, 202, 144, 0.5));
+    min-height: 1000px;
+    height:100%;
+    width:100%;
 }
 
 /***************** TOP PANEL *************************/
@@ -94,8 +101,7 @@ div#form {
     display: none;
     font-size: 12px;
 }
-
-#form select, .month-choice select {
+.month-choice select {
     background:none repeat scroll 0 0 #FFFFFF;
     -moz-border-radius:5px 5px 5px 5px;
     -moz-box-shadow:0 0 5px #B2B2B2;
@@ -104,7 +110,19 @@ div#form {
     min-width:250px;
     outline:medium none;
     padding:2px 7px;
-    width:35%;
+    width:30%;
+}
+
+#form select {
+    background:none repeat scroll 0 0 #FFFFFF;
+    -moz-border-radius:5px 5px 5px 5px;
+    -moz-box-shadow:0 0 5px #B2B2B2;
+    border:1px solid #C0C0C0;
+    color:#5A5A5A;
+    width:220px;
+    outline:medium none;
+    padding:2px 7px;
+    background: -moz-linear-gradient(top, #DDDDDD, #FFFFFF);
 }
 
 .form-row {
@@ -116,24 +134,19 @@ div#form {
     display: inline-block;
     cursor:pointer;
     text-align: right;
-    width: 40%;
+    width: 150px;
     vertical-align: top;
 }
 
 .form-row input, .form-row textarea {
-    background:url("../images/input-bg.gif") repeat-x scroll 0 0 #FFFFFF;
+    background: -moz-linear-gradient(top, #DDDDDD, #FFFFFF);
     border:1px solid #C0C0C0;
     color:#5A5A5A;
-    min-width:250px;
     outline:medium none;
     padding:2px 7px;
-    width:35%;
+    width:200px;
     -moz-border-radius:5px 5px 5px 5px;
     -moz-box-shadow:0 0 5px #B2B2B2;
-}
-
-.form-row select {
-    width: 36.6%;
 }
 
 .form-row input:hover, .form-row textarea:hover {
@@ -141,7 +154,7 @@ div#form {
 }
 
 .form-row input:focus, .form-row textarea:focus {
-    border-color: #175EFC;
+    background: none;
 }
 
 #form .form-icon {
@@ -150,7 +163,12 @@ div#form {
     margin: auto;
     cursor: pointer;
 }
-
+.form-a {
+    font-size: 10px;
+    margin: auto;
+    margin-top: 10px;
+    text-align:center;
+}
 
 /***************** MAIN *************************/
 #main {
@@ -165,9 +183,8 @@ div#form {
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
     border-radius: 8px;
+    min-height: 500px;
 }
-
-
 
 
 /***************** BANNER *************************/
@@ -198,11 +215,18 @@ div#form {
 #header .nav a {
     color: rgba(255,255,255,0.6);
     text-decoration: none;
+
     font-weight: bold;
     display: inline-block;
     font-size: 12px;
     font-family: "Lucida Grande", Verdana, sans-serif;
     width: 100px;
+}
+#header .nav img {
+    border: 0;
+}
+#header .nav img:hover {
+    -moz-box-shadow: 1px 1px 13px #999;  
 }
 
 #header .nav a:hover {
