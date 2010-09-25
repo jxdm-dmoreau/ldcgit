@@ -33,7 +33,35 @@ ldc.form = function() {
         });
     }
 
+    function cat2html(name, somme) {
+        var html = '<div class="cat">';
+        html += '<div class="form-row">';
+        html += '<label><strong>Catégories :</strong></label>';
+        html += '<input name="cat-id" class="cat-id" type="hidden" value="" />';
+        if (name != undefined) {
+            html += ' <input name="cat-name" class="cat-name" value="'+name+'"/>';
+        } else {
+            html += ' <input name="cat-name" class="cat-name" value=""/>';
+        }
+        html += '<button class="cat-tree">Choix</button>';
+        html += '</div>';
+        html+= '<div class="somme form-row">';
+        html += '<label><strong>Somme :</strong></label>';
+        if (somme != undefined) {
+            html += '<input class="somme" type="text" size="5" value="'+somme+'"/>';
+        } else {
+            html += '<input class="somme" type="text" size="5" value=""/>';
+        }
+        if ($(".cat").length > 0) {
+            html += '<a class="del" href="#">Supprimer</a>';
+        }
+        html += '</div>';
+        html += '</div>';
+        return html;
+    }
+
     function initCategories(html, id) {
+        $(".after-cat").before(cat2html());
         ldc.form.setAutocomplete();
         ldc.catTreeDialog();
 
@@ -45,20 +73,7 @@ ldc.form = function() {
         });
 
         $("#add-cat").click(function() {
-                var html = '<div class="cat">';
-                html += '<div class="form-row">';
-                html += '<label><strong>Catégories :</strong></label>';
-                html += '<input name="cat-id" class="cat-id" type="hidden" value="" />';
-                html += ' <input name="cat-name" class="cat-name" value=""/>';
-                html += '<button class="cat-tree">Choix</button>';
-                html += '</div>';
-                html+= '<div class="somme form-row">';
-                html += '<label><strong>Somme :</strong></label>';
-                html += '<input class="top-val" type="text" size="5" />';
-                html += '<a class="del" href="#">Supprimer</a>';
-                html += '</div>';
-                html += '</div>';
-                $(this).parent().before(html);
+                $(this).parent().before(cat2html());
                 return false;
         });
 
@@ -103,9 +118,39 @@ ldc.form = function() {
 
         initCategories();
 
+        /* preset */
+        if (ldc.OID <= 0) {
+            return false;
+        }
+        ldc.op.get(ldc.OID, function(op) {
+                /* date */
+                $("#op-form .date input").val(op.date);
+                /* type & compte */
+                if (op.from == ldc.CID) {
+                    $("#op-form .type select").val("debit");
+                    $("#op-form .compte select").val(op.to);
+                    $("#form .compte label strong").text("Pour :");
+                } else {
+                    $("#op-form .type select").val("credit");
+                    $("#op-form .compte select").val(op.from);
+                    $("#op-form .compte label strong").text("De :");
+                }
+                /* cats & somme */
+                $("#op-form .cat").remove();
+                for(var i in op.cats) {
+                    var cat = op.cats[i];
+                    $(".after-cat").before(cat2html(cat.name, cat.val));
+                }
+                /* check */
+                if (op.confirm == 1) {
+                    $("#op-form .check select").val('true');
+                } else {
+                    $("#op-form .check select").val('false');
+                }
+                /* description */
+                $("#op-form .description textarea").val(op.description);
+        });
 
-
-        // actions
     }
 
 
@@ -208,10 +253,18 @@ ldc.form = function() {
             "confirm": conf,
             "cats":cats
         }
-        ldc.op.add(op, function() {
-                ldc.opTable.update();
+        if (ldc.OID == 0) {
+            ldc.op.add(op, function() {
+                    ldc.opTable.update();
+                    }
+            );
+        } else {
+            op.id = ldc.OID;
+            ldc.op.update(op, function() {
+                    ldc.opTable.update();
                 }
-        );
+            );
+        }
         $("#form").dialog('close');
         return false;
     }

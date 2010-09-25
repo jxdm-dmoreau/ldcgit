@@ -32,7 +32,7 @@ ldc.cat = function() {
     ldc.cat.rename = function(id, name, father_id, cb) {
         function on_success(data, textStatus) {
             if (data == 1) {
-                ldc.logger.error("Erreur lors de la suppression de la catégie "+id);
+                ldc.logger.error("Erreur renommage catégorie "+id);
                 return false;
             }
             ldc.logger.success("Catégorie "+id+" modifiée");

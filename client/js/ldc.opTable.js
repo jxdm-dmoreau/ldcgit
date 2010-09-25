@@ -136,12 +136,14 @@ ldc.opTable = function() {
     }
 
     function onClickAdd() {
+        ldc.OID = 0;
         ldc.form.open();
         return false;
     }
 
     function onClickPencil() {
-        ldc.logger.info("pencil");
+        ldc.OID = $(this).parents('tr').children('td.op-id').text();
+        ldc.form.open();
         return false;
     }
 
@@ -156,7 +158,12 @@ ldc.opTable = function() {
     }
 
     function onClickTrash() {
-        ldc.logger.success("trash");
+        var opId = $(this).parents('tr').children('td.op-id').text();
+        if (confirm("Voulez-vous supprimer l'opération "+opId+"?")) {
+            ldc.op.del(opId, function() {
+                    ldc.opTable.update();
+            });
+        }
         return false;
     }
 

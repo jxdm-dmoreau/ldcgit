@@ -2,6 +2,7 @@
 var ldc = {};
 ldc.data = {};
 ldc.data.cats = [];
+ldc.OID = 0;
 var DEBUG = console.debug;
 //var DEBUG = function() {};
 
