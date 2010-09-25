@@ -114,21 +114,106 @@ ldc.form = function() {
 
     function validForm()
     {
+        var error = false;
+        /* check date */
+        var jInput = $("#op-form .date input");
+        if (jInput.val() == '') {
+            jInput.addClass("ui-state-error");
+            ldc.logger.error("Date invalide");
+            error = true;
+        } else {
+            jInput.removeClass("ui-state-error");
+        }
+
+
 
         /* Categories */
         $(".cat-name").each(function(index) {
-                DEBUG("test");
                 var name = this.value;
                 var id = ldc.cat.data.byName[name];
                 if (id == undefined) {
                     $(this).addClass("ui-state-error");
-                    ldc.logger.error("Erreurs dans le formulaire");
-                    return false;
+                    ldc.logger.error("Catégorie invalide");
+                    error = true;
                 } else {
                     $(this).removeClass("ui-state-error");
                     $(this).parent().children(".cat-id").val(id);
                 }
         });
+
+        /*Sommes */
+        $("#op-form input.somme").each(function(index) {
+                if ($(this).val() == '' || $(this).val() <= 0) {
+                    $(this).addClass("ui-state-error");
+                    ldc.logger.error("Somme invalide");
+                    error = true;
+                } else {
+                    $(this).removeClass("ui-state-error");
+                }
+        });
+
+        if (error) {
+            return false;
+        }
+
+        /* Add operation and close */
+        var date = $("#op-form .date input").val();
+
+        /* from/to */
+        if ($("#op-form .type select").val() == "debit") {
+            var from = ldc.CID;
+            var to = $("#op-form .compte select").val();
+        } else if ($("#op-form .type select").val() == "credit") {
+            var to = ldc.CID;
+            var from = $("#op-form .compte select").val();
+        } else {
+            alert("débit ou crédit?");
+        }
+
+        /* description */
+        var desc = $("#op-form .description textarea").val();
+
+        /* confirm */
+        if ($("#op-form .check select").val() == 'true') {
+            var conf = 1;
+        } else if ($("#op-form .check select").val() == 'false') {
+            var conf = 0;
+        } else {
+            alert("pointé ou non?");
+        }
+
+        /* cats */
+        var i = 0;
+        var cats = [];
+        $("#op-form .cat-name").each(function(index) {
+                var name = this.value;
+                var id = ldc.cat.data.byName[name];
+                cats[i] =  {};
+                cats[i].id = id;
+                i++;
+        });
+
+        /*Sommes */
+        i = 0;
+        $("#op-form input.somme").each(function(index) {
+                cats[i].val = $(this).val();
+                i++;
+        });
+
+        var op = {
+            "date": date,
+            "from": from,
+            "to": to,
+            "description": desc,
+            "confirm": conf,
+            "cats":cats
+        }
+        ldc.op.add(op, function() {
+                ldc.opTable.update();
+                }
+        );
+        $("#form").dialog('close');
+        return false;
     }
 
 
@@ -139,7 +224,7 @@ ldc.form = function() {
         fillForm();
         $("#form").dialog({ 
                 modal: true,
-                buttons: { "Ok": validForm},
+                buttons: { "Ok": validForm, "Annuler": function() { $(this).dialog('close');}},
                 autoOpen: true,
                 draggable: false,
                 title: 'Opérations',

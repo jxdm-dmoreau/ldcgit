@@ -3,6 +3,7 @@ var ldc = {};
 ldc.data = {};
 ldc.data.cats = [];
 var DEBUG = console.debug;
+//var DEBUG = function() {};
 
 /* First function called */
 ldc.init = function() {
@@ -10,6 +11,7 @@ ldc.init = function() {
     ldc.form();
     ldc.catTree();
     ldc.cat();
+    ldc.op();
     $.getJSON("../server/get_comptes.php",   store_comptes);
     $.getJSON("../server/get_categories3.php", store_categories);
 
