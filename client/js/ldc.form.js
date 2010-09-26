@@ -36,7 +36,7 @@ ldc.form = function() {
     function cat2html(name, somme) {
         var html = '<div class="cat">';
         html += '<div class="form-row">';
-        html += '<label><strong>Catégories :</strong></label>';
+        html += '<label><strong>Catégorie :</strong></label>';
         html += '<input name="cat-id" class="cat-id" type="hidden" value="" />';
         if (name != undefined) {
             html += ' <input name="cat-name" class="cat-name" value="'+name+'"/>';
@@ -74,6 +74,7 @@ ldc.form = function() {
 
         $("#add-cat").click(function() {
                 $(this).parent().before(cat2html());
+                ldc.form.setAutocomplete();
                 return false;
         });
 
@@ -83,6 +84,24 @@ ldc.form = function() {
         });
 
     }
+
+    function changeSommeInput() {
+        var value = $(this).val();
+        value = value.replace(/,/,".");
+        value = parseFloat(value);
+        if (isNaN(value)) {
+            $(this).addClass("ui-state-error");
+            return false;
+        }
+        $(this).val(sprintf("%.2f€", value));
+    }
+
+    function clickSommeInput() {
+        var value = $(this).val()
+        value = value.replace(/€/,"");
+        $(this).val(value);
+    }
+
 
     function fillForm() {
         // complete HTML
@@ -107,6 +126,11 @@ ldc.form = function() {
 
         // datepicker
         $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+
+        // somme
+        $("#op-form").delegate(".somme input", "click", clickSommeInput);
+        $("#op-form").delegate(".somme input", "focusout", changeSommeInput);
+
 
 
         /* Description */
@@ -155,6 +179,11 @@ ldc.form = function() {
 
 
 
+    function getSomme() {
+        var value = $("#op-form .somme input").val();
+        return value.replace(/\€/,"");
+    }
+
 
 
     function validForm()
@@ -187,8 +216,9 @@ ldc.form = function() {
         });
 
         /*Sommes */
-        $("#op-form input.somme").each(function(index) {
-                if ($(this).val() == '' || $(this).val() <= 0) {
+        $("#op-form .somme input").each(function(index) {
+                var value = getSomme();
+                if (typeof(value) != "number" || value <= 0) {
                     $(this).addClass("ui-state-error");
                     ldc.logger.error("Somme invalide");
                     error = true;
@@ -241,7 +271,7 @@ ldc.form = function() {
         /*Sommes */
         i = 0;
         $("#op-form input.somme").each(function(index) {
-                cats[i].val = $(this).val();
+                cats[i].val = getSomme();
                 i++;
         });
 
