@@ -24,6 +24,8 @@ ldc.form = function() {
     ldc.form.setCat = function(name)
     {
         CURRENT_CAT.children(".cat-name").val(name);
+        var jInput = CURRENT_CAT.children("input.cat-name");
+        checkCat(jInput);
     }
 
     ldc.form.setAutocomplete = function()
@@ -37,7 +39,7 @@ ldc.form = function() {
         var html = '<div class="cat">';
         html += '<div class="form-row">';
         html += '<label><strong>Catégorie :</strong></label>';
-        html += '<input name="cat-id" class="cat-id" type="hidden" value="" />';
+        html += '<input name="cat-id" class="cat-id" type="hidden" value="" ;/>';
         if (name != undefined) {
             html += ' <input name="cat-name" class="cat-name" value="'+name+'"/>';
         } else {
@@ -48,7 +50,7 @@ ldc.form = function() {
         html+= '<div class="somme form-row">';
         html += '<label><strong>Somme :</strong></label>';
         if (somme != undefined) {
-            html += '<input class="somme" type="text" size="5" value="'+somme+'"/>';
+            html += '<input class="somme" type="text" size="5"  value="'+formatSomme(somme)+'"/>';
         } else {
             html += '<input class="somme" type="text" size="5" value=""/>';
         }
@@ -64,6 +66,10 @@ ldc.form = function() {
         $(".after-cat").before(cat2html());
         ldc.form.setAutocomplete();
         ldc.catTreeDialog();
+
+        $("#op-form").delegate("input.cat-name", "blur", function() {
+                checkCat($(this));
+        });
 
         /* open tree */
         $("#op-form").delegate("div.cat button.cat-tree", "click", function() {
@@ -85,21 +91,12 @@ ldc.form = function() {
 
     }
 
-    function changeSommeInput() {
-        var value = $(this).val();
-        value = value.replace(/,/,".");
-        value = parseFloat(value);
-        if (isNaN(value)) {
-            $(this).addClass("ui-state-error");
-            return false;
-        }
-        $(this).val(sprintf("%.2f€", value));
-    }
 
     function clickSommeInput() {
         var value = $(this).val()
         value = value.replace(/€/,"");
         $(this).val(value);
+        $(this).select();
     }
 
 
@@ -123,13 +120,43 @@ ldc.form = function() {
                 }
         });
 
+        /* French initialisation for the jQuery UI date picker plugin. */
+        /* Written by Keith Wood (kbwood{at}iinet.com.au) and Stéphane Nahmani (sholby@sholby.net). */
+    $.datepicker.regional['fr'] = {
+        closeText: 'Fermer',
+        prevText: '&#x3c;Préc',
+        nextText: 'Suiv&#x3e;',
+        currentText: 'Courant',
+        monthNames: ['Janvier','Février','Mars','Avril','Mai','Juin',
+        'Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+        monthNamesShort: ['Jan','Fév','Mar','Avr','Mai','Jun',
+        'Jul','Aoû','Sep','Oct','Nov','Déc'],
+        dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+        dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+        dayNamesMin: ['Di','Lu','Ma','Me','Je','Ve','Sa'],
+        weekHeader: 'Sm',
+        dateFormat: 'dd/mm/yy',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: ''};
+
+    $.datepicker.setDefaults($.datepicker.regional['fr']);
 
         // datepicker
-        $("#datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+        $("#datepicker").datepicker({
+            showOn: "button",
+            buttonImage: "images/calendar.gif",
+            buttonImageOnly: true
+        });
 
         // somme
         $("#op-form").delegate(".somme input", "click", clickSommeInput);
-        $("#op-form").delegate(".somme input", "focusout", changeSommeInput);
+        $("#op-form").delegate(".somme input", "blur",
+            function() {
+                checkSomme($(this));
+            }
+        );
 
 
 
@@ -148,7 +175,10 @@ ldc.form = function() {
         }
         ldc.op.get(ldc.OID, function(op) {
                 /* date */
-                $("#op-form .date input").val(op.date);
+                var dateStrEn = op.date;
+                var oDate     = $.datepicker.parseDate("yy-mm-dd", dateStrEn);
+                var dateStrFr = $.datepicker.formatDate("dd/mm/yy", oDate);
+                $("#op-form .date input").val(dateStrFr);
                 /* type & compte */
                 if (op.from == ldc.CID) {
                     $("#op-form .type select").val("debit");
@@ -179,51 +209,96 @@ ldc.form = function() {
 
 
 
-    function getSomme() {
-        var value = $("#op-form .somme input").val();
-        return value.replace(/\€/,"");
+    function xtractSomme(jInput) {
+        var str = jInput.val();
+        str = str.replace(/\€/, "");
+        str = str.replace(/,/, ".");
+        var value = parseFloat(str);
+        if (isNaN(value)) {
+            ERROR("Invalid somme: "+str);
+        }
+        return value;
     }
 
+    function formatSomme(str) {
+        str = str.replace(/\€/,"");
+        str = str.replace(/,/,".");
+        var value = parseFloat(str);
+        if (isNaN(value)) {
+            return "0,00€";
+        } else {
+            str = sprintf("%.2f€", value);
+            str = str.replace(/\./,",");
+            return str;
+        }
+    }
 
+    function checkSomme(jInput) {
+        var str = jInput.val();
+        str = str.replace(/\€/,"");
+        str = str.replace(/,/,".");
+        var value = parseFloat(str);
+        if (isNaN(value)) {
+            jInput.addClass("ui-state-error");
+            ldc.logger.error("Somme: valeur incorrecte");
+            return false;
+        } else {
+            str = sprintf("%.2f€", value);
+            str = str.replace(/\./,",");
+            jInput.val(str);
+            jInput.removeClass("ui-state-error");
+            return true;
+        }
+    }
+
+    function checkCat(jInput) {
+        INFO("checkCat");
+        var name = jInput.val();
+        var id = ldc.cat.data.byName[name];
+        if (id == undefined) {
+            jInput.addClass("ui-state-error");
+            ldc.logger.error("Catégorie : invalide");
+            return false;
+        } else {
+            jInput.removeClass("ui-state-error");
+            return true;
+        }
+    }
+
+    function checkDate() {
+        INFO(checkDate);
+        var jInput = $("#op-form .date input");
+        if (jInput.val() == "") {
+            jInput.addClass("ui-state-error");
+            ldc.logger.error("Date : vide");
+            return false;
+        } else {
+            jInput.removeClass("ui-state-error");
+            return true;
+        }
+    }
 
     function validForm()
     {
         var error = false;
-        /* check date */
-        var jInput = $("#op-form .date input");
-        if (jInput.val() == '') {
-            jInput.addClass("ui-state-error");
-            ldc.logger.error("Date invalide");
-            error = true;
-        } else {
-            jInput.removeClass("ui-state-error");
-        }
 
+        /* check empty date */
+        if (!checkDate()) {
+            error = true;
+        }
 
 
         /* Categories */
         $(".cat-name").each(function(index) {
-                var name = this.value;
-                var id = ldc.cat.data.byName[name];
-                if (id == undefined) {
-                    $(this).addClass("ui-state-error");
-                    ldc.logger.error("Catégorie invalide");
+                if (!checkCat($(this))) {
                     error = true;
-                } else {
-                    $(this).removeClass("ui-state-error");
-                    $(this).parent().children(".cat-id").val(id);
                 }
         });
 
         /*Sommes */
         $("#op-form .somme input").each(function(index) {
-                var value = getSomme();
-                if (typeof(value) != "number" || value <= 0) {
-                    $(this).addClass("ui-state-error");
-                    ldc.logger.error("Somme invalide");
+                if (!checkSomme($(this))) {
                     error = true;
-                } else {
-                    $(this).removeClass("ui-state-error");
                 }
         });
 
@@ -231,8 +306,10 @@ ldc.form = function() {
             return false;
         }
 
-        /* Add operation and close */
-        var date = $("#op-form .date input").val();
+        /* convert date */
+        var dateStrFr = $("#op-form .date input").val();
+        var oDate     = $.datepicker.parseDate("dd/mm/yy", dateStrFr);
+        var dateStrEn = $.datepicker.formatDate("yy-mm-dd", oDate);
 
         /* from/to */
         if ($("#op-form .type select").val() == "debit") {
@@ -242,7 +319,7 @@ ldc.form = function() {
             var to = ldc.CID;
             var from = $("#op-form .compte select").val();
         } else {
-            alert("débit ou crédit?");
+            ERROR("débit ou crédit?");
         }
 
         /* description */
@@ -254,7 +331,7 @@ ldc.form = function() {
         } else if ($("#op-form .check select").val() == 'false') {
             var conf = 0;
         } else {
-            alert("pointé ou non?");
+            ERROR("pointé ou non?");
         }
 
         /* cats */
@@ -271,12 +348,12 @@ ldc.form = function() {
         /*Sommes */
         i = 0;
         $("#op-form input.somme").each(function(index) {
-                cats[i].val = getSomme();
+                cats[i].val = xtractSomme($(this));
                 i++;
         });
 
         var op = {
-            "date": date,
+            "date": dateStrEn,
             "from": from,
             "to": to,
             "description": desc,

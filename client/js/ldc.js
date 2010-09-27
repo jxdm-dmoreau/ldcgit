@@ -3,8 +3,23 @@ var ldc = {};
 ldc.data = {};
 ldc.data.cats = [];
 ldc.OID = 0;
-var DEBUG = console.debug;
-//var DEBUG = function() {};
+
+if (window.console && window.console.debug && window.console.info && window.console.error) {
+    var DEBUG = window.console.debug;
+    var INFO = window.console.info;
+    var ERROR = window.console.error;
+} else {
+    var DEBUG = function() {};
+    var INFO = function() {};
+    var ERROR = function () {};
+}
+
+/* ajax error function */
+$(document).ajaxError(function(){
+    if (window.console && window.console.error) {
+            console.error(arguments);
+    }
+});
 
 /* First function called */
 ldc.init = function() {

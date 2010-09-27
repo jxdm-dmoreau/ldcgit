@@ -170,6 +170,13 @@ div#form {
     text-align:center;
 }
 
+#op-form .date img {
+    cursor: pointer;
+}
+#op-form .date input:hover {
+    background: -moz-linear-gradient(top, #DDDDDD, #FFFFFF);
+}
+
 /***************** MAIN *************************/
 #main {
     background-color: rgba(255,255,255,0.5);
