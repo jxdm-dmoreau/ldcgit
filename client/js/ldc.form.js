@@ -5,6 +5,7 @@ ldc.form = function(pre_cb, post_cb) {
 
     var AJAX_URL = "html/form.html";
     var SELECTOR = "#form";
+    var IS_INIT = false;
 
     var CURRENT_CAT = undefined;
     
@@ -103,74 +104,7 @@ ldc.form = function(pre_cb, post_cb) {
 
 
     function fillForm() {
-        // complete HTML
-        for(var i in ldc.comptes.data) {
-            var name = ldc.comptes.data[i].bank + ' - ' + ldc.comptes.data[i].name;
-            var id = ldc.comptes.data[i].id;
-            if (id != ldc.CID) {
-                $("div#form .compte select").append('<option value="'+id+'">'+name+'</option>');
-            }
-        }
-    $("div#form .compte select").append('<option value="0">Extérieur</option>');
-
-        // débit, credit
-        $("#form .type select").change(function() {
-                if ($(this).val() == "credit") {
-                    $("#form .compte label strong").text("De :");
-                } else {
-                    $("#form .compte label strong").text("Pour :");
-                }
-        });
-
-        /* French initialisation for the jQuery UI date picker plugin. */
-        /* Written by Keith Wood (kbwood{at}iinet.com.au) and Stéphane Nahmani (sholby@sholby.net). */
-    $.datepicker.regional['fr'] = {
-        closeText: 'Fermer',
-        prevText: '&#x3c;Préc',
-        nextText: 'Suiv&#x3e;',
-        currentText: 'Courant',
-        monthNames: ['Janvier','Février','Mars','Avril','Mai','Juin',
-        'Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
-        monthNamesShort: ['Jan','Fév','Mar','Avr','Mai','Jun',
-        'Jul','Aoû','Sep','Oct','Nov','Déc'],
-        dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
-        dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
-        dayNamesMin: ['Di','Lu','Ma','Me','Je','Ve','Sa'],
-        weekHeader: 'Sm',
-        dateFormat: 'dd/mm/yy',
-        firstDay: 1,
-        isRTL: false,
-        showMonthAfterYear: false,
-        yearSuffix: ''};
-
-    $.datepicker.setDefaults($.datepicker.regional['fr']);
-
-        // datepicker
-        $("#datepicker").datepicker({
-            showOn: "button",
-            buttonImage: "images/calendar.gif",
-            buttonImageOnly: true
-        });
-
-        // somme
-        $("#op-form").delegate(".somme input", "click", clickSommeInput);
-        $("#op-form").delegate(".somme input", "blur",
-            function() {
-                checkSomme($(this));
-            }
-        );
-
-
-
-        /* Description */
-        $("#form .description").hide();
-        $("#add-desc").click(function() {
-                $(this).parent().remove();
-                $("#form .description").show();
-        });
-
-        initCategories();
-
+        clearForm();
         /* preset */
         if (ldc.OID <= 0) {
             return false;
@@ -206,6 +140,89 @@ ldc.form = function(pre_cb, post_cb) {
                 /* description */
                 $("#op-form .description textarea").val(op.description);
         });
+    }
+
+    function clearForm() {
+        $("#op-form .date input").val("");
+        /* cats & somme */
+        $("#op-form .cat").remove();
+        $(".after-cat").before(cat2html());
+        
+        /* description */
+        $("#op-form .description textarea").val("");
+        return false;
+    }
+
+
+    function fillNewForm() {
+        // complete HTML
+        for(var i in ldc.comptes.data) {
+            var name = ldc.comptes.data[i].bank + ' - ' + ldc.comptes.data[i].name;
+            var id = ldc.comptes.data[i].id;
+            if (id != ldc.CID) {
+                $("div#form .compte select").append('<option value="'+id+'">'+name+'</option>');
+            }
+        }
+        $("div#form .compte select").append('<option value="0">Extérieur</option>');
+
+        // débit, credit
+        $("#form .type select").change(function() {
+                if ($(this).val() == "credit") {
+                    $("#form .compte label strong").text("De :");
+                } else {
+                    $("#form .compte label strong").text("Pour :");
+                }
+        });
+
+        /* French initialisation for the jQuery UI date picker plugin. */
+        /* Written by Keith Wood (kbwood{at}iinet.com.au) and Stéphane Nahmani (sholby@sholby.net). */
+        $.datepicker.regional['fr'] = {
+        closeText: 'Fermer',
+        prevText: '&#x3c;Préc',
+        nextText: 'Suiv&#x3e;',
+        currentText: 'Courant',
+        monthNames: ['Janvier','Février','Mars','Avril','Mai','Juin',
+        'Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+        monthNamesShort: ['Jan','Fév','Mar','Avr','Mai','Jun',
+        'Jul','Aoû','Sep','Oct','Nov','Déc'],
+        dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+        dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+        dayNamesMin: ['Di','Lu','Ma','Me','Je','Ve','Sa'],
+        weekHeader: 'Sm',
+        dateFormat: 'dd/mm/yy',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: ''};
+
+        $.datepicker.setDefaults($.datepicker.regional['fr']);
+
+        // datepicker
+        $("#datepicker").datepicker({
+            showOn: "button",
+            buttonImage: "images/calendar.gif",
+            buttonImageOnly: true
+        });
+
+        // somme
+        $("#op-form").delegate(".somme input", "click", clickSommeInput);
+        $("#op-form").delegate(".somme input", "blur",
+            function() {
+                checkSomme($(this));
+            }
+        );
+
+
+
+        /* Description */
+        $("#form .description").hide();
+        $("#add-desc").click(function() {
+                $(this).parent().remove();
+                $("#form .description").show();
+        });
+
+        initCategories();
+
 
     }
 
@@ -256,6 +273,7 @@ ldc.form = function(pre_cb, post_cb) {
     function checkCat(jInput) {
         INFO("checkCat");
         var name = jInput.val();
+        DEBUG(name);
         var id = ldc.cat.data.byName[name];
         if (id == undefined) {
             jInput.addClass("ui-state-error");
@@ -385,20 +403,30 @@ ldc.form = function(pre_cb, post_cb) {
 
 
     function form_cb() {
-        fillForm();
-        $("#form").dialog({ 
-                modal: true,
-                buttons: { "Ok": validForm, "Annuler": function() { $(this).dialog('close');}},
-                autoOpen: true,
-                draggable: false,
-                title: 'Opérations',
-                width: 500,
-                resizable: true
-        });
+        if (!IS_INIT) {
+            fillNewForm();
+            $("#form").dialog({ 
+                    modal: true,
+                    buttons: { "Ok": validForm, "Annuler": function() { $(this).dialog('close');}},
+                    autoOpen: true,
+                    draggable: false,
+                    title: 'Opérations',
+                    width: 500,
+                    resizable: true
+            });
+            IS_INIT = true;
+        } else {
+            fillForm();
+            $("#form").dialog('open' );
+        }
     }
 
     ldc.form.open = function() {
-        $(SELECTOR).load(AJAX_URL, form_cb);
+        if (!IS_INIT) {
+            $(SELECTOR).load(AJAX_URL, form_cb);
+        } else {
+            form_cb();
+        }
         return false;
     }
 

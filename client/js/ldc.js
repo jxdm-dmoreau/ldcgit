@@ -30,7 +30,6 @@ $(document).ajaxError(function(){
 /* First function called */
 ldc.init = function() {
     preLoad("Start");
-    ldc.tabs();
     ldc.logger(preLoad, isLoaded);
     ldc.form(preLoad, isLoaded);
     ldc.catTree(preLoad, isLoaded);
@@ -38,6 +37,7 @@ ldc.init = function() {
     ldc.cat();
     ldc.op();
     ldc.topPanel();
+    ldc.tabs();
     isLoaded("End");
 };
 

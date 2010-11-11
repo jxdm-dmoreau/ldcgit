@@ -5,6 +5,7 @@ ldc.catTree = function (pre_cb, post_cb) {
 
     var AJAX_URL = "../server/get_categories3.php";
     var SELECTOR = "#cat-tree";
+    var IS_INIT = false;
 
     function storeCategories(data, textStatus) {
         ldc.data.cats = data;
@@ -18,7 +19,7 @@ ldc.catTree = function (pre_cb, post_cb) {
 
     function constructTree()  {
 
-        var jDiv = $("#cat-tree");
+        var jDiv = $(SELECTOR);
 
 
         function display_cat_r(cat, html) {
@@ -82,6 +83,7 @@ ldc.catTree = function (pre_cb, post_cb) {
             "ui" :{ "select_limit" : 1},
         });
 
+        IS_INIT = true;
 
     }
 
@@ -89,7 +91,9 @@ ldc.catTree = function (pre_cb, post_cb) {
 
 
     ldc.catTree.fill = function () {
-        getCategories();
+        if (!IS_INIT) {
+            getCategories();
+        }
     }
 
 

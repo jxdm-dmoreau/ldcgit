@@ -43,6 +43,7 @@ ldc.catTreeDialog = function() {
         function selectCat() {
             var node = ldc.catTree.getSelected();
             var name = $(node).children('a').text();
+            DEBUG("node "+name);
             name = name.substring(1, name.length);
             ldc.form.setCat(name);
             if (IS_MODIF) {
