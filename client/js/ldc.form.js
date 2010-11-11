@@ -1,5 +1,7 @@
 
-ldc.form = function() {
+ldc.form = function(pre_cb, post_cb) {
+
+    pre_cb("ldc.form");
 
     var AJAX_URL = "html/form.html";
     var SELECTOR = "#form";
@@ -52,7 +54,7 @@ ldc.form = function() {
         if (somme != undefined) {
             html += '<input class="somme" type="text" size="5"  value="'+formatSomme(somme)+'"/>';
         } else {
-            html += '<input class="somme" type="text" size="5" value=""/>';
+            html += '<input class="somme" type="text" size="5" value="" />';
         }
         if ($(".cat").length > 0) {
             html += '<a class="del" href="#">Supprimer</a>';
@@ -102,9 +104,9 @@ ldc.form = function() {
 
     function fillForm() {
         // complete HTML
-        for(var i in ldc.data.comptes) {
-            var name = ldc.data.comptes[i].bank + ' - ' + ldc.data.comptes[i].name;
-            var id = ldc.data.comptes[i].id;
+        for(var i in ldc.comptes.data) {
+            var name = ldc.comptes.data[i].bank + ' - ' + ldc.comptes.data[i].name;
+            var id = ldc.comptes.data[i].id;
             if (id != ldc.CID) {
                 $("div#form .compte select").append('<option value="'+id+'">'+name+'</option>');
             }
@@ -363,12 +365,14 @@ ldc.form = function() {
         if (ldc.OID == 0) {
             ldc.op.add(op, function() {
                     ldc.opTable.update();
+                    ldc.topPanel.update();
                     }
             );
         } else {
             op.id = ldc.OID;
             ldc.op.update(op, function() {
                     ldc.opTable.update();
+                    ldc.topPanel.update();
                 }
             );
         }
@@ -397,5 +401,7 @@ ldc.form = function() {
         $(SELECTOR).load(AJAX_URL, form_cb);
         return false;
     }
+
+    post_cb("ldc.form");
 
 }

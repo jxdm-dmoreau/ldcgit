@@ -1,5 +1,7 @@
 
-ldc.catTree = function () {
+ldc.catTree = function (pre_cb, post_cb) {
+
+    pre_cb("ldc.catTree");
 
     var AJAX_URL = "../server/get_categories3.php";
     var SELECTOR = "#cat-tree";
@@ -117,6 +119,12 @@ ldc.catTree = function () {
         var tmp = str.split('_');
         return tmp[1];
     }
+
+    $.getJSON(AJAX_URL, function(data) {
+        ldc.catTree.cats = data;
+        post_cb("ldc.catTree");
+    });
+
 }
 
 

@@ -229,14 +229,12 @@ div#form {
     font-family: "Lucida Grande", Verdana, sans-serif;
     width: 100px;
 }
-#header .nav img {
-    border: 0;
-}
-#header .nav img:hover {
-    -moz-box-shadow: 1px 1px 13px #999;  
-}
 
 #header .nav a:hover {
+    color: white;
+}
+
+#header .nav a.selected {
     color: white;
 }
 

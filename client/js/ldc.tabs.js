@@ -8,8 +8,9 @@ ldc.tabs = function ()
     ldc.CID = 0;
 
 
+
     /* PRIVATE VARIABLES */
-    var IS_TAB_INIT = [];
+    var IS_TAB_INIT = false;
     var PREFIX = "#compte-";
 
 
@@ -26,41 +27,50 @@ ldc.tabs = function ()
 
 
     /* Init a compte panel */
-    function init_compte_panel() {
-        var id = PREFIX+ldc.CID;
+    function init_compte_panel(cid) {
+        var id = PREFIX+cid;
         $(id).load("html/compte_panel.html", function() {
-                ldc.topPanel();
-                ldc.opTable(PREFIX+ldc.CID+" div.op-table");
+                ldc.opTable(PREFIX+cid+" div.op-table");
+                ldc.topPanel.update(cid);
         });
     }
 
 
 
 
-
-
     /* MAIN FUNCTION */
 
-    /* Add tabs */
-    for(var i in ldc.data.comptes) {
-        var c = ldc.data.comptes[i];
-        /* add a tab for each compte */
-        addTab("#tabs", c.id, c.bank+'-'+c.name);
+
+    ldc.tabs.init = function() {
+        /* Add tabs */
+        for(var i in ldc.comptes.data) {
+            var c = ldc.comptes.data[i];
+            /* add a tab for each compte */
+            addTab("#tabs", c.id, c.bank+'-'+c.name);
+            init_compte_panel(c.id);
+        }
+
+        /* Create jquery tabs */
+        $("#tabs").tabs({
+            show: 
+                function () {
+                    var selected = $("#tabs").tabs('option', 'selected'); // => 0
+                    ldc.CID = ldc.comptes.data[selected].id;
+                    return true;
+                }
+        });
+        IS_TAB_INIT = true;
     }
 
-    /* Create jquery tabs */
-    $("#tabs").tabs({
-        show: 
-            function () {
-                var selected = $("#tabs").tabs('option', 'selected'); // => 0
-                ldc.CID = ldc.data.comptes[selected].id;
-                if (!IS_TAB_INIT[selected]) {
-                    init_compte_panel();
-                    IS_TAB_INIT[selected] = true;
-                }
-                return true;
-            }
-    });
+
+
+    ldc.tabs.display = function() {
+        if (!IS_TAB_INIT) {
+            ldc.tabs.init();
+        }
+        $("#tabs").show();
+    }
+
 }
 
 

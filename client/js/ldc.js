@@ -4,6 +4,9 @@ ldc.data = {};
 ldc.data.cats = [];
 ldc.OID = 0;
 
+ldc.nbLoad = 0;
+ldc.totalLoad = 0;
+
 if (window.console && window.console.debug && window.console.info && window.console.error) {
     var DEBUG = window.console.debug;
     var INFO = window.console.info;
@@ -21,24 +24,36 @@ $(document).ajaxError(function(){
     }
 });
 
+
+
+
 /* First function called */
 ldc.init = function() {
-    ldc.logger();
-    ldc.form();
-    ldc.catTree();
+    preLoad("Start");
+    ldc.tabs();
+    ldc.logger(preLoad, isLoaded);
+    ldc.form(preLoad, isLoaded);
+    ldc.catTree(preLoad, isLoaded);
+    ldc.comptes(preLoad, isLoaded);
     ldc.cat();
     ldc.op();
-    $.getJSON("../server/get_comptes.php",   store_comptes);
-    $.getJSON("../server/get_categories3.php", store_categories);
-
+    ldc.topPanel();
+    isLoaded("End");
 };
 
-store_comptes = function (data, textStatus) {
-    ldc.data.comptes = data;
-    ldc.tabs();
-};
 
-store_categories = function (data, textStatus) {
-    ldc.data.cats = data;
-};
+function preLoad(str) {
+    ldc.totalLoad++;
+    DEBUG("preLoad ("+ldc.totalLoad+"): "+str);
+}
+function isLoaded(str) {
+    ldc.nbLoad++;
+    DEBUG("isLoaded ("+ldc.nbLoad+"/"+ldc.totalLoad+"): "+str);
+    if (ldc.nbLoad == ldc.totalLoad) {
+        INFO("load finished");
+        ldc.pages();
+    }
+}
+
+
 window.ldc = ldc;

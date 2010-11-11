@@ -1,5 +1,7 @@
 
-ldc.logger = function() {
+ldc.logger = function(pre_cb, post_cb) {
+
+    pre_cb("ldc.logger");
     
     function log(level, msg)
     {
@@ -36,5 +38,7 @@ ldc.logger = function() {
     {
         log('success', msg);
     }
+
+    post_cb("ldc.logger");
 
 }

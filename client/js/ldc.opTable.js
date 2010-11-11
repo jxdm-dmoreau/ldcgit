@@ -69,11 +69,11 @@ ldc.opTable = function() {
             }
             if (ldc.opTable.dataTable[ldc.CID] == undefined) {
                 $(selector+' table tbody').html(html);
-                ldc.opTable.dataTable[ldc.CID] = $(selector+' table').dataTable( {sPaginationType: 'full_numbers'});
+                ldc.opTable.dataTable[ldc.CID] = $(selector+' table').dataTable( {sPaginationType: 'two_button', iDisplayLength : "1000"});
             } else {
                 ldc.opTable.dataTable[ldc.CID].fnDestroy();
                 $(selector+' table tbody').html(html);
-                ldc.opTable.dataTable[ldc.CID] = $(selector+' table').dataTable( {sPaginationType: 'full_numbers'});
+                ldc.opTable.dataTable[ldc.CID] = $(selector+' table').dataTable( {sPaginationType: 'two_button', iDisplayLength : "1000"});
             }
             /* actions */
             $("td.op-actions").delegate(".ui-icon-trash", "click", onClickTrash);
@@ -162,6 +162,7 @@ ldc.opTable = function() {
         if (confirm("Voulez-vous supprimer l'opération "+opId+"?")) {
             ldc.op.del(opId, function() {
                     ldc.opTable.update();
+                    ldc.topPanel.update();
             });
         }
         return false;
