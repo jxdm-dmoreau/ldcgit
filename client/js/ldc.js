@@ -38,6 +38,7 @@ ldc.init = function() {
     ldc.op();
     ldc.topPanel();
     ldc.tabs();
+    ldc.stats();
     isLoaded("End");
 };
 
