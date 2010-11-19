@@ -2,9 +2,12 @@ ldc.stats = function() {
 
     var SELECTOR = "#stats";
     var IS_INIT = false;
+    ldc.stats.pie();
 
     ldc.stats.init = function() {
         var html = '<div id="test-stats"></div>';
+        $(SELECTOR).append(html);
+        html = '<div id="stats-evol"></div>';
         $(SELECTOR).append(html);
 
 
@@ -16,35 +19,24 @@ ldc.stats = function() {
                     legend.push("%%.%% - "+json[i].name);
                     data.push(json[i].value);
                 }
-                var r = Raphael("test-stats");
-                r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
-                r.g.text(320, 100, "Interactive Pie Chart").attr({"font-size": 20});
-                var pie = r.g.piechart(320, 240, 100, data,
-                    {legend: legend,
-                    legendpos: "west",
-                    href: ["http://raphaeljs.com", "http://g.raphaeljs.com"]});
-                pie.hover(
-                    function () {
-                        this.sector.stop();
-                        this.sector.scale(1.1, 1.1, this.cx, this.cy);
-                        if (this.label) {
-                            this.label[0].stop();
-                            this.label[0].scale(1.5);
-                            this.label[1].attr({"font-weight": 800});
-                        }
-                    }, function () {
-                        this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
-                        if (this.label) {
-                        this.label[0].animate({scale: 1}, 500, "bounce");
-                        this.label[1].attr({"font-weight": 400});
-                        }
-                    }
-                );
-
+                ldc.stats.pie.create({ id: "test-stats", data: data, legend:legend});
 
                 IS_INIT = true;
                 }
             );
+
+        var r = Raphael('stats-evol');
+
+           fin = function () {
+                this.flag = r.g.popup(this.bar.x, this.bar.y, this.bar.value || "0").insertBefore(this);
+            }
+        fout = function () {
+            this.flag.animate({opacity: 0}, 300, function () {this.remove();});
+    }
+        var labels = [["test", "test2", "fds", "fsd", "", "", "", ""]];
+        r.g.barchart(10, 10, 300, 220, [[55, 20, 13, 32, 5, 1, 2, 10]], {axis: "0 0 1 1"}).hover(fin, fout).label(labels);
+
+
 
 
 
