@@ -80,7 +80,7 @@ while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
         $return[$i]->description = utf8_encode($description);
         $return[$i]->confirm = $confirm;
     }
-    $return[$i]->cats[] = (object) array('id' => $cat_id, 'val' => sprintf("%.2f", $val), 'name' =>$name);
+    $return[$i]->cats[] = (object) array('id' => $cat_id, 'val' => sprintf("%.2f", $val), 'name' =>utf8_encode($name));
     DEBUG($val);
     $total +=  $val;
     $return[$i]->total = sprintf("%.2f", $total);

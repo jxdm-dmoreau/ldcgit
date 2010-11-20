@@ -24,23 +24,16 @@ ldc.stats.pie = function() {
                     allowPointSelect: true,
                     cursor: 'pointer',
                     dataLabels: {
-                        enabled: true,
-                        formatter: function() {
-                            if (this.y > 5) return this.point.name;
-                            },
-                        color: 'white',
-                        style: {
-                            font: '13px Trebuchet MS, Verdana, sans-serif'
-                            }
-                        }
+                        enabled: false,
                     }
-                },
+                }
+            },
                 legend: {
                     layout: 'vertical',
                     style: {
                         left: 'auto',
                         bottom: 'auto',
-                        right: '50px',
+                        right: '10px',
                         top: '100px'
                     }
                 },

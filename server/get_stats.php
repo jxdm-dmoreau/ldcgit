@@ -16,7 +16,7 @@ $year = $_GET['year'];
 
 function sum_children_recursif($id, $cats, $somme, &$value) {
     foreach($cats[$id] as $cat_id) {
-        $value += $somme[$cat_id];
+        $value += $somme[$cat_id]*1;
         sum_children_recursif($cat_id, $cats, $somme, $value);
     }
 }
@@ -57,7 +57,7 @@ foreach($cats[$id] as $cat_id) {
     $result[$i]['id'] = $cat_id;
     $result[$i]['name'] = $names[$cat_id];
     if (isset($somme[$cat_id])) {
-        $result[$i]['y'] = $somme[$cat_id];
+        $result[$i]['y'] = $somme[$cat_id]*1;
     } else {
         $result[$i]['y'] = 0;
     }

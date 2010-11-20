@@ -22,15 +22,31 @@ ldc.stats = function() {
 
     ldc.stats.updateHeader = function() {
         $("#stats .header span.cats").load("../server/get_cat_cb.php", function() {
-            $("#stats .header select.cats").change(ldc.stats.update);
+            $("#stats .header select.cats").change(ldc.stats.updateCat);
         });
         $("#stats .header span.year").load("../server/get_year_cb.php", function() {
-            $("#stats .header select.year").change(ldc.stats.update);
+            $("#stats .header select.year").change(ldc.stats.updateYear);
         });
     }
 
+    ldc.stats.updateYear = function() {
+        var year = $("#stats .header select.year").val();
+        if (year == undefined) {
+            var d = new Date();
+            year = d.getFullYear();
+        }
+        $.get("../server/get_evol_solde_stats.php?year="+year, function(data) {
+                var json = JSON.parse(data);
+                var graph = {};
+                graph.id = "stats-area";
+                graph.data = json;
+                ldc.stats.area(graph);
+                }
+            );
+    }
 
-    ldc.stats.update = function() {
+
+    ldc.stats.updateCat = function() {
         var year = $("#stats .header select.year").val();
         var cat_id = $("#stats .header select.cats").val();
         var cat_name = $("#stats .header select.cats option[value='"+cat_id+"']").text();
@@ -56,14 +72,11 @@ ldc.stats = function() {
                 ldc.stats.bar(graph);
                 }
             );
-        $.get("../server/get_evol_solde_stats.php?year="+year, function(data) {
-                var json = JSON.parse(data);
-                var graph = {};
-                graph.id = "stats-area";
-                graph.data = json;
-                ldc.stats.area(graph);
-                }
-            );
+    }
+
+    ldc.stats.update = function() {
+        ldc.stats.updateYear();
+        ldc.stats.updateCat();
     }
 
 

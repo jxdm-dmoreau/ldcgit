@@ -79,7 +79,7 @@ ldc.catTree = function (pre_cb, post_cb) {
                 "icons" : false
             },
             "plugins" : [ "themes",  "html_data", "ui", "crrm" ],
-            "core" : { "initially_open" : [ "cat_0" ] },
+            "core" : { "initially_open" : [ "cat_0" ], "animation": 0 },
             "ui" :{ "select_limit" : 1},
         });
 

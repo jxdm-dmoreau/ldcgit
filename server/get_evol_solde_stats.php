@@ -10,13 +10,29 @@ if (!isset($_GET['year'])) {
 
 $year = $_GET['year'];
 
+$link = mysql_connect($LDC_MYSQL_HOST, $LDC_MYSQL_USER, $LDC_MYSQL_PASSWD);
+mysql_select_db($LDC_MYSQL_DB, $link);
+
+
+$query = "SELECT val, date, `from`, `to` FROM `operations`, `valeurs` WHERE `operations`.id = `valeurs`.op_id AND date < '$year-01-01' ORDER by date";
+DEBUG($query);
+$result = mysql_query($query);
+$total = 0;
+while($row = mysql_fetch_array($result)) {
+    if ($row['from'] == 0) {
+        $total += $row['val'];
+    } else if ($row['to'] == 0) {
+        $total += -1*$row['val'];
+    }
+}
+
+
+
 
 $query = "SELECT val, date, `from`, `to` FROM `operations`, `valeurs` WHERE `operations`.id = `valeurs`.op_id AND date >= '$year-01-01' AND date <= '$year-12-31' ORDER by date";
 DEBUG($query);
 
 
-$link = mysql_connect($LDC_MYSQL_HOST, $LDC_MYSQL_USER, $LDC_MYSQL_PASSWD);
-mysql_select_db($LDC_MYSQL_DB, $link);
 
 $result = mysql_query($query);
 $somme = array();
@@ -38,7 +54,7 @@ mysql_close($link);
 $i = 0;
 for($i=0; $i < 12; $i++) {
     if ($i == 0) {
-        $data[$i] = 0;
+        $data[$i] = $total;
     } else {
         $data[$i] = $data[$i-1];
     }
