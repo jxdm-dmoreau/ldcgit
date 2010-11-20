@@ -28,15 +28,8 @@ ldc.stats.bar = function var(graph) {
         legend: {
             enabled: false
         },
-        tooltip: {
-            formatter: function() {
-                return '<b>'+ this.x +'</b><br/>'+
-                'Population in 2008: '+ Highcharts.numberFormat(this.y, 1) +
-                ' millions';
-            }
-        },
         series: [{
-            name: 'Population',
+            name: 'Dépenses (€)',
             data: graph.data,
             dataLabels: {
             enabled: true,

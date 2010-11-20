@@ -163,7 +163,7 @@ ldc.form = function(pre_cb, post_cb) {
                 $("div#form .compte select").append('<option value="'+id+'">'+name+'</option>');
             }
         }
-        $("div#form .compte select").append('<option value="0">Extérieur</option>');
+        $("div#form .compte select").append('<option selected="selected" value="0">Extérieur</option>');
 
         // débit, credit
         $("#form .type select").change(function() {

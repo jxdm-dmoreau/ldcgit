@@ -26,7 +26,7 @@ function sum_children_recursif($id, $cats, $somme, &$value) {
 $query = "
 SELECT val, cat_id, date
 FROM `valeurs`, `operations`, `categories` 
-WHERE date >= '$year-01-01' AND date <= '$year-12-31' AND cat_id = `categories`.id AND (`from` = 0  OR `to` = 0)   AND `operations`.id = op_id";
+WHERE date >= '$year-01-01' AND date <= '$year-12-31' AND cat_id = `categories`.id AND `to` = 0   AND `operations`.id = op_id";
 DEBUG($query);
 
 

@@ -380,3 +380,17 @@ background: none;
     min-height: 500px;
 }
 
+#stats-area {
+width: 800px;
+height: 300px;
+margin: auto;
+        text-align:center;
+}
+
+.clear {
+    clear:both;
+    height:1px;
+    overflow:hidden;
+}
+                                          }
+

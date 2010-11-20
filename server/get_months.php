@@ -24,6 +24,9 @@ if (!$result) {
 }
 $row = mysql_fetch_array($result);
 mysql_close($link);
+if (!isset($row['date'])) {
+    die();
+}
 $date = $row['date'];
 $tabs = preg_split('/-/', $date);
 

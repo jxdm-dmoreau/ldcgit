@@ -45,13 +45,10 @@ ldc.init = function() {
 
 function preLoad(str) {
     ldc.totalLoad++;
-    DEBUG("preLoad ("+ldc.totalLoad+"): "+str);
 }
 function isLoaded(str) {
     ldc.nbLoad++;
-    DEBUG("isLoaded ("+ldc.nbLoad+"/"+ldc.totalLoad+"): "+str);
     if (ldc.nbLoad == ldc.totalLoad) {
-        INFO("load finished");
         ldc.pages();
     }
 }

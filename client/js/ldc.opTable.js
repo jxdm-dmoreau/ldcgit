@@ -153,7 +153,6 @@ ldc.opTable = function() {
     }
 
     function onClickCheck() {
-        ldc.logger.info("check");
         return false;
     }
 
