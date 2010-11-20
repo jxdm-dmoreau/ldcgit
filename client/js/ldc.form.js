@@ -143,7 +143,7 @@ ldc.form = function(pre_cb, post_cb) {
     }
 
     function clearForm() {
-        $("#op-form .date input").val("");
+        //$("#op-form .date input").val("");
         /* cats & somme */
         $("#op-form .cat").remove();
         $(".after-cat").before(cat2html());
