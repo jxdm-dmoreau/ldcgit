@@ -46,7 +46,7 @@ ldc.tabs = function ()
         for(var i in ldc.comptes.data) {
             var c = ldc.comptes.data[i];
             /* add a tab for each compte */
-            addTab("#tabs", c.id, c.bank+'-'+c.name);
+            addTab("#tabs", c.id, c.name);
             init_compte_panel(c.id);
         }
 
