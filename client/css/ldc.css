@@ -362,3 +362,21 @@ border: 1px solid black;
     cursor: pointer;
 background: none;
 }
+
+#test-stats {
+    width: 500px;
+    float: left;
+    margin: 20px;
+}
+
+#stats-evol {
+    width: 700px;
+    float: left;
+    margin: 20px;
+}
+
+#stats {
+    background-color: white;
+    min-height: 500px;
+}
+

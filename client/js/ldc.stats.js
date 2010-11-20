@@ -5,36 +5,64 @@ ldc.stats = function() {
     ldc.stats.pie();
 
     ldc.stats.init = function() {
-        var html = '<div id="test-stats"></div>';
+        var html = '<div id="stats-datetime"></div>';
+        $(SELECTOR).append(html);
+        html = '<div id="test-stats"></div>';
         $(SELECTOR).append(html);
         html = '<div id="stats-evol"></div>';
         $(SELECTOR).append(html);
 
 
 
-        $("#stats .header select").change(ldc.stats.update);
-
+        ldc.stats.updateHeader();
         Is_INIT = true;
 
-        }
+    }
 
 
+    ldc.stats.updateHeader = function() {
+        $("#stats .header span.cats").load("../server/get_cat_cb.php", function() {
+            $("#stats .header select.cats").change(ldc.stats.update);
+        });
+        $("#stats .header span.year").load("../server/get_year_cb.php", function() {
+            $("#stats .header select.year").change(ldc.stats.update);
+        });
+    }
 
 
     ldc.stats.update = function() {
-        var year = $("#stats .header select").val();
-        $.get("../server/get_stats.php?id=0&year="+year, function(data) {
+        var year = $("#stats .header select.year").val();
+        var cat_id = $("#stats .header select.cats").val();
+        var cat_name = "";
+
+        if (year == undefined || cat_id == undefined) {
+            var d = new Date();
+            year = d.getFullYear();
+            cat_id = "0";
+            cat_name = "";
+        }
+
+        $.get("../server/get_stats.php?id="+cat_id+"&year="+year, function(data) {
                 var json = JSON.parse(data);
-                var graph = {data: json, id:"test-stats", title:"Titre"};
+                var graph = {data: json, id:"test-stats", title: cat_name};
                 ldc.stats.pie.create(graph);
                 IS_INIT = true;
                 }
             );
 
-        $.get("../server/get_evol_stats.php?id=0&year="+year, function(data) {
+        $.get("../server/get_evol_stats.php?id="+cat_id+"&year="+year, function(data) {
                 var json = JSON.parse(data);
-                var graph = {id:"stats-evol", title:"Evolution", ytitle:"Dépenses (€)", data:json};
+                var graph = {id:"stats-evol", title:cat_name, ytitle:"Dépenses (€)", data:json};
                 ldc.stats.bar(graph);
+                }
+            );
+        $.get("../server/get_evol_solde_stats.php?year="+year, function(data) {
+                var json = JSON.parse(data);
+                var graph = {};
+                graph.id = "stats-datetime";
+                graph.title = "Jie est mignonne";
+                graph.data = json;
+                ldc.stats.area(graph);
                 }
             );
     }

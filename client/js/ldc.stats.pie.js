@@ -6,7 +6,7 @@ ldc.stats.pie = function() {
         var chart = new Highcharts.Chart({
             chart: {
                 renderTo: graph.id,
-                margin: [50, 200, 60, 170]
+                margin: [50, 150, 50, 50]
             },
             title: {text: graph.title},
             plotArea: {
