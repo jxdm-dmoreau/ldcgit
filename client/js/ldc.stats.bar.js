@@ -45,7 +45,7 @@ ldc.stats.bar = function var(graph) {
                 font: 'normal 13px Verdana, sans-serif'
                     }
             }         
-        }]
+        }],
     });
 
 

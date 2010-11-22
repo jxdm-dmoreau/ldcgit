@@ -366,22 +366,21 @@ background: none;
     margin: 20px;
 }
 
-#stats-evol {
-    width: 700px;
-    float: left;
-    margin: 20px;
-}
 
 #stats {
     background-color: white;
     min-height: 500px;
 }
 
-#stats-area {
-width: 800px;
-height: 300px;
-margin: auto;
+#stats-area, #stats-pie, #stats-evol {
+    width: 800px;
+    height: 300px;
+    margin: auto;
         text-align:center;
+}
+
+#stats-pie, #stats-evol {
+    height: 400px;
 }
 
 .clear {

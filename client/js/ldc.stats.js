@@ -5,13 +5,14 @@ ldc.stats = function() {
     ldc.stats.pie();
 
     ldc.stats.init = function() {
-        var html = '<div id="stats-area"></div>';
-        $(SELECTOR).append(html);
-        html = '<div id="test-stats"></div>';
-        $(SELECTOR).append(html);
-        html = '<div id="stats-evol"></div>';
-        $(SELECTOR).append(html);
 
+        $.get("../server/get_evol_solde_stats2.php", function(data) {
+                var json = JSON.parse(data);
+                json.id = "stats-area";
+                json.title = "Capital (€)"
+                ldc.stats.area(json);
+                }
+        );
 
 
         ldc.stats.updateHeader();
@@ -25,26 +26,9 @@ ldc.stats = function() {
             $("#stats .header select.cats").change(ldc.stats.updateCat);
         });
         $("#stats .header span.year").load("../server/get_year_cb.php", function() {
-            $("#stats .header select.year").change(ldc.stats.updateYear);
+            $("#stats .header select.year").change(ldc.stats.updateCat);
         });
     }
-
-    ldc.stats.updateYear = function() {
-        var year = $("#stats .header select.year").val();
-        if (year == undefined) {
-            var d = new Date();
-            year = d.getFullYear();
-        }
-        $.get("../server/get_evol_solde_stats.php?year="+year, function(data) {
-                var json = JSON.parse(data);
-                var graph = {};
-                graph.id = "stats-area";
-                graph.data = json;
-                ldc.stats.area(graph);
-                }
-            );
-    }
-
 
     ldc.stats.updateCat = function() {
         var year = $("#stats .header select.year").val();
@@ -60,7 +44,7 @@ ldc.stats = function() {
 
         $.get("../server/get_stats.php?id="+cat_id+"&year="+year, function(data) {
                 var json = JSON.parse(data);
-                var graph = {data: json, id:"test-stats", title: cat_name};
+                var graph = {data: json, id:"stats-pie", title: cat_name};
                 ldc.stats.pie.create(graph);
                 IS_INIT = true;
                 }
@@ -75,7 +59,6 @@ ldc.stats = function() {
     }
 
     ldc.stats.update = function() {
-        ldc.stats.updateYear();
         ldc.stats.updateCat();
     }
 

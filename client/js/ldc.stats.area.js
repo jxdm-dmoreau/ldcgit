@@ -5,14 +5,22 @@ ldc.stats.area = function (graph) {
             renderTo: graph.id
         },
         title: {
-            text: null
+            text: graph.title
         },
+
         xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            categories: graph.legend,
+            labels: {
+                rotation: -45,
+                align: 'right',
+                style: {
+                    font: 'normal 13px Verdana, sans-serif'
+                }
+            }
         },
         yAxis: {
             title : {
-                text: "Capital (€)"
+                text: null
             }
         },
         series: [{
@@ -22,6 +30,13 @@ ldc.stats.area = function (graph) {
         legend: {
             enabled: false
         },
+        tooltip: {
+            formatter: function() {
+                return '<b>'+ this.x +'</b><br/>'+
+                this.y+' €';
+            }
+        },
+
         plotOptions: {
             area: {
                 fillColor: {
@@ -30,6 +45,16 @@ ldc.stats.area = function (graph) {
                         [0, 'rgb(69, 114, 167)'],
                         [1, 'rgba(2,0,0,0)']
                     ]
+                },
+                marker: {
+                    enabled: false,
+                    symbol: 'circle',
+                    radius: 2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
                 }
             }
         }
