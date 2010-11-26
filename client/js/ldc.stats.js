@@ -50,10 +50,21 @@ ldc.stats = function() {
                 }
             );
 
-        $.get("../server/get_evol_stats.php?id="+cat_id+"&year="+year, function(data) {
+        $.get("../server/get_evol_stats2.php?id="+cat_id+"&type=debit", function(data) {
                 var json = JSON.parse(data);
-                var graph = {id:"stats-evol", title:cat_name, ytitle:"Dépenses (€)", data:json};
-                ldc.stats.bar(graph);
+                json.id = "stats-evol-debit";
+                json.title = cat_name;
+                json.ytitle = "Dépenses (€)";
+                ldc.stats.bar(json);
+                }
+            );
+
+        $.get("../server/get_evol_stats2.php?id="+cat_id+"&type=credit", function(data) {
+                var json = JSON.parse(data);
+                json.id = "stats-evol-credit";
+                json.title = cat_name;
+                json.ytitle = "Revenus (€)";
+                ldc.stats.bar(json);
                 }
             );
     }

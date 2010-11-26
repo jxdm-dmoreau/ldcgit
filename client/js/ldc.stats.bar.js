@@ -10,7 +10,7 @@ ldc.stats.bar = function var(graph) {
             text: graph.title
         },
         xAxis: {
-            categories: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+            categories: graph.legend,
             labels: {
                 rotation: -45,
                 align: 'right',
@@ -32,19 +32,11 @@ ldc.stats.bar = function var(graph) {
             name: 'Dépenses (€)',
             data: graph.data,
             dataLabels: {
-            enabled: true,
-            rotation: -90,
-            color: '#FFFFFF',
-            align: 'right',
-            x: -3,
-            y: 10,
-            formatter: function() {
-                return this.y;
-            },
-            style: {
-                font: 'normal 13px Verdana, sans-serif'
-                    }
-            }         
+                enabled: true,
+                formatter: function() {
+                    return this.y+"€";
+                }
+            }
         }],
     });
 

@@ -47,9 +47,9 @@ ldc.stats.area = function (graph) {
                     ]
                 },
                 marker: {
-                    enabled: false,
+                    enabled: true,
                     symbol: 'circle',
-                    radius: 2,
+                    radius: 5,
                     states: {
                         hover: {
                             enabled: true

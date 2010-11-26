@@ -6,7 +6,6 @@ ldc.stats.pie = function() {
         var chart = new Highcharts.Chart({
             chart: {
                 renderTo: graph.id,
-                margin: [50, 150, 50, 50]
             },
             title: {text: graph.title},
             plotArea: {
@@ -24,7 +23,7 @@ ldc.stats.pie = function() {
                     allowPointSelect: true,
                     cursor: 'pointer',
                     dataLabels: {
-                        enabled: false,
+                        enabled: true,
                     }
                 }
             },
