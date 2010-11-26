@@ -66,18 +66,6 @@ foreach($cats[$id] as $cat_id) {
 }
 
 
-/* transform to %  */
-/*
-$nb_total = $i;
-$total = 0;
-for($i = 0; $i < $nb_total; $i++) {
-    $total += $result[$i]['y'];
-}
-DEBUG("total=$total");
-for($i = 0; $i < $nb_total; $i++) {
-    $result[$i]['y'] = ($result[$i]['y']*100)/$total;
-}
-*/
 
 
 mysql_close($link);

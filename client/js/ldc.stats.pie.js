@@ -24,6 +24,13 @@ ldc.stats.pie = function() {
                     cursor: 'pointer',
                     dataLabels: {
                         enabled: true,
+                    },
+                    point: {
+                        events: {
+                            click: function() {
+                                graph.onClick(graph.data[this.x].id);
+                            }
+                        }
                     }
                 }
             },

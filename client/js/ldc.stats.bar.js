@@ -28,16 +28,7 @@ ldc.stats.bar = function var(graph) {
         legend: {
             enabled: false
         },
-        series: [{
-            name: 'Dépenses (€)',
-            data: graph.data,
-            dataLabels: {
-                enabled: true,
-                formatter: function() {
-                    return this.y+"€";
-                }
-            }
-        }],
+        series: graph.data
     });
 
 

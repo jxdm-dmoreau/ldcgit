@@ -30,9 +30,26 @@ ldc.stats = function() {
         });
     }
 
-    ldc.stats.updateCat = function() {
+    function toto(cat_id) {
+        DEBUG(cat_id);
+        var html = '<div id="toto"></div>';
+        $("#stats").append(html);
+
+        $.get("../server/get_evol_stats2.php?id="+cat_id, function(data) {
+                var json = JSON.parse(data);
+                json.id = "toto";
+                json.title = "tmp";
+                ldc.stats.line(json);
+                }
+            );
+    }
+
+
+    ldc.stats.updateCat = function(cat_id) {
         var year = $("#stats .header select.year").val();
-        var cat_id = $("#stats .header select.cats").val();
+        if (cat_id == undefined) {
+            cat_id = $("#stats .header select.cats").val();
+        }
         var cat_name = $("#stats .header select.cats option[value='"+cat_id+"']").text();
 
         if (year == undefined || cat_id == undefined) {
@@ -44,29 +61,21 @@ ldc.stats = function() {
 
         $.get("../server/get_stats.php?id="+cat_id+"&year="+year, function(data) {
                 var json = JSON.parse(data);
-                var graph = {data: json, id:"stats-pie", title: cat_name};
+                var graph = {data: json, id:"stats-pie-debit", title: cat_name};
+                graph.onClick = toto;
                 ldc.stats.pie.create(graph);
                 IS_INIT = true;
                 }
             );
 
-        $.get("../server/get_evol_stats2.php?id="+cat_id+"&type=debit", function(data) {
+        $.get("../server/get_evol_stats2.php?id="+cat_id, function(data) {
                 var json = JSON.parse(data);
-                json.id = "stats-evol-debit";
+                json.id = "stats-evol-line";
                 json.title = cat_name;
-                json.ytitle = "Dépenses (€)";
-                ldc.stats.bar(json);
+                ldc.stats.line(json);
                 }
             );
 
-        $.get("../server/get_evol_stats2.php?id="+cat_id+"&type=credit", function(data) {
-                var json = JSON.parse(data);
-                json.id = "stats-evol-credit";
-                json.title = cat_name;
-                json.ytitle = "Revenus (€)";
-                ldc.stats.bar(json);
-                }
-            );
     }
 
     ldc.stats.update = function() {
